@@ -1,593 +1,214 @@
 <!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SHRBRK - Hub & Big Games</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SHRBRK - Link Hub</title>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <style>
-    :root{
-      --bg-gradient: linear-gradient(135deg,#ffe6f0 0%, #e8f6ff 50%, #fff1e6 100%);
-      --card-bg: #ffffff;
-      --card-radius: 20px;
-      --shadow: 0 10px 30px rgba(30,30,60,0.1);
-      --accent-text: #374151;
-      --gap: 20px;
-    }
+<style>
+  body {
+    margin:0;
+    font-family: "Inter", sans-serif;
+    background: linear-gradient(135deg, #00aa00, #000000);
+    color:white;
+    display:flex;
+    height:100vh;
+    overflow:hidden;
+  }
 
-    html,body{
-      min-height: 100%;
-      margin:0;
-      font-family: 'Segoe UI', Inter, sans-serif;
-      background: var(--bg-gradient);
-      overflow-x: hidden;
-    }
+  /* Sol Panel */
+  .left-panel {
+    width:33%;
+    min-width:280px;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(6px);
+    padding:40px 25px;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    gap:25px;
+  }
 
-    body {
-      display: flex;
-      flex-direction: column;
-      padding: 0 40px;
-    }
+  .left-title {
+    font-size:28px;
+    font-weight:800;
+    margin-bottom:10px;
+  }
 
-    /* --- ANA YAPI (LAYOUT) --- */
-    .main-wrapper {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between; 
-      align-items: flex-start;
-      width: 100%;
-      padding-top: 40px;
-      box-sizing: border-box;
-      max-width: 1600px; /* Geniş ekranlarda çok yayılmasın */
-      margin: 0 auto;
-    }
+  .link-list {
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+  }
 
-    /* --- OYUN KUTUSU STİLİ (GENİŞLETİLDİ) --- */
-    .game-column {
-      flex: 0 0 380px; /* Sütun genişliği arttırıldı */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-    }
+  .link-card {
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:12px 16px;
+    background:rgba(255,255,255,0.12);
+    border-radius:12px;
+    text-decoration:none;
+    color:white;
+    font-size:18px;
+    transition:0.15s;
+  }
+  .link-card:hover {
+    background:rgba(255,255,255,0.22);
+  }
 
-    .game-boy {
-      background: #e0e0e0;
-      padding: 20px; /* Çerçeve kalınlaştırıldı */
-      border-radius: 24px;
-      box-shadow: 
-        inset 4px 4px 10px rgba(255,255,255,0.8),
-        inset -4px -4px 10px rgba(0,0,0,0.1),
-        0 25px 50px rgba(0,0,0,0.2);
-      border: 1px solid #ccc;
-      position: relative;
-    }
+  .icon-box {
+    width:42px;
+    height:42px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.18);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:20px;
+  }
 
-    .screen-bezel {
-      background: #333;
-      padding: 15px;
-      border-radius: 12px 12px 30px 12px;
-    }
+  /* Sağ Panel */
+  .right-panel {
+    flex:1;
+    padding:40px;
+    overflow-y:auto;
+  }
 
-    .game-title {
-      font-weight: 800;
-      color: #555;
-      font-size: 24px;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
+  .video-box {
+    width:100%;
+    max-width:900px;
+    aspect-ratio:16/9;
+    background:black;
+    border-radius:14px;
+    overflow:hidden;
+    margin-bottom:25px;
+    box-shadow:0 0 30px rgba(0,0,0,0.4);
+  }
 
-    /* --- TETRIS ÖZEL (BÜYÜTÜLDÜ) --- */
-    .screen-container {
-      position: relative;
-      width: 300px;  /* Genişlik arttı */
-      height: 540px; /* Yükseklik arttı (Grid oranı korundu) */
-      background: #000;
-      border: 3px solid #555;
-      overflow: hidden;
-    }
-    canvas { width: 100%; height: 100%; display: block; }
+  .social-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+    max-width:900px;
+  }
 
-    /* --- 2048 ÖZEL (BÜYÜTÜLDÜ) --- */
-    .grid-container {
-      width: 340px;  /* Genişlik arttı */
-      height: 340px; /* Yükseklik arttı */
-      background: #bbada0;
-      border-radius: 8px;
-      position: relative;
-      padding: 12px;
-      box-sizing: border-box;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(4, 1fr);
-      gap: 12px;
-    }
+  .social-card {
+    background:rgba(255,255,255,0.12);
+    border-radius:14px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    text-decoration:none;
+    color:white;
+    transition:0.15s;
+  }
 
-    .grid-cell {
-      background: rgba(238, 228, 218, 0.35);
-      border-radius: 4px;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 32px; /* Yazı boyutu büyüdü */
-      font-weight: bold;
-      color: #776e65;
-      user-select: none;
-    }
-    
-    /* Dinamik Tile Renkleri */
-    .tile-2 { background: #eee4da; }
-    .tile-4 { background: #ede0c8; }
-    .tile-8 { background: #f2b179; color: #f9f6f2; }
-    .tile-16 { background: #f59563; color: #f9f6f2; }
-    .tile-32 { background: #f67c5f; color: #f9f6f2; }
-    .tile-64 { background: #f65e3b; color: #f9f6f2; }
-    .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 28px;}
-    .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 28px;}
-    .tile-512 { background: #edc850; color: #f9f6f2; font-size: 28px;}
-    .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 24px;}
-    .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 24px;}
+  .social-card:hover {
+    background:rgba(255,255,255,0.22);
+  }
 
-    /* --- ORTA ALAN (LİNKLER) --- */
-    .center-section {
-      flex: 1;
-      max-width: 500px;
-      margin: 0 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      /* Sticky özelliği ile oyunlar uzasa bile linkler ortada kalsın */
-      position: sticky; 
-      top: 40px;
-    }
+  .thumb {
+    width:110px;
+    height:110px;
+    border-radius:10px;
+    object-fit:cover;
+    background:black;
+  }
 
-    .header{ text-align:center; margin-bottom:30px; }
-    .title{ font-size:36px; font-weight:800; color:var(--accent-text); margin:0 0 8px 0; }
-    .subtitle{ font-size: 16px; color:#6b7280; }
+</style>
 
-    .list{ width:100%; display:grid; grid-template-columns:1fr; gap: 20px; }
-
-    .link-card{
-      display:flex; align-items:center; justify-content:space-between;
-      background:var(--card-bg); border-radius:var(--card-radius);
-      padding: 18px 24px;
-      box-shadow:var(--shadow);
-      text-decoration:none; color:var(--accent-text);
-      font-weight:700; font-size: 18px;
-      transition: all 0.1s ease;
-      position: relative; z-index: 1;
-    }
-
-    .link-left{ display:flex; gap:16px; align-items:center; }
-    
-    .icon{
-      width:52px; height:52px; border-radius:14px;
-      display:flex; align-items:center; justify-content:center;
-      background:linear-gradient(180deg, rgba(0,0,0,0.04), rgba(0,0,0,0.02));
-      font-size:24px;
-    }
-
-    /* Glitch Animation */
-    @keyframes glitch-skew {
-      0% { transform: skew(0deg) translate(0,0); }
-      20% { transform: skew(-1deg) translate(-2px, 1px); }
-      40% { transform: skew(1deg) translate(2px, -1px); }
-      60% { transform: skew(-0.5deg) translate(-1px, 0); }
-      80% { transform: skew(0.5deg) translate(1px, 1px); }
-      100% { transform: skew(0deg) translate(0,0); }
-    }
-
-    .link-card:hover {
-      animation: glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
-      box-shadow: -4px -4px 0px rgba(255, 0, 80, 0.7), 4px 4px 0px rgba(0, 230, 255, 0.7);
-      background-color: #fffdfd; 
-    }
-    .link-card:hover .icon i { animation: glitch-skew 0.4s reverse infinite; }
-
-    .icon.mail { background: linear-gradient(135deg,#f7f7f8,#fff); color:#0ea5a4; }
-    .icon.instagram { color: #E1306C; background: linear-gradient(135deg, rgba(225,48,108,0.06), rgba(225,48,108,0.02)); }
-    .icon.tiktok { color: #010101; background: linear-gradient(135deg, rgba(1,1,1,0.06), rgba(1,1,1,0.02)); }
-    .icon.youtube { color: #FF0000; background: linear-gradient(135deg, rgba(255,0,0,0.06), rgba(255,0,0,0.02)); }
-
-    /* Overlay & Buttons */
-    .overlay {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      color: #fff; z-index: 10; border-radius: 4px;
-    }
-    .start-btn {
-      background: #ef4444; border: none; padding: 14px 30px;
-      color: white; font-weight: bold; border-radius: 8px; font-size: 18px;
-      cursor: pointer; margin-top: 15px;
-      box-shadow: 0 4px 0 #b91c1c;
-    }
-    .start-btn:active { transform: translateY(4px); box-shadow: none; }
-    .controls-hint { font-size: 13px; color: #aaa; margin-top: 15px; text-align: center; line-height: 1.6; }
-    
-    .score-display {
-      background: #333; color: #fff; padding: 8px 16px; border-radius: 8px;
-      font-family: monospace; font-size: 18px; margin-top: 10px; font-weight: bold;
-    }
-
-    .footer { text-align: center; margin-top: 40px; color: #9ca3af; padding-bottom: 20px; width: 100%; }
-
-    /* RESPONSIVE: Oyunlar büyüdüğü için breakpoint daha erken devreye girmeli */
-    @media (max-width: 1350px){
-      .main-wrapper { 
-        flex-direction: column; 
-        align-items: center; 
-        gap: 60px;
-        padding-top: 20px;
-      }
-      .center-section { order: 1; margin: 0; width: 100%; position: static; }
-      .game-column { order: 2; width: 100%; align-items: center; }
-      /* Oyunları mobilde alt alta dizmek yerine yan yana sığarsa yan yana koyalım */
-      .game-column:first-of-type { margin-bottom: 40px; }
-    }
-  </style>
 </head>
 <body>
 
-  <div class="main-wrapper">
-    
-    <div class="game-column">
-      <div class="game-title">TETRIS</div>
-      <div class="game-boy">
-        <div class="screen-bezel">
-          <div class="screen-container">
-            <canvas id="tetris" width="300" height="540"></canvas>
-            <div id="tetris-overlay" class="overlay">
-              <h2 style="margin:0;">TETRIS</h2>
-              <button class="start-btn" onclick="startTetris()">BAŞLAT</button>
-              <div class="controls-hint">
-                <b>W, A, S, D</b><br>
-                ile Oyna
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="score-display">Skor: <span id="tetris-score">0</span></div>
+  <!-- SOL PANEL -->
+  <div class="left-panel">
+    <div>
+      <div class="left-title">SHRBRK LINK HUB</div>
+      <div style="opacity:.7; font-size:14px;">Tüm bağlantılarım tek yerde.</div>
     </div>
 
-    <div class="center-section">
-      <header class="header">
-        <h1 class="title">SOSYAL MEDYA</h1>
-        <p class="subtitle">@SHRBRK - Tüm bağlantılarım</p>
-      </header>
+    <div class="link-list">
 
-      <div class="list">
-        <a class="link-card" href="mailto:shrbrk@outlook.com" target="_blank">
-          <div class="link-left">
-            <div class="icon mail"><i class="fa-solid fa-envelope"></i></div>
-            <div class="link-text">Mail</div>
-          </div>
-          <div class="link-right"><small>shrbrk@outlook.com</small></div>
-        </a>
+      <a class="link-card" href="mailto:shrbrk@outlook.com">
+        <div class="icon-box"><i class="fa-solid fa-envelope"></i></div>
+        Mail
+      </a>
 
-        <a class="link-card" href="https://instagram.com/shrbrkofficial" target="_blank">
-          <div class="link-left">
-            <div class="icon instagram"><i class="fa-brands fa-instagram"></i></div>
-            <div class="link-text">Instagram</div>
-          </div>
-          <div class="link-right"><small>@shrbrkofficial</small></div>
-        </a>
+      <a class="link-card" href="https://www.instagram.com/canersavash/" target="_blank">
+        <div class="icon-box"><i class="fa-brands fa-instagram"></i></div>
+        Instagram
+      </a>
 
-        <a class="link-card" href="https://tiktok.com/@shrbrktw" target="_blank">
-          <div class="link-left">
-            <div class="icon tiktok"><i class="fa-brands fa-tiktok"></i></div>
-            <div class="link-text">TikTok</div>
-          </div>
-          <div class="link-right"><small>@shrbrktw</small></div>
-        </a>
+      <a class="link-card" href="https://www.tiktok.com/@shrbrktw/video/7581494520051666177" target="_blank">
+        <div class="icon-box"><i class="fa-brands fa-tiktok"></i></div>
+        TikTok
+      </a>
 
-        <a class="link-card" href="https://youtube.com/@SHRBRK" target="_blank">
-          <div class="link-left">
-            <div class="icon youtube"><i class="fa-brands fa-youtube"></i></div>
-            <div class="link-text">YouTube</div>
-          </div>
-          <div class="link-right"><small>@SHRBRK</small></div>
-        </a>
-      </div>
-      
-      <div class="footer">Made by L4VuK</div>
+      <a class="link-card" href="https://www.youtube.com/watch?v=ygJnFsWOnaw&t=7s" target="_blank">
+        <div class="icon-box"><i class="fa-brands fa-youtube"></i></div>
+        YouTube
+      </a>
+
+    </div>
+  </div>
+
+  <!-- SAĞ PANEL -->
+  <div class="right-panel">
+
+    <!-- YouTube Video -->
+    <div class="video-box">
+      <iframe width="100%" height="100%" 
+              src="https://www.youtube.com/embed/ygJnFsWOnaw?autoplay=1&mute=1"
+              frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
+      </iframe>
     </div>
 
-    <div class="game-column">
-      <div class="game-title">2048</div>
-      <div class="game-boy">
-        <div class="screen-bezel" style="background:#555;">
-          <div class="grid-container" id="grid-2048">
-            <div id="overlay-2048" class="overlay">
-              <h2 style="margin:0;">2048</h2>
-              <button class="start-btn" onclick="start2048()">BAŞLAT</button>
-              <div class="controls-hint">
-                <b>Yön Tuşları</b><br>
-                ile Oyna
-              </div>
-            </div>
-          </div>
+    <!-- Sosyal Medya Grid (TikTok + Instagram) -->
+    <div class="social-grid">
+
+      <!-- TikTok Kartı -->
+      <a class="social-card" 
+         href="https://www.tiktok.com/@shrbrktw/video/7581494520051666177"
+         target="_blank">
+        <img id="tiktokThumb" class="thumb">
+        <div>
+          <div style="font-size:20px; font-weight:700;">TikTok</div>
+          <div style="opacity:.7; font-size:14px;">Son video</div>
         </div>
-      </div>
-      <div class="score-display">Skor: <span id="score-2048">0</span></div>
+      </a>
+
+      <!-- Instagram Kartı -->
+      <a class="social-card" href="https://www.instagram.com/canersavash/" target="_blank">
+        <div class="icon-box"><i class="fa-brands fa-instagram"></i></div>
+        <div>
+          <div style="font-size:20px; font-weight:700;">Instagram</div>
+          <div style="opacity:.7; font-size:14px;">Profil</div>
+        </div>
+      </a>
+
     </div>
 
   </div>
 
-  <script>
-    /* ================= TETRIS LOGIC ================= */
-    const canvas = document.getElementById('tetris');
-    const context = canvas.getContext('2d');
-    const tetrisOverlay = document.getElementById('tetris-overlay');
-    const tetrisScoreEl = document.getElementById('tetris-score');
+<script>
+/* TikTok video thumbnail çekme */
+const tiktokURL = "https://www.tiktok.com/@shrbrktw/video/7581494520051666177";
 
-    // ÖNEMLİ: Grid yine 10x18 ama canvas artık 300x540.
-    // Bu yüzden scale 30 olmalı (300/10 = 30px blok boyutu)
-    context.scale(30, 30); 
+/* TikTok thumbnail API hack */
+fetch("https://www.tiktok.com/oembed?url=" + tiktokURL)
+  .then(res => res.json())
+  .then(data => {
+     document.getElementById("tiktokThumb").src = data.thumbnail_url;
+  });
+</script>
 
-    function createPiece(type) {
-      if (type === 'I') return [[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0]];
-      if (type === 'L') return [[0, 2, 0],[0, 2, 0],[0, 2, 2]];
-      if (type === 'J') return [[0, 3, 0],[0, 3, 0],[3, 3, 0]];
-      if (type === 'O') return [[4, 4],[4, 4]];
-      if (type === 'Z') return [[5, 5, 0],[0, 5, 5],[0, 0, 0]];
-      if (type === 'S') return [[0, 6, 6],[6, 6, 0],[0, 0, 0]];
-      if (type === 'T') return [[0, 7, 0],[7, 7, 7],[0, 0, 0]];
-    }
-
-    const tColors = [null,'#FF0D72','#0DC2FF','#0DFF72','#F538FF','#FF8E0D','#FFE138','#3877FF'];
-
-    function createMatrix(w, h) {
-      const matrix = [];
-      while (h--) matrix.push(new Array(w).fill(0));
-      return matrix;
-    }
-
-    function collide(arena, player) {
-      const m = player.matrix;
-      const o = player.pos;
-      for (let y = 0; y < m.length; ++y) {
-        for (let x = 0; x < m[y].length; ++x) {
-          if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true;
-        }
-      }
-      return false;
-    }
-
-    function drawMatrix(matrix, offset) {
-      matrix.forEach((row, y) => {
-        row.forEach((value, x) => {
-          if (value !== 0) {
-            context.fillStyle = tColors[value];
-            context.fillRect(x + offset.x, y + offset.y, 1, 1);
-            context.lineWidth = 0.05; context.strokeStyle = 'rgba(0,0,0,0.3)';
-            context.strokeRect(x + offset.x, y + offset.y, 1, 1);
-          }
-        });
-      });
-    }
-
-    function drawTetris() {
-      context.fillStyle = '#000';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      drawMatrix(arena, {x: 0, y: 0});
-      drawMatrix(player.matrix, player.pos);
-    }
-
-    function merge(arena, player) {
-      player.matrix.forEach((row, y) => {
-        row.forEach((value, x) => {
-          if (value !== 0) arena[y + player.pos.y][x + player.pos.x] = value;
-        });
-      });
-    }
-
-    function rotate(matrix, dir) {
-      for (let y = 0; y < matrix.length; ++y) {
-        for (let x = 0; x < y; ++x) {
-          [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
-        }
-      }
-      if (dir > 0) matrix.forEach(row => row.reverse());
-      else matrix.reverse();
-    }
-
-    function playerDrop() {
-      player.pos.y++;
-      if (collide(arena, player)) {
-        player.pos.y--;
-        merge(arena, player);
-        playerReset();
-        arenaSweep();
-        updateTetrisScore();
-      }
-      dropCounter = 0;
-    }
-
-    function playerMove(offset) {
-      player.pos.x += offset;
-      if (collide(arena, player)) player.pos.x -= offset;
-    }
-
-    function playerReset() {
-      const pieces = 'ILJOTSZ';
-      player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
-      player.pos.y = 0;
-      player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
-      if (collide(arena, player)) {
-        isTetrisPaused = true;
-        tetrisOverlay.style.display = 'flex';
-        arena.forEach(row => row.fill(0));
-        player.score = 0;
-        updateTetrisScore();
-      }
-    }
-
-    function playerRotate(dir) {
-      const pos = player.pos.x;
-      let offset = 1;
-      rotate(player.matrix, dir);
-      while (collide(arena, player)) {
-        player.pos.x += offset;
-        offset = -(offset + (offset > 0 ? 1 : -1));
-        if (offset > player.matrix[0].length) {
-          rotate(player.matrix, -dir);
-          player.pos.x = pos;
-          return;
-        }
-      }
-    }
-
-    function arenaSweep() {
-      let rowCount = 1;
-      outer: for (let y = arena.length -1; y > 0; --y) {
-        for (let x = 0; x < arena[y].length; ++x) if (arena[y][x] === 0) continue outer;
-        const row = arena.splice(y, 1)[0].fill(0);
-        arena.unshift(row);
-        ++y;
-        player.score += rowCount * 10;
-        rowCount *= 2;
-      }
-    }
-
-    function updateTetrisScore() { tetrisScoreEl.innerText = player.score; }
-
-    let dropCounter = 0;
-    let dropInterval = 800; 
-    let lastTime = 0;
-    let isTetrisPaused = true;
-
-    function updateTetris(time = 0) {
-      if(isTetrisPaused) return;
-      const deltaTime = time - lastTime;
-      lastTime = time;
-      dropCounter += deltaTime;
-      if (dropCounter > dropInterval) playerDrop();
-      drawTetris();
-      requestAnimationFrame(updateTetris);
-    }
-
-    const arena = createMatrix(10, 18);
-    const player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
-
-    function startTetris() {
-      tetrisOverlay.style.display = 'none';
-      isTetrisPaused = false;
-      playerReset();
-      updateTetris();
-    }
-
-    /* ================= 2048 LOGIC ================= */
-    const gridContainer = document.getElementById('grid-2048');
-    const overlay2048 = document.getElementById('overlay-2048');
-    const score2048El = document.getElementById('score-2048');
-    let board2048 = [];
-    let score2048 = 0;
-    let is2048Paused = true;
-
-    function start2048() {
-      overlay2048.style.display = 'none';
-      is2048Paused = false;
-      score2048 = 0;
-      score2048El.innerText = 0;
-      board2048 = Array(16).fill(0);
-      spawnTile();
-      spawnTile();
-      draw2048();
-    }
-
-    function draw2048() {
-      const overlay = overlay2048; 
-      gridContainer.innerHTML = '';
-      gridContainer.appendChild(overlay);
-
-      board2048.forEach(val => {
-        const div = document.createElement('div');
-        div.className = 'grid-cell';
-        if (val > 0) {
-          div.innerText = val;
-          div.classList.add(`tile-${val}`);
-        }
-        gridContainer.appendChild(div);
-      });
-    }
-
-    function spawnTile() {
-      let emptyIndices = [];
-      board2048.forEach((val, i) => { if(val === 0) emptyIndices.push(i); });
-      if (emptyIndices.length > 0) {
-        let randIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
-        board2048[randIndex] = Math.random() < 0.9 ? 2 : 4;
-      }
-    }
-
-    function slideRow(row) {
-      let arr = row.filter(val => val);
-      for (let i = 0; i < arr.length - 1; i++) {
-        if (arr[i] === arr[i + 1]) {
-          arr[i] *= 2;
-          score2048 += arr[i];
-          score2048El.innerText = score2048;
-          arr[i + 1] = 0;
-        }
-      }
-      arr = arr.filter(val => val);
-      while (arr.length < 4) arr.push(0);
-      return arr;
-    }
-
-    function move2048(direction) {
-      if(is2048Paused) return;
-      let oldBoard = [...board2048];
-      
-      if (direction === 'left' || direction === 'right') {
-        for (let i = 0; i < 16; i += 4) {
-          let row = [board2048[i], board2048[i+1], board2048[i+2], board2048[i+3]];
-          if (direction === 'right') row.reverse();
-          let newRow = slideRow(row);
-          if (direction === 'right') newRow.reverse();
-          board2048[i] = newRow[0]; board2048[i+1] = newRow[1]; board2048[i+2] = newRow[2]; board2048[i+3] = newRow[3];
-        }
-      } else if (direction === 'up' || direction === 'down') {
-        for (let i = 0; i < 4; i++) {
-          let col = [board2048[i], board2048[i+4], board2048[i+8], board2048[i+12]];
-          if (direction === 'down') col.reverse();
-          let newCol = slideRow(col);
-          if (direction === 'down') newCol.reverse();
-          board2048[i] = newCol[0]; board2048[i+4] = newCol[1]; board2048[i+8] = newCol[2]; board2048[i+12] = newCol[3];
-        }
-      }
-
-      if (JSON.stringify(oldBoard) !== JSON.stringify(board2048)) {
-        spawnTile();
-        draw2048();
-      }
-    }
-
-    document.addEventListener('keydown', event => {
-      // TETRIS
-      if (!isTetrisPaused) {
-        if (event.code === 'KeyA') playerMove(-1);
-        else if (event.code === 'KeyD') playerMove(1);
-        else if (event.code === 'KeyS') playerDrop();
-        else if (event.code === 'KeyW') playerRotate(1);
-      }
-      // 2048
-      if (!is2048Paused) {
-        if (event.key === 'ArrowLeft') { event.preventDefault(); move2048('left'); }
-        else if (event.key === 'ArrowRight') { event.preventDefault(); move2048('right'); }
-        else if (event.key === 'ArrowUp') { event.preventDefault(); move2048('up'); }
-        else if (event.key === 'ArrowDown') { event.preventDefault(); move2048('down'); }
-      }
-    });
-
-  </script>
 </body>
 </html>
+
+</body>
+</html>
+
