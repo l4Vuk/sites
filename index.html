@@ -8,213 +8,232 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
+  /* GENEL SAYFA YAPISI */
   body {
-    margin:0;
-    font-family:"Inter", sans-serif;
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    /* İSTENEN: Yukarıdan aşağı yeşil -> siyah gradient */
     background: linear-gradient(to bottom, #00cc00, #000000);
-    color:white;
-    display:flex;
-    height:100vh;
-    overflow:hidden;
+    color: white;
+    display: flex; /* Sol ve Sağ paneli yan yana koymak için */
+    height: 100vh;
+    overflow: hidden; /* Sayfa taşmasını engelle */
   }
 
-  /* Sol Panel */
+  /* SOL PANEL */
   .left-panel {
-    width:25%;
-    min-width:250px;
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(6px);
-    padding:40px 25px;
-    box-sizing:border-box;
-    display:flex;
-    flex-direction:column;
-    gap:25px;
+    /* İSTENEN: Genişlik %25 */
+    width: 25%;
+    min-width: 280px; /* Mobilde çok daralmaması için */
+    background: rgba(0, 0, 0, 0.4); /* Hafif karartma */
+    backdrop-filter: blur(10px); /* Buzlu cam efekti */
+    padding: 40px 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    border-right: 1px solid rgba(255,255,255,0.1);
   }
 
   .left-title {
-    font-size:28px;
-    font-weight:800;
-    margin-bottom:10px;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
   }
 
   .link-list {
-    display:flex;
-    flex-direction:column;
-    gap:15px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
   }
 
-  /* Link kartı */
+  /* LINK KARTLARI (BUTONLAR) */
   .link-card {
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:12px 16px;
-    background:rgba(255,255,255,0.12);
-    border-radius:12px;
-    text-decoration:none;
-    color:white;
-    font-size:18px;
-    transition:0.25s;
-    position:relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Yaylanma efekti */
+    position: relative;
   }
 
-  /* Chromatic glow */
+  /* İSTENEN: Hover'da Büyüme + Sallanma + Chromatic Glow */
   .link-card:hover {
-    background:rgba(255,255,255,0.25);
-    transform: scale(1.08) rotate(1.5deg);
-    box-shadow:
-      0 0 12px #00ff99,
-      0 0 20px #00ffee,
-      0 0 30px #00ccff;
+    background: rgba(255, 255, 255, 0.2);
+    /* Büyüme ve Hafif Dönme (Sallanma hissi) */
+    transform: scale(1.05) rotate(-2deg);
+    /* Chromatic Glow (Yeşil ve Cyan neon parlaması) */
+    box-shadow: 
+      0 0 15px rgba(0, 255, 153, 0.6),
+      0 0 30px rgba(0, 204, 255, 0.4),
+      inset 0 0 10px rgba(255, 255, 255, 0.2);
+    border-color: rgba(0, 255, 153, 0.5);
   }
 
   .icon-box {
-    width:42px;
-    height:42px;
-    border-radius:10px;
-    background:rgba(255,255,255,0.18);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:20px;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
   }
 
-  /* Sağ Panel */
+  /* SAĞ PANEL (İÇERİK ALANI) */
   .right-panel {
-    flex:1;
-    padding:40px;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:40px;
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto; /* Dikey scroll */
+    display: flex;
+    flex-direction: column;
+    /* İSTENEN: Tüm içerikler ortalanacak */
+    align-items: center; 
+    gap: 35px;
   }
 
+  /* VIDEO KUTULARI */
   .video-main {
-    width:85%;
-    max-width:900px;
-    aspect-ratio:16/9;
-    background:black;
-    border-radius:14px;
-    overflow:hidden;
-    box-shadow:0 0 30px rgba(0,0,0,0.4);
+    width: 90%;
+    max-width: 900px;
+    aspect-ratio: 16/9;
+    background: black;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255,255,255,0.1);
   }
 
   .video-small {
-    width:55%;
-    max-width:500px;
-    aspect-ratio:16/9;
-    background:black;
-    border-radius:14px;
-    overflow:hidden;
-    margin-bottom:25px;
-    box-shadow:0 0 15px rgba(0,0,0,0.4);
+    width: 60%;
+    max-width: 500px;
+    aspect-ratio: 16/9;
+    background: black;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 40px; /* En altta boşluk */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255,255,255,0.1);
   }
 
+  /* SOSYAL MEDYA KARTLARI GRİD */
   .social-grid {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:25px;
-    width:85%;
-    max-width:850px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 90%;
+    max-width: 850px;
   }
 
   .social-card {
-    background:rgba(255,255,255,0.12);
-    border-radius:14px;
-    padding:18px;
-    display:flex;
-    align-items:center;
-    gap:15px;
-    text-decoration:none;
-    color:white;
-    transition:0.15s;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    text-decoration: none;
+    color: white;
+    transition: 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .social-card:hover {
-    background:rgba(255,255,255,0.22);
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-3px);
   }
 
   .thumb {
-    width:110px;
-    height:110px;
-    border-radius:10px;
-    object-fit:cover;
-    background:black;
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #111;
   }
-</style>
 
+  /* SCROLLBAR GÖRÜNÜMÜ */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+  ::-webkit-scrollbar-thumb { background: rgba(0,255,100,0.4); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,100,0.8); }
+
+</style>
 </head>
 <body>
 
-  <!-- SOL PANEL -->
   <div class="left-panel">
     <div>
-      <div class="left-title">SHRBRK LINK HUB</div>
-      <div style="opacity:.7; font-size:14px;">Tüm bağlantılarım tek yerde.</div>
+      <div class="left-title">SHRBRK HUB</div>
+      <div style="opacity:0.8; font-size:15px; font-weight:300;">Bağlantılar ve İçerikler</div>
     </div>
 
     <div class="link-list">
-
       <a class="link-card" href="mailto:shrbrk@outlook.com">
-        <div class="icon-box"><i class="fa-solid fa-envelope"></i></div> Mail
+        <div class="icon-box"><i class="fa-solid fa-envelope"></i></div> 
+        Mail İletişim
       </a>
 
       <a class="link-card" href="https://www.instagram.com/canersavash/" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-instagram"></i></div> Instagram
+        <div class="icon-box"><i class="fa-brands fa-instagram"></i></div> 
+        Instagram
       </a>
 
       <a class="link-card" href="https://www.tiktok.com/@shrbrktw/video/7581494520051666177" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-tiktok"></i></div> TikTok
+        <div class="icon-box"><i class="fa-brands fa-tiktok"></i></div> 
+        TikTok
       </a>
 
       <a class="link-card" href="https://www.youtube.com/watch?v=ygJnFsWOnaw&t=7s" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-youtube"></i></div> YouTube
+        <div class="icon-box"><i class="fa-brands fa-youtube"></i></div> 
+        YouTube Kanalı
       </a>
-
     </div>
   </div>
 
-  <!-- SAĞ PANEL (ORTA) -->
   <div class="right-panel">
 
-    <!-- ANA VIDEO -->
     <div class="video-main">
       <iframe width="100%" height="100%" 
-              src="https://www.youtube.com/embed/ygJnFsWOnaw?autoplay=1&mute=1"
+              src="https://www.youtube.com/embed/ygJnFsWOnaw?autoplay=1&mute=1" 
               frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
       </iframe>
     </div>
 
-    <!-- SOSYAL MEDYA GÖRSELLERİ -->
     <div class="social-grid">
-
-      <!-- TikTok -->
-      <a class="social-card"
-         href="https://www.tiktok.com/@shrbrktw/video/7581494520051666177"
-         target="_blank">
-        <img id="tiktokThumb" class="thumb">
+      
+      <a class="social-card" href="https://www.tiktok.com/@shrbrktw/video/7581494520051666177" target="_blank">
+        <img id="tiktokThumb" class="thumb" alt="TikTok Thumb">
         <div>
-          <div style="font-size:20px; font-weight:700;">TikTok</div>
-          <div style="opacity:.7; font-size:14px;">Son video</div>
+          <div style="font-size:22px; font-weight:700;">TikTok</div>
+          <div style="opacity:0.7; font-size:14px; margin-top:4px;">Son viral video</div>
         </div>
       </a>
 
-      <!-- Instagram -->
       <a class="social-card" href="https://www.instagram.com/canersavash/" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-instagram"></i></div>
+        <div class="icon-box" style="width:100px; height:100px; font-size:40px; background:rgba(255,255,255,0.05);">
+            <i class="fa-brands fa-instagram"></i>
+        </div>
         <div>
-          <div style="font-size:20px; font-weight:700;">Instagram</div>
-          <div style="opacity:.7; font-size:14px;">Profil</div>
+          <div style="font-size:22px; font-weight:700;">Instagram</div>
+          <div style="opacity:0.7; font-size:14px; margin-top:4px;">@canersavash</div>
         </div>
       </a>
 
     </div>
 
-    <!-- EK YOUTUBE (KÜÇÜK) -->
     <div class="video-small">
-      <iframe width="100%" height="100%"
-              src="https://www.youtube.com/embed/dJePNIhwf9o"
+      <iframe width="100%" height="100%" 
+              src="https://www.youtube.com/embed/dJePNIhwf9o" 
               frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
       </iframe>
     </div>
@@ -222,13 +241,19 @@
   </div>
 
 <script>
-/* TikTok video thumbnail çekme */
+/* TikTok Thumbnail API (Not: Bazı tarayıcılarda CORS hatası verebilir, sunucuda çalışır) */
 const tiktokURL = "https://www.tiktok.com/@shrbrktw/video/7581494520051666177";
+const thumbImg = document.getElementById("tiktokThumb");
 
 fetch("https://www.tiktok.com/oembed?url=" + tiktokURL)
   .then(res => res.json())
   .then(data => {
-     document.getElementById("tiktokThumb").src = data.thumbnail_url;
+      thumbImg.src = data.thumbnail_url;
+  })
+  .catch(err => {
+      console.log("Thumbnail yüklenemedi:", err);
+      // Hata olursa varsayılan bir görsel veya ikon gösterilebilir
+      thumbImg.style.display = "none"; 
   });
 </script>
 
