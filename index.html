@@ -10,8 +10,8 @@
 <style>
   body {
     margin:0;
-    font-family: "Inter", sans-serif;
-    background: linear-gradient(135deg, #00aa00, #000000);
+    font-family:"Inter", sans-serif;
+    background: linear-gradient(to bottom, #00cc00, #000000);
     color:white;
     display:flex;
     height:100vh;
@@ -20,9 +20,9 @@
 
   /* Sol Panel */
   .left-panel {
-    width:33%;
-    min-width:280px;
-    background: rgba(0,0,0,0.35);
+    width:25%;
+    min-width:250px;
+    background: rgba(0,0,0,0.3);
     backdrop-filter: blur(6px);
     padding:40px 25px;
     box-sizing:border-box;
@@ -43,6 +43,7 @@
     gap:15px;
   }
 
+  /* Link kartı */
   .link-card {
     display:flex;
     align-items:center;
@@ -53,10 +54,18 @@
     text-decoration:none;
     color:white;
     font-size:18px;
-    transition:0.15s;
+    transition:0.25s;
+    position:relative;
   }
+
+  /* Chromatic glow */
   .link-card:hover {
-    background:rgba(255,255,255,0.22);
+    background:rgba(255,255,255,0.25);
+    transform: scale(1.08) rotate(1.5deg);
+    box-shadow:
+      0 0 12px #00ff99,
+      0 0 20px #00ffee,
+      0 0 30px #00ccff;
   }
 
   .icon-box {
@@ -75,24 +84,39 @@
     flex:1;
     padding:40px;
     overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:40px;
   }
 
-  .video-box {
-    width:100%;
+  .video-main {
+    width:85%;
     max-width:900px;
     aspect-ratio:16/9;
     background:black;
     border-radius:14px;
     overflow:hidden;
-    margin-bottom:25px;
     box-shadow:0 0 30px rgba(0,0,0,0.4);
+  }
+
+  .video-small {
+    width:55%;
+    max-width:500px;
+    aspect-ratio:16/9;
+    background:black;
+    border-radius:14px;
+    overflow:hidden;
+    margin-bottom:25px;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
   }
 
   .social-grid {
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:25px;
-    max-width:900px;
+    width:85%;
+    max-width:850px;
   }
 
   .social-card {
@@ -118,7 +142,6 @@
     object-fit:cover;
     background:black;
   }
-
 </style>
 
 </head>
@@ -134,44 +157,40 @@
     <div class="link-list">
 
       <a class="link-card" href="mailto:shrbrk@outlook.com">
-        <div class="icon-box"><i class="fa-solid fa-envelope"></i></div>
-        Mail
+        <div class="icon-box"><i class="fa-solid fa-envelope"></i></div> Mail
       </a>
 
       <a class="link-card" href="https://www.instagram.com/canersavash/" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-instagram"></i></div>
-        Instagram
+        <div class="icon-box"><i class="fa-brands fa-instagram"></i></div> Instagram
       </a>
 
       <a class="link-card" href="https://www.tiktok.com/@shrbrktw/video/7581494520051666177" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-tiktok"></i></div>
-        TikTok
+        <div class="icon-box"><i class="fa-brands fa-tiktok"></i></div> TikTok
       </a>
 
       <a class="link-card" href="https://www.youtube.com/watch?v=ygJnFsWOnaw&t=7s" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-youtube"></i></div>
-        YouTube
+        <div class="icon-box"><i class="fa-brands fa-youtube"></i></div> YouTube
       </a>
 
     </div>
   </div>
 
-  <!-- SAĞ PANEL -->
+  <!-- SAĞ PANEL (ORTA) -->
   <div class="right-panel">
 
-    <!-- YouTube Video -->
-    <div class="video-box">
+    <!-- ANA VIDEO -->
+    <div class="video-main">
       <iframe width="100%" height="100%" 
               src="https://www.youtube.com/embed/ygJnFsWOnaw?autoplay=1&mute=1"
               frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
       </iframe>
     </div>
 
-    <!-- Sosyal Medya Grid (TikTok + Instagram) -->
+    <!-- SOSYAL MEDYA GÖRSELLERİ -->
     <div class="social-grid">
 
-      <!-- TikTok Kartı -->
-      <a class="social-card" 
+      <!-- TikTok -->
+      <a class="social-card"
          href="https://www.tiktok.com/@shrbrktw/video/7581494520051666177"
          target="_blank">
         <img id="tiktokThumb" class="thumb">
@@ -181,7 +200,7 @@
         </div>
       </a>
 
-      <!-- Instagram Kartı -->
+      <!-- Instagram -->
       <a class="social-card" href="https://www.instagram.com/canersavash/" target="_blank">
         <div class="icon-box"><i class="fa-brands fa-instagram"></i></div>
         <div>
@@ -192,13 +211,20 @@
 
     </div>
 
+    <!-- EK YOUTUBE (KÜÇÜK) -->
+    <div class="video-small">
+      <iframe width="100%" height="100%"
+              src="https://www.youtube.com/embed/dJePNIhwf9o"
+              frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
+      </iframe>
+    </div>
+
   </div>
 
 <script>
 /* TikTok video thumbnail çekme */
 const tiktokURL = "https://www.tiktok.com/@shrbrktw/video/7581494520051666177";
 
-/* TikTok thumbnail API hack */
 fetch("https://www.tiktok.com/oembed?url=" + tiktokURL)
   .then(res => res.json())
   .then(data => {
@@ -208,7 +234,3 @@ fetch("https://www.tiktok.com/oembed?url=" + tiktokURL)
 
 </body>
 </html>
-
-</body>
-</html>
-
