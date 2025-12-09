@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SHRBRK - Media Center</title>
+<title>SHRBRK - Media Center & Arcade</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
@@ -46,7 +46,7 @@
     padding: 40px 20px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 50px; /* Bölümler arası boşluk */
   }
 
   /* --- BAŞLIK --- */
@@ -57,7 +57,6 @@
     border-radius: 20px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 20px;
   }
   
   h1 {
@@ -76,31 +75,34 @@
     letter-spacing: 2px;
   }
 
+  /* --- GENEL BAŞLIK STİLİ --- */
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-left: 10px;
+    border-left: 4px solid #4D4FA7;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  }
+
   /* --- GRID DÜZENİ (SOL: MENÜ | SAĞ: VİDEOLAR) --- */
   .dashboard-grid {
     display: grid;
-    grid-template-columns: 350px 1fr; /* Sol 350px sabit, Sağ kalan alan */
+    grid-template-columns: 350px 1fr;
     gap: 30px;
     width: 100%;
   }
 
-  /* --- SOL TARAFTAKİ BUTONLAR --- */
+  /* --- SOL MENU --- */
   .sidebar-menu {
     display: flex;
     flex-direction: column;
     gap: 15px;
     position: sticky;
-    top: 20px; /* Sayfa kaydığında butonlar takip etsin */
+    top: 20px;
     height: fit-content;
-  }
-
-  .sidebar-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-    padding-left: 10px;
-    border-left: 4px solid #4D4FA7;
-    text-transform: uppercase;
   }
 
   .btn-link {
@@ -117,7 +119,7 @@
   }
 
   .btn-link:hover {
-    transform: translateX(10px); /* Üzerine gelince sağa kaysın */
+    transform: translateX(10px);
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.5);
   }
@@ -141,8 +143,7 @@
   .btn-link:hover .btn-icon.kick { background: #53FC18; color: black; }
   .btn-link:hover .btn-icon.new { background: #fff; color: black; }
 
-
-  /* --- SAĞ TARAFTAKİ VİDEOLAR --- */
+  /* --- SAĞ İÇERİK (VİDEOLAR) --- */
   .content-area {
     display: flex;
     flex-direction: column;
@@ -160,11 +161,66 @@
   }
   .video-container iframe { width: 100%; height: 100%; border: none; }
 
-  /* --- ALT KISIM (SHORTS & REELS) --- */
-  .bottom-section {
+  /* --- OYUN ALANI STİLLERİ --- */
+  .game-wrapper {
     width: 100%;
-    margin-top: 20px;
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.1);
   }
+
+  #game {
+    width: 100%;
+    height: 300px;
+    position: relative;
+    background-color: #1a1a1a;
+    background-image: url('https://i.imgur.com/qL8w7vV.jpeg'); /* Arkaplan */
+    background-repeat: repeat-x;
+    background-position: bottom left;
+    background-size: auto 100%;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+    cursor: pointer;
+  }
+
+  #dino {
+    width: 50px; height: auto; position: absolute; bottom: 0; left: 50px; z-index: 2;
+    transition: transform 0.2s; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+  }
+  #enemy {
+    width: 80px; height: auto; position: absolute; bottom: 10px; right: 10px; z-index: 2;
+    animation: hoverEnemy 2s infinite ease-in-out; filter: drop-shadow(0 0 5px rgba(255,0,0,0.3));
+  }
+  @keyframes hoverEnemy { 0% { bottom: 10px; } 50% { bottom: 80px; } 100% { bottom: 10px; } }
+  
+  .bullet {
+    width: 30px; height: 15px; position: absolute; background-color: #ff3333; border-radius: 50%; z-index: 3;
+    box-shadow: 0 0 10px #ff3333;
+  }
+  .animate { animation: jump 600ms linear; }
+  @keyframes jump { 0% { bottom: 0; } 40% { bottom: 130px; } 60% { bottom: 130px; } 100% { bottom: 0; } }
+  
+  .cactus { width: 50px; height: auto; position: absolute; bottom: 0; z-index: 1; filter: brightness(0.8); }
+  .cloud { width: 100px; height: auto; position: absolute; top: 50px; opacity: 0.5; z-index: 0; }
+  
+  #score {
+    position: absolute; top: 15px; right: 20px; font-size: 24px; font-weight: bold; color: #fff; z-index: 4;
+    font-family: 'Courier New', monospace; text-shadow: 0 2px 4px black;
+  }
+  #controls-hint {
+    position: absolute; top: 15px; left: 20px; font-size: 12px; color: #ccc;
+    background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 4px;
+  }
+  #info {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 24px; color: white; background-color: #d32f2f; padding: 20px; border-radius: 10px;
+    text-align: center; z-index: 5; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+  }
+
+  /* --- ALT KISIM (SHORTS & REELS) --- */
   .shorts-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -178,30 +234,20 @@
     overflow: hidden;
     border: 1px solid rgba(255,255,255,0.15);
   }
-
-  /* Şapka Dekoru */
   .hat-decoration {
     position: absolute; top: -25px; left: -25px; width: 140px; z-index: 20;
     pointer-events: none; filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.5));
   }
 
-  /* --- FOOTER --- */
-  footer {
-    text-align: center;
-    padding: 40px;
-    opacity: 0.7;
-  }
-
-  /* --- RESPONSIVE (MOBİL) --- */
+  /* --- RESPONSIVE --- */
   @media (max-width: 1024px) {
-    .dashboard-grid { grid-template-columns: 1fr; } /* Mobilde alt alta */
-    .sidebar-menu { position: static; display: grid; grid-template-columns: 1fr 1fr; } /* Mobilde butonlar 2'li olsun */
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .sidebar-menu { position: static; display: grid; grid-template-columns: 1fr 1fr; }
     .shorts-grid { grid-template-columns: 1fr; }
     .vertical-box { height: 600px; }
   }
-
   @media (max-width: 600px) {
-    .sidebar-menu { grid-template-columns: 1fr; } /* Telefonda tek sıra */
+    .sidebar-menu { grid-template-columns: 1fr; }
     h1 { font-size: 2.5rem; }
   }
 </style>
@@ -220,7 +266,7 @@
   <div class="dashboard-grid">
 
     <aside class="sidebar-menu">
-      <div class="sidebar-title">Hesaplarımız</div>
+      <div class="section-title">Hesaplarımız</div>
 
       <a href="https://www.youtube.com/@SHRBRK" target="_blank" class="btn-link">
         <div class="btn-icon yt"><i class="fa-brands fa-youtube"></i></div>
@@ -242,7 +288,7 @@
         <div class="btn-text">Kick</div>
       </a>
 
-      <div class="sidebar-title" style="margin-top: 20px; border-color: #fff;">Diğer Linkler</div>
+      <div class="section-title" style="margin-top: 20px; border-color: #fff;">Diğer Linkler</div>
 
       <a href="#" target="_blank" class="btn-link">
         <div class="btn-icon new"><i class="fa-solid fa-gamepad"></i></div>
@@ -258,33 +304,42 @@
         <div class="btn-icon new"><i class="fa-solid fa-shop"></i></div>
         <div class="btn-text">Mağaza / Shop</div>
       </a>
-
     </aside>
 
     <main class="content-area">
-      <div class="sidebar-title" style="border-color: #FF0000;">Son Videolar</div>
+      <div class="section-title" style="border-color: #FF0000;">Son Videolar</div>
       
       <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA" 
-                allowfullscreen>
-        </iframe>
+        <iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA" allowfullscreen></iframe>
       </div>
 
       <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/dJePNIhwf9o" 
-                allowfullscreen>
-        </iframe>
+        <iframe src="https://www.youtube.com/embed/dJePNIhwf9o" allowfullscreen></iframe>
       </div>
     </main>
 
   </div>
 
+  <div class="game-wrapper">
+    <div class="section-title" style="border-color: #53FC18;">SHRBRK ARCADE: BOSS MODE</div>
+    <div id="game">
+        <div id="score">Skor: 0</div>
+        <div id="controls-hint">Zıpla: BOŞLUK veya TIKLA | Dönüşüm: C Tuşu</div>
+        <div id="info">OYUN BİTTİ!<br><small>Yeniden başlamak için tıkla</small></div>
+        
+        <img id="dino" src="" alt="">
+        <img id="enemy" src="" alt="">
+    </div>
+  </div>
+
   <section class="bottom-section">
-    <div class="sidebar-title" style="margin-bottom: 20px;">Kısa İçerikler</div>
+    <div class="section-title">Kısa İçerikler</div>
     
     <div class="shorts-grid">
       <div class="vertical-box">
-        
+        <img src="https://github.com/l4Vuk/sites/blob/main/hat.png?raw=true" class="hat-decoration" alt="Hat">
+        <iframe src="https://www.youtube.com/embed?listType=playlist&list=UUlK9upmQDJxAqcGBw8oh0oA" 
+                style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
       </div>
 
       <div class="vertical-box" style="background: black;">
@@ -292,9 +347,7 @@
             data-instgrm-permalink="https://www.instagram.com/reel/DSAsvLpiGfL/?utm_source=ig_embed&amp;utm_campaign=loading" 
             data-instgrm-version="14" 
             style="background:#000; border:0; border-radius:3px; box-shadow:none; margin:0; padding:0; width:100%; height:100%;"> 
-             <div style="padding:16px; color:#fff; display:flex; justify-content:center; align-items:center; height:100%;">
-                Yükleniyor...
-             </div>
+             <div style="padding:16px; color:#fff; display:flex; justify-content:center; align-items:center; height:100%;">Yükleniyor...</div>
         </blockquote>
         <script async src="//www.instagram.com/embed.js"></script>
       </div>
@@ -308,6 +361,7 @@
 </div>
 
 <script>
+    /* --- PARÇACIK EFEKTİ --- */
     function createParticles(e, element) {
         const rect = element.getBoundingClientRect();
         const particleCount = 5;
@@ -346,8 +400,161 @@
             if(Math.random() > 0.7) createParticles(e, el);
         });
     });
+
+    /* --- OYUN MANTIĞI --- */
+    const dino = document.getElementById("dino");
+    const enemy = document.getElementById("enemy");
+    const game = document.getElementById("game");
+    const scoreElement = document.getElementById("score");
+    const infoElement = document.getElementById("info");
+    
+    let isJumping = false;
+    let score = 0;
+    let gameOver = false;
+    let gameSpeed = 6;
+    let isSecondForm = false; 
+
+    // GÖRSELLER (Placeholder)
+    const dinoImgUrl1 = "https://i.imgur.com/ExampleDino.png";   
+    const dinoImgUrl2 = "https://i.imgur.com/ExampleDino2.png";  
+    const enemyImgUrl = "https://i.imgur.com/ExampleEnemy.png";  
+    const bulletImgUrl = "https://i.imgur.com/ExampleBullet.png"; 
+    const cactus1ImgUrl = "https://i.imgur.com/ExampleCactus1.png"; 
+    const cactus2ImgUrl = "https://i.imgur.com/ExampleCactus2.png"; 
+    const cloudImgUrl = "https://i.imgur.com/ExampleCloud.png";    
+
+    dino.src = dinoImgUrl1;
+    enemy.src = enemyImgUrl;
+
+    function jump(e) {
+        if (gameOver) return;
+        if (e.type === 'keydown' && e.code !== 'Space') return;
+        if (isJumping) return;
+
+        isJumping = true;
+        dino.classList.add("animate");
+        setTimeout(function() {
+            dino.classList.remove("animate");
+            isJumping = false;
+        }, 600);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.code === 'KeyC' && !gameOver) {
+            if (!isSecondForm) {
+                dino.src = dinoImgUrl2; isSecondForm = true; dino.style.transform = "scale(1.2)";
+            } else {
+                dino.src = dinoImgUrl1; isSecondForm = false; dino.style.transform = "scale(1)";
+            }
+        }
+    });
+
+    document.addEventListener('keydown', jump);
+    game.addEventListener('click', jump);
+
+    function shootBullet() {
+        if (gameOver) return;
+        let bullet = document.createElement("img");
+        bullet.src = bulletImgUrl;
+        bullet.classList.add("bullet");
+        
+        let startPos = game.offsetWidth - 80; 
+        let enemyBottom = parseInt(window.getComputedStyle(enemy).getPropertyValue("bottom"));
+        bullet.style.bottom = (enemyBottom + 20) + "px"; 
+        bullet.style.left = startPos + "px"; 
+        
+        game.appendChild(bullet);
+
+        let bulletLeft = startPos;
+        let bulletSpeed = gameSpeed + 3; 
+
+        let bulletTimer = setInterval(function() {
+            if (gameOver) { clearInterval(bulletTimer); return; }
+            bulletLeft -= bulletSpeed;
+            bullet.style.left = bulletLeft + 'px';
+            let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
+            
+            if (bulletLeft > 50 && bulletLeft < 80 && dinoBottom < (enemyBottom + 40) && dinoBottom > (enemyBottom - 10)) {
+                if (dinoBottom < 50) { gameOver = true; endGame(); clearInterval(bulletTimer); }
+            }
+            if (bulletLeft < -30) {
+                clearInterval(bulletTimer);
+                if(game.contains(bullet)) game.removeChild(bullet);
+            }
+        }, 20);
+        setTimeout(shootBullet, Math.random() * 2000 + 1000);
+    }
+
+    function createCactus() {
+        if (gameOver) return;
+        let cactus = document.createElement("img");
+        cactus.src = Math.random() > 0.5 ? cactus1ImgUrl : cactus2ImgUrl;
+        cactus.classList.add("cactus");
+        game.appendChild(cactus);
+        
+        let cactusLeft = game.offsetWidth; 
+        cactus.style.left = cactusLeft + 'px';
+
+        let timerId = setInterval(function() {
+            if (gameOver) { clearInterval(timerId); return; }
+            cactusLeft -= gameSpeed;
+            cactus.style.left = cactusLeft + 'px';
+            let dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue("bottom"));
+            
+            if (cactusLeft > 40 && cactusLeft < 90 && dinoBottom < 45) {
+                gameOver = true; endGame(); clearInterval(timerId);
+            }
+            if (cactusLeft < -50) {
+                clearInterval(timerId);
+                if(game.contains(cactus)) game.removeChild(cactus);
+                score++;
+                scoreElement.innerHTML = 'Skor: ' + score;
+            }
+        }, 20);
+        setTimeout(createCactus, Math.random() * 1500 + 1000);
+    }
+
+    function createCloud() {
+        if (gameOver) return;
+        let cloud = document.createElement("img");
+        cloud.src = cloudImgUrl;
+        cloud.classList.add("cloud");
+        cloud.style.top = Math.random() * 100 + 30 + 'px';
+        game.appendChild(cloud);
+        let cloudLeft = game.offsetWidth + 50;
+        cloud.style.left = cloudLeft + 'px';
+        let timerId = setInterval(function() {
+            if (gameOver) { clearInterval(timerId); return; }
+            cloudLeft -= (gameSpeed / 2);
+            cloud.style.left = cloudLeft + 'px';
+            if (cloudLeft < -120) {
+                clearInterval(timerId);
+                if(game.contains(cloud)) game.removeChild(cloud);
+            }
+        }, 50);
+        setTimeout(createCloud, Math.random() * 4000 + 2000);
+    }
+
+    function endGame() {
+        infoElement.style.display = "block";
+        enemy.style.animation = "none";
+    }
+
+    function increaseSpeed() {
+        if (gameOver) return;
+        gameSpeed += 0.3;
+        if (gameSpeed > 18) gameSpeed = 18;
+        setTimeout(increaseSpeed, 4000);
+    }
+
+    // Başlat
+    createCactus();
+    createCloud();
+    shootBullet(); 
+    increaseSpeed();
+
+    infoElement.addEventListener('click', function() { location.reload(); });
 </script>
 
 </body>
 </html>
-
