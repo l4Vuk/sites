@@ -8,42 +8,37 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-  /* GENEL AYARLAR */
+  /* --- GENEL AYARLAR --- */
   body {
     margin: 0;
     font-family: "Inter", sans-serif;
-    background-color: #000000; /* Tamamen siyah arka plan */
-    color: #ffffff; /* Beyaz yazı rengi */
+    background-color: #000000; /* Tam Siyah */
+    color: #ffffff;
     display: flex;
     justify-content: center;
     min-height: 100vh;
     box-sizing: border-box;
   }
 
-  /* ANA İÇERİK KONTEYNERİ */
   .main-container {
     width: 100%;
-    max-width: 1200px; /* Çok geniş ekranlarda içeriği merkeze toplamak için */
+    max-width: 1200px;
     padding: 50px 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 50px; /* Bölümler arası boşluk */
+    gap: 50px;
   }
 
-  /* BAŞLIK ALANI */
-  .header-section {
-    text-align: center;
-  }
-
+  /* --- BAŞLIK --- */
+  .header-section { text-align: center; }
   .main-title {
-    font-size: 4rem; /* Büyük, iddialı başlık */
+    font-size: 4rem;
     font-weight: 900;
     letter-spacing: -2px;
     margin: 0;
     text-transform: uppercase;
   }
-
   .sub-title {
     font-size: 1.2rem;
     opacity: 0.7;
@@ -51,69 +46,111 @@
     font-weight: 300;
   }
 
-  /* BUTON SATIRI (Tam genişlik ve eşit dağılım) */
+  /* --- LINK BUTONLARI --- */
   .button-row {
     width: 100%;
     display: flex;
-    justify-content: space-between; /* Eşit dağıt */
-    gap: 20px; /* Butonlar arası minimum boşluk */
-    flex-wrap: wrap; /* Mobilde alt alta geçebilsin */
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
   }
 
-  /* LINK BUTONLARI */
+  /* Kartın Temel Hali */
   .link-card {
-    flex: 1; /* Mevcut boşluğu eşit olarak paylaş */
-    min-width: 200px; /* Mobilde çok küçülmemesi için */
+    flex: 1;
+    min-width: 200px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* İçeriği ortala */
     gap: 15px;
-    padding: 20px;
-    border: 2px solid #ffffff; /* Beyaz çerçeve */
-    border-radius: 16px;
+    padding: 15px 20px;
+    border: 1px solid rgba(255,255,255,0.3); /* Hafif gri çerçeve */
+    border-radius: 12px;
     text-decoration: none;
     color: #ffffff;
     font-size: 18px;
     font-weight: 600;
-    transition: all 0.3s ease;
-    background: transparent;
+    transition: all 0.2s ease;
+    background: rgba(255,255,255,0.05); /* Çok hafif dolgu */
+    position: relative;
+    overflow: hidden; /* Taşmaları gizle */
   }
 
-  /* Buton Hover Efekti (Siyah/Beyaz Ters Çevirme ve Parlama) */
+  /* --- GLITCH ANIMATION KEYFRAMES (Senin Kodun) --- */
+  @keyframes glitch-skew {
+    0% { transform: skew(0deg) translate(0,0); }
+    20% { transform: skew(-1deg) translate(-2px, 1px); }
+    40% { transform: skew(1deg) translate(2px, -1px); }
+    60% { transform: skew(-0.5deg) translate(-1px, 0); }
+    80% { transform: skew(0.5deg) translate(1px, 1px); }
+    100% { transform: skew(0deg) translate(0,0); }
+  }
+
+  /* Hover Efekti */
   .link-card:hover {
-    background: #ffffff;
-    color: #000000; /* Yazı rengini siyaha çevir */
-    transform: translateY(-5px);
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); /* Beyaz parlama */
+    animation: glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+    box-shadow: -4px -4px 0px rgba(255, 0, 80, 0.7), 4px 4px 0px rgba(0, 230, 255, 0.7);
+    background-color: #fffdfd;
+    color: #000000; /* Arka plan beyaz olunca yazıyı siyah yap */
+    border-color: transparent;
   }
 
-  /* Buton İçi İkon Kutusu */
-  .icon-box {
-    font-size: 24px;
-    transition: all 0.3s ease;
+  /* İkon Animasyonu */
+  .link-card:hover .icon i { 
+    animation: glitch-skew 0.4s reverse infinite; 
+  }
+
+  /* --- İKON STİLLERİ (Senin Kodun) --- */
+  .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    transition: 0.3s;
+  }
+
+  /* Özelleştirilmiş İkon Renkleri */
+  .icon.mail { background: linear-gradient(135deg,#f7f7f8,#fff); color:#0ea5a4; }
+  
+  /* Diğer ikonların arka planları çok açık renkli olduğu için siyah temada görünür olması adına border ekledim veya renkleri düzenledim */
+  .icon.instagram { 
+    color: #E1306C; 
+    background: #fff; /* Siyah temada görünmesi için beyaz zemin */
   }
   
-  /* Hover durumunda ikonun rengini de değiştir */
-  .link-card:hover .icon-box {
-      color: #000000;
+  .icon.tiktok { 
+    color: #010101; 
+    background: #fff; 
+  }
+  
+  .icon.youtube { 
+    color: #FF0000; 
+    background: #fff; 
   }
 
+  /* Hover durumunda ikonların orijinal stillerini koru veya değiştir */
+  .link-card:hover .icon.instagram { background: linear-gradient(135deg, rgba(225,48,108,0.1), rgba(225,48,108,0.05)); }
+  .link-card:hover .icon.tiktok { background: linear-gradient(135deg, rgba(1,1,1,0.1), rgba(1,1,1,0.05)); }
+  .link-card:hover .icon.youtube { background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(255,0,0,0.05)); }
 
-  /* VİDEO SATIRI (İki Sütunlu Grid) */
+
+  /* --- VIDEO BÖLÜMÜ --- */
   .video-row {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr; /* İki eşit sütun */
+    grid-template-columns: 1fr 1fr;
     gap: 30px;
     align-items: start;
   }
 
-  /* Video Konteynerları (16/9 Oranını Korumak İçin) */
   .video-container {
     position: relative;
     width: 100%;
-    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-    background: #111; /* Video yüklenirken koyu gri arka plan */
+    padding-bottom: 56.25%;
+    background: #111;
     border-radius: 20px;
     overflow: hidden;
     border: 1px solid rgba(255,255,255,0.1);
@@ -122,21 +159,15 @@
 
   .video-container iframe {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
   }
 
-  /* MOBİL UYUMLULUK (Tablet ve Telefonlar için) */
+  /* MOBİL */
   @media (max-width: 768px) {
     .main-title { font-size: 3rem; }
-    /* Butonlar mobilde alt alta tam genişlik olsun */
-    .link-card { flex: 100%; } 
-    /* Videolar mobilde alt alta geçsin */
+    .link-card { flex: 100%; }
     .video-row { grid-template-columns: 1fr; }
   }
-
 </style>
 </head>
 <body>
@@ -145,47 +176,47 @@
     
     <div class="header-section">
       <h1 class="main-title">SHRBRK</h1>
-      <div class="sub-title">Resmi Bağlantı Merkezi</div>
+      <div class="sub-title">Link Hub</div>
     </div>
 
     <div class="button-row">
       <a class="link-card" href="mailto:shrbrk@outlook.com">
-        <div class="icon-box"><i class="fa-solid fa-envelope"></i></div> 
-        İletişim / Mail
+        <div class="icon mail"><i class="fa-solid fa-envelope"></i></div> 
+        <span>Mail</span>
       </a>
 
-      <a class="link-card" href="https://www.instagram.com/canersavash/" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-instagram"></i></div> 
-        Instagram Profili
+      <a class="link-card" href="https://www.instagram.com/shrbrkofficial/" target="_blank">
+        <div class="icon instagram"><i class="fa-brands fa-instagram"></i></div> 
+        <span>Instagram</span>
       </a>
 
-      <a class="link-card" href="https://www.tiktok.com/@shrbrktw/video/7581494520051666177" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-tiktok"></i></div> 
-        Son TikTok Videosu
+      <a class="link-card" href="https://www.tiktok.com/@shrbrktw" target="_blank">
+        <div class="icon tiktok"><i class="fa-brands fa-tiktok"></i></div> 
+        <span>TikTok</span>
       </a>
 
-      <a class="link-card" href="https://www.youtube.com/watch?v=ygJnFsWOnaw&t=7s" target="_blank">
-        <div class="icon-box"><i class="fa-brands fa-youtube"></i></div> 
-        YouTube Kanalı
+      <a class="link-card" href="https://www.youtube.com/@SHRBRK" target="_blank">
+        <div class="icon youtube"><i class="fa-brands fa-youtube"></i></div> 
+        <span>YouTube</span>
       </a>
     </div>
 
     <div class="video-row">
       
       <div class="video-wrapper">
-        <h3 style="text-align:center; margin-bottom:15px;">Ana Video</h3>
+        <h3 style="text-align:center; margin-bottom:15px; font-weight:300;">Ana Video</h3>
         <div class="video-container">
           <iframe src="https://www.youtube.com/embed/ygJnFsWOnaw?autoplay=0" 
-                  frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                  frameborder="0" allowfullscreen>
           </iframe>
         </div>
       </div>
 
       <div class="video-wrapper">
-        <h3 style="text-align:center; margin-bottom:15px;">Diğer İçerik</h3>
+        <h3 style="text-align:center; margin-bottom:15px; font-weight:300;">Shorts / Ekstra</h3>
         <div class="video-container">
           <iframe src="https://www.youtube.com/embed/dJePNIhwf9o" 
-                  frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                  frameborder="0" allowfullscreen>
           </iframe>
         </div>
       </div>
