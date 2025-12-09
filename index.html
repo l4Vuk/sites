@@ -3,387 +3,350 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SHRBRK - Link Hub</title>
+<title>SHRBRK - Media Center</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
 
 <style>
-  /* --- GENEL AYARLAR --- */
-  body, html {
-    height: 100%;
-    padding: 0;
-    margin: 0;
-  }
+  /* --- TEMEL AYARLAR --- */
+  * { box-sizing: border-box; }
 
   body {
-    font-family: "Inter", sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: 'Outfit', sans-serif;
     color: #ffffff;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; 
-    min-height: 100vh;
-    box-sizing: border-box;
-    overflow-x: hidden;
-    
-    background-image: url('https://cdnb.artstation.com/p/assets/images/images/094/345/873/4k/milena-storm-bookcover-portfolio.webp?1765194744');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed; 
+    background-color: #111; 
+    overflow-x: hidden; 
   }
 
-  /* --- GRADIENT KATMANI --- */
-  .gradient {
-    position: fixed; 
-    top: 0;
-    left: 0;
+  /* --- HAREKETLİ ARKA PLAN --- */
+  .animated-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #4D4FA7, #000000);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* --- ANA KAPSAYICI --- */
+  .main-wrapper {
     width: 100%;
-    height: 100%;
-    background-image: radial-gradient(at 50% 50%, rgba(0,0,0,.7) 0, #4D4FA7 90%);
-    opacity: 0.8; 
-    mix-blend-mode: multiply; 
-    z-index: 1; 
-    pointer-events: none; 
-  }
-
-  /* --- ANA KONTEYNER --- */
-  .main-container {
-    width: 75vw; /* Ekranın %75'i */
-    max-width: 1600px; 
-    margin-top: 5vh;
-    margin-bottom: 5vh;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 40px 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 40px; 
-    position: relative;
-    z-index: 2; 
-  }
-
-  /* --- PARTICLE EFEKT STİLİ --- */
-  .particle {
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    top: 0;
-    left: 0;
-    border-radius: 50%; 
+    gap: 40px;
   }
 
   /* --- BAŞLIK --- */
-  .header-section { text-align: center; margin-bottom: 10px; }
-  .main-title {
-    font-size: 4vw; 
-    max-font-size: 6rem;
-    font-weight: 900;
-    letter-spacing: -3px;
+  header {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
     margin: 0;
     text-transform: uppercase;
-    text-shadow: 0 4px 15px rgba(0,0,0,0.6);
-    line-height: 1;
+    background: linear-gradient(to right, #fff, #bbb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  .sub-title {
+  
+  .subtitle {
     font-size: 1.1rem;
-    opacity: 0.8;
-    margin-top: 5px;
-    font-weight: 300;
+    color: rgba(255, 255, 255, 0.7);
     letter-spacing: 2px;
   }
 
-  /* --- LINK BUTONLARI --- */
-  .button-row {
-    width: 100%;
+  /* --- GRID DÜZENİ (SOL: MENÜ | SAĞ: VİDEOLAR) --- */
+  .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); 
-    gap: 20px;
+    grid-template-columns: 350px 1fr; /* Sol 350px sabit, Sağ kalan alan */
+    gap: 30px;
+    width: 100%;
   }
 
-  .link-card {
+  /* --- SOL TARAFTAKİ BUTONLAR --- */
+  .sidebar-menu {
     display: flex;
-    align-items: center;
-    justify-content: center; 
+    flex-direction: column;
     gap: 15px;
-    padding: 25px 15px; 
-    border: 1px solid rgba(255,255,255,0.2); 
-    border-radius: 16px;
-    text-decoration: none;
-    color: #ffffff;
+    position: sticky;
+    top: 20px; /* Sayfa kaydığında butonlar takip etsin */
+    height: fit-content;
+  }
+
+  .sidebar-title {
     font-size: 1.2rem;
-    font-weight: 700;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    background: rgba(0,0,0,0.6); 
-    position: relative;
-    overflow: hidden; 
-    backdrop-filter: blur(12px); 
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    border-left: 4px solid #4D4FA7;
     text-transform: uppercase;
   }
 
-  @keyframes glitch-skew {
-    0% { transform: skew(0deg) translate(0,0); }
-    20% { transform: skew(-1deg) translate(-2px, 1px); }
-    40% { transform: skew(1deg) translate(2px, -1px); }
-    60% { transform: skew(-0.5deg) translate(-1px, 0); }
-    80% { transform: skew(0.5deg) translate(1px, 1px); }
-    100% { transform: skew(0deg) translate(0,0); }
+  .btn-link {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: rgba(30, 30, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
   }
 
-  .link-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(255,255,255,0.8);
-    background-color: rgba(255,255,255,0.1);
-    border-color: transparent;
-  }
-  .link-card:hover .icon i { animation: glitch-skew 0.4s reverse infinite; }
-
-  .icon { width: 45px; height: 45px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 24px; transition: 0.3s; }
-  
-  .icon.mail { background: linear-gradient(135deg,#f7f7f8,#fff); color:#0ea5a4; }
-  .icon.instagram { color: #E1306C; background: #fff; }
-  .icon.tiktok { color: #010101; background: #fff; }
-  .icon.youtube { color: #FF0000; background: #fff; }
-  .icon.kick { color: #000000; background: #53FC18; }
-  
-  .link-card:hover .icon.instagram { background: linear-gradient(135deg, rgba(225,48,108,1), rgba(225,48,108,0.8)); color: white; }
-  .link-card:hover .icon.tiktok { background: linear-gradient(135deg, rgba(255,255,255,1), rgba(200,200,200,1)); color: black; }
-  .link-card:hover .icon.youtube { background: linear-gradient(135deg, rgba(255,0,0,1), rgba(200,0,0,1)); color: white; }
-  .link-card:hover .icon.kick { background: linear-gradient(135deg, #53FC18, #42c713); color: black; }
-
-
-  /* --- VIDEO VE SOSYAL MEDYA BAŞLIKLARI --- */
-  .section-title {
-    margin: 0 0 15px 0;
-    font-weight: 400;
-    font-size: 1.1rem;
-    color: rgba(255,255,255,0.8);
-    background: rgba(0,0,0,0.5);
-    display: inline-block;
-    padding: 5px 15px;
-    border-radius: 20px;
-    backdrop-filter: blur(5px);
-    width: 100%;
-    text-align: center;
+  .btn-link:hover {
+    transform: translateX(10px); /* Üzerine gelince sağa kaysın */
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
   }
 
-  /* --- VIDEO ALANI (YATAY) --- */
-  .video-row {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .btn-icon {
+    width: 40px; height: 40px;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 20px;
+    border-radius: 10px;
+    margin-right: 15px;
+    background: rgba(255,255,255,0.1);
+    transition: 0.3s;
+  }
+
+  .btn-text { font-size: 1.2rem; font-weight: 700; }
+
+  /* İkon Renkleri */
+  .btn-link:hover .btn-icon.yt { background: #FF0000; }
+  .btn-link:hover .btn-icon.ig { background: #E1306C; }
+  .btn-link:hover .btn-icon.tt { background: #000000; border: 1px solid #333; }
+  .btn-link:hover .btn-icon.kick { background: #53FC18; color: black; }
+  .btn-link:hover .btn-icon.new { background: #fff; color: black; }
+
+
+  /* --- SAĞ TARAFTAKİ VİDEOLAR --- */
+  .content-area {
+    display: flex;
+    flex-direction: column;
     gap: 30px;
-    align-items: start;
   }
 
   .video-container {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
     background: #000;
-    border-radius: 24px;
+    border-radius: 20px;
     overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-    transition: transform 0.3s ease;
+    aspect-ratio: 16/9;
   }
-  .video-container:hover { transform: scale(1.02); border-color: rgba(255,255,255,0.3); }
-  .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .video-container iframe { width: 100%; height: 100%; border: none; }
 
-
-  /* --- SOSYAL MEDYA ALANI (DİKEY - SHORTS & INSTA) --- */
-  .social-feed-row {
+  /* --- ALT KISIM (SHORTS & REELS) --- */
+  .bottom-section {
     width: 100%;
+    margin-top: 20px;
+  }
+  .shorts-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
-    align-items: start;
   }
-
-  .social-widget {
-    position: relative;
-    width: 100%;
-    height: 700px; /* Dikey içerik için uzunluk */
+  .vertical-box {
+    height: 700px;
     background: #111;
     border-radius: 24px;
-    overflow: hidden; /* Taşmayı engelle */
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.15);
   }
 
-  /* Insta Özel Ayar */
-  .social-widget.insta-bg {
-    background: #000;
-    filter: brightness(0.9) contrast(1.1);
+  /* Şapka Dekoru */
+  .hat-decoration {
+    position: absolute; top: -25px; left: -25px; width: 140px; z-index: 20;
+    pointer-events: none; filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.5));
   }
 
-  .social-widget iframe { 
-    width: 100%; 
-    height: 100%; 
-    border: none;
-    border-radius: 24px;
+  /* --- FOOTER --- */
+  footer {
+    text-align: center;
+    padding: 40px;
+    opacity: 0.7;
   }
 
-  .footer-area {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  
-  .footer-link {
-    width: auto;
-    padding: 15px 40px;
-    border-radius: 50px;
-  }
-
-  /* --- RESPONSIVE --- */
-  @media (max-width: 1400px) {
-    .main-container { width: 90vw; } 
-  }
-
+  /* --- RESPONSIVE (MOBİL) --- */
   @media (max-width: 1024px) {
-    .button-row { grid-template-columns: 1fr 1fr; }
+    .dashboard-grid { grid-template-columns: 1fr; } /* Mobilde alt alta */
+    .sidebar-menu { position: static; display: grid; grid-template-columns: 1fr 1fr; } /* Mobilde butonlar 2'li olsun */
+    .shorts-grid { grid-template-columns: 1fr; }
+    .vertical-box { height: 600px; }
   }
 
-  @media (max-width: 768px) {
-    .main-title { font-size: 3rem; }
-    .button-row { grid-template-columns: 1fr; }
-    .video-row, .social-feed-row { grid-template-columns: 1fr; } /* Mobilde alt alta */
-    .social-widget { height: 500px; } /* Mobilde biraz kısalt */
+  @media (max-width: 600px) {
+    .sidebar-menu { grid-template-columns: 1fr; } /* Telefonda tek sıra */
+    h1 { font-size: 2.5rem; }
   }
 </style>
 </head>
 <body>
 
-  <div class="gradient"></div>
+<div class="animated-bg"></div>
 
-  <div class="main-container">
-    
-    <div class="header-section">
-      <h1 class="main-title">SHRBRK</h1>
-      <div class="sub-title">Seher ÖZDEN - Burak SEYMEN</div>
-    </div>
+<div class="main-wrapper">
 
-    <div class="button-row">
-      <a class="link-card" href="https://www.youtube.com/@SHRBRK" target="_blank">
-        <div class="icon youtube"><i class="fa-brands fa-youtube"></i></div> 
-        <span>YouTube</span>
+  <header>
+    <h1>SHRBRK</h1>
+    <div class="subtitle">Seher ÖZDEN & Burak SEYMEN</div>
+  </header>
+
+  <div class="dashboard-grid">
+
+    <aside class="sidebar-menu">
+      <div class="sidebar-title">Hesaplarımız</div>
+
+      <a href="https://www.youtube.com/@SHRBRK" target="_blank" class="btn-link">
+        <div class="btn-icon yt"><i class="fa-brands fa-youtube"></i></div>
+        <div class="btn-text">YouTube</div>
       </a>
 
-      <a class="link-card" href="https://www.instagram.com/shrbrkofficial/" target="_blank">
-        <div class="icon instagram"><i class="fa-brands fa-instagram"></i></div> 
-        <span>Instagram</span>
+      <a href="https://www.instagram.com/shrbrkofficial/" target="_blank" class="btn-link">
+        <div class="btn-icon ig"><i class="fa-brands fa-instagram"></i></div>
+        <div class="btn-text">Instagram</div>
       </a>
 
-      <a class="link-card" href="https://www.tiktok.com/@shrbrktw" target="_blank">
-        <div class="icon tiktok"><i class="fa-brands fa-tiktok"></i></div> 
-        <span>TikTok</span>
+      <a href="https://www.tiktok.com/@shrbrktw" target="_blank" class="btn-link">
+        <div class="btn-icon tt"><i class="fa-brands fa-tiktok"></i></div>
+        <div class="btn-text">TikTok</div>
       </a>
 
-      <a class="link-card" href="https://kick.com/shrbrk" target="_blank">
-        <div class="icon kick"><i class="fa-brands fa-kickstarter-k"></i></div> 
-        <span>Kick</span>
+      <a href="https://kick.com/shrbrk" target="_blank" class="btn-link">
+        <div class="btn-icon kick"><i class="fa-brands fa-kickstarter-k"></i></div>
+        <div class="btn-text">Kick</div>
       </a>
-    </div>
 
-    <div class="video-row">
-      <div class="video-wrapper">
-        <h3 class="section-title"><i class="fa-solid fa-film"></i> Yayın Kesitlerimiz</h3>
-        <div class="video-container">
-          <iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA" 
-                  frameborder="0" allowfullscreen>
-          </iframe>
-        </div>
+      <div class="sidebar-title" style="margin-top: 20px; border-color: #fff;">Diğer Linkler</div>
+
+      <a href="#" target="_blank" class="btn-link">
+        <div class="btn-icon new"><i class="fa-solid fa-gamepad"></i></div>
+        <div class="btn-text">Discord (Yakında)</div>
+      </a>
+
+      <a href="#" target="_blank" class="btn-link">
+        <div class="btn-icon new"><i class="fa-brands fa-spotify"></i></div>
+        <div class="btn-text">Spotify Listemiz</div>
+      </a>
+
+      <a href="#" target="_blank" class="btn-link">
+        <div class="btn-icon new"><i class="fa-solid fa-shop"></i></div>
+        <div class="btn-text">Mağaza / Shop</div>
+      </a>
+
+    </aside>
+
+    <main class="content-area">
+      <div class="sidebar-title" style="border-color: #FF0000;">Son Videolar</div>
+      
+      <div class="video-container">
+        <iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA" 
+                allowfullscreen>
+        </iframe>
       </div>
-      <div class="video-wrapper">
-         <h3 class="section-title"><i class="fa-solid fa-gamepad"></i> Oyun Ve Vlog</h3>
-         <div class="video-container"> 
-            <iframe src="https://www.youtube.com/embed/dJePNIhwf9o" 
-                    frameborder="0" allowfullscreen>
-            </iframe>
-        </div>
+
+      <div class="video-container">
+        <iframe src="https://www.youtube.com/embed/dJePNIhwf9o" 
+                allowfullscreen>
+        </iframe>
       </div>
-    </div>
-
-    <div class="social-feed-row">
-        
-        <div class="social-wrapper">
-            <h3 class="section-title"><i class="fa-brands fa-youtube"></i> Son Short</h3>
-            <div class="social-widget">
-               
-                <iframe src="https://www.youtube.com/embed?listType=playlist&list=UUlK9upmQDJxAqcGBw8oh0oA" 
-                        title="Latest Shorts" 
-                        allowfullscreen>
-                </iframe>
-            </div>
-        </div>
-
-        <div class="social-wrapper">
-            <h3 class="section-title"><i class="fa-brands fa-instagram"></i> Instagram Reels</h3>
-            <div class="social-widget insta-bg">
-                <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/reel/DSAsvLpiGfL/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" 
-                style="background:#1a1a1a; border:0; border-radius:3px; box-shadow:none; margin: 0; padding:0; width:100%; height: 100%;">
-                    <div style="padding:16px;"> 
-                        <a href="https://www.instagram.com/reel/DSAsvLpiGfL/?utm_source=ig_embed&amp;utm_campaign=loading" style="background:#1a1a1a; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> 
-                         <div style="color:#c9c8cd; padding: 20px;">Yükleniyor...</div>
-                         </a>
-                    </div>
-                </blockquote>
-                <script async src="//www.instagram.com/embed.js"></script>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="footer-area">
-      <a class="link-card footer-link" href="mailto:shrbrk@outlook.com">
-        <div class="icon mail"><i class="fa-solid fa-envelope"></i></div> 
-        <span>İletişim / Mail</span>
-      </a>
-    </div>
+    </main>
 
   </div>
 
+  <section class="bottom-section">
+    <div class="sidebar-title" style="margin-bottom: 20px;">Kısa İçerikler</div>
+    
+    <div class="shorts-grid">
+      <div class="vertical-box">
+        <img src="https://github.com/l4Vuk/sites/blob/main/hat.png?raw=true" class="hat-decoration" alt="Hat">
+        <iframe src="https://www.youtube.com/embed?listType=playlist&list=UUlK9upmQDJxAqcGBw8oh0oA" 
+                style="width:100%; height:100%; border:none;" allowfullscreen></iframe>
+      </div>
+
+      <div class="vertical-box" style="background: black;">
+        <blockquote class="instagram-media" 
+            data-instgrm-permalink="https://www.instagram.com/reel/DSAsvLpiGfL/?utm_source=ig_embed&amp;utm_campaign=loading" 
+            data-instgrm-version="14" 
+            style="background:#000; border:0; border-radius:3px; box-shadow:none; margin:0; padding:0; width:100%; height:100%;"> 
+             <div style="padding:16px; color:#fff; display:flex; justify-content:center; align-items:center; height:100%;">
+                Yükleniyor...
+             </div>
+        </blockquote>
+        <script async src="//www.instagram.com/embed.js"></script>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div style="color: #aaa;">&copy; 2025 SHRBRK. Tüm hakları saklıdır.</div>
+  </footer>
+
+</div>
+
 <script>
-    // --- PARTICLE EFEKTİ ---
-    function createEdgeParticles(element) {
+    function createParticles(e, element) {
         const rect = element.getBoundingClientRect();
-        const particleCount = 15; 
-        const colors = ['#ffffff', '#ff0050', '#00e6ff'];
+        const particleCount = 5;
+        const colors = ['#fff', '#FF0050', '#00e6ff'];
 
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
             particle.classList.add('particle');
             document.body.appendChild(particle);
-
-            const size = Math.floor(Math.random() * 5 + 3);
+            
+            const size = Math.random() * 5 + 2;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
-            
-            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            const side = Math.floor(Math.random() * 4);
-            
-            let startX, startY, destX, destY;
-            const spreadDistance = 30; 
+            particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.position = 'fixed';
+            particle.style.borderRadius = '50%';
+            particle.style.pointerEvents = 'none';
+            particle.style.zIndex = '9999';
 
-            switch(side) {
-                case 0: startX = rect.left + Math.random() * rect.width; startY = rect.top; destX = startX + (Math.random() - 0.5) * 100; destY = startY - spreadDistance; break;
-                case 1: startX = rect.right; startY = rect.top + Math.random() * rect.height; destX = startX + spreadDistance; destY = startY + (Math.random() - 0.5) * 100; break;
-                case 2: startX = rect.left + Math.random() * rect.width; startY = rect.bottom; destX = startX + (Math.random() - 0.5) * 100; destY = startY + spreadDistance; break;
-                case 3: startX = rect.left; startY = rect.top + Math.random() * rect.height; destX = startX - spreadDistance; destY = startY + (Math.random() - 0.5) * 100; break;
-            }
+            const x = e.clientX;
+            const y = e.clientY;
+            const destX = x + (Math.random() - 0.5) * 60;
+            const destY = y + (Math.random() - 0.5) * 60;
 
             const animation = particle.animate([
-                { transform: `translate3d(${startX}px, ${startY}px, 0)`, opacity: 1 },
-                { transform: `translate3d(${destX}px, ${destY}px, 0) rotate(${Math.random() * 360}deg)`, opacity: 0 }
-            ], { duration: 800 + Math.random() * 600, easing: 'ease-out' });
+                { transform: `translate(${x}px, ${y}px)`, opacity: 1 },
+                { transform: `translate(${destX}px, ${destY}px)`, opacity: 0 }
+            ], { duration: 500, easing: 'ease-out' });
 
-            animation.onfinish = () => { particle.remove(); };
+            animation.onfinish = () => particle.remove();
         }
     }
 
-    // Hem video hem sosyal medya widgetları için efekt aktif
-    const cards = document.querySelectorAll('.link-card, .video-container, .social-widget');
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', (e) => { createEdgeParticles(card); });
+    document.querySelectorAll('.btn-link, .video-container, .vertical-box').forEach(el => {
+        el.addEventListener('mousemove', (e) => {
+            if(Math.random() > 0.7) createParticles(e, el);
+        });
     });
 </script>
 
