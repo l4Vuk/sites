@@ -564,8 +564,8 @@
     function increaseSpeed() {
         if (gameOver) return;
         gameSpeed += 0.5;
-        if (gameSpeed > 40) gameSpeed = 40;
-        setTimeout(increaseSpeed, 4000);
+        if (gameSpeed > 80) gameSpeed = 80;
+        setTimeout(increaseSpeed, 1000);
     }
 
     createCactus();
@@ -579,4 +579,5 @@
 
 </body>
 </html>
+
 
