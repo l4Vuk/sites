@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHRBRK - Final Control</title>
+    <title>SHRBRK - Orbitron Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Kanit:wght@500;900&family=Montserrat:wght@300;500&display=swap');
+        /* --- YENİ FONT PAKETİ (ORBITRON & RAJDHANI) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
 
         /* --- DEĞİŞKENLER --- */
         :root {
             --bg-color: #050505;
-            --text-primary: #f0e6d2;
+            --text-primary: #f0e6d2; /* Gold/Krem */
             --text-secondary: #ffffff;
             --drawer-bg: rgba(10, 10, 10, 0.95);
             --card-bg: #1a1a1a;
@@ -20,6 +21,7 @@
             --shadow-color: rgba(0,0,0,0.8);
             --icon-fill: #666;
             --icon-hover-text: #fff;
+            --card-transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         body.light-mode {
@@ -44,56 +46,146 @@
             color: var(--text-secondary);
             min-height: 250vh; 
             overflow-x: hidden;
-            /* Dikey scroll varsayılan açık, JS ile yöneteceğiz */
-            overflow-y: auto;
-            font-family: 'Montserrat', sans-serif;
+            /* Ana metin fontu: Rajdhani */
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
             display: flex; flex-direction: column; align-items: center;
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
         /* --- HEADER --- */
         .header { text-align: center; margin-top: 5vh; z-index: 200; position: relative; flex-shrink: 0; }
+        
         h1 {
-            font-family: 'Abril Fatface', serif; font-size: 5rem; color: var(--text-primary); margin: 0;
-            letter-spacing: 2px; text-shadow: 4px 4px 0px var(--border-color); cursor: default;
-            transition: color 0.5s;
+            /* BAŞLIK FONTU: ORBITRON */
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900; /* Ekstra Kalın */
+            font-size: 5rem; 
+            color: var(--text-primary); margin: 0;
+            letter-spacing: 5px; /* Geniş aralık */
+            text-shadow: 4px 4px 0px var(--border-color); 
+            cursor: pointer;
+            transition: color 0.5s, transform 0.2s;
         }
-        h2 { font-size: 1.1rem; font-weight: 300; letter-spacing: 1px; margin-top: 5px; color: var(--text-primary); opacity: 0.8; transition: color 0.5s; }
+        h1:hover { transform: scale(1.02); }
+        h1:active { transform: scale(0.98); }
 
-        /* --- HERO --- */
+        h2 { 
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem; 
+            font-weight: 600; 
+            letter-spacing: 8px; /* Çok geniş aralık modern durur */
+            margin-top: 5px; 
+            color: var(--text-primary); 
+            opacity: 0.8; 
+            text-transform: uppercase;
+            transition: color 0.5s; 
+        }
+
+        /* --- LOBBY CONTAINER (ANASAYFA) --- */
         .page-content-wrapper {
-            width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 40px;
+            width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 30px;
         }
-        .hero-container {
-            width: 85%; height: 65vh; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 60px; box-sizing: border-box; border: 1px solid var(--border-color);
-            border-radius: 30px; background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(10px);
-            position: relative; overflow: hidden; transition: border 0.5s;
+
+        .lobby-container {
+            display: flex; gap: 15px; width: 90%; height: 65vh; perspective: 1000px;
         }
-        .hero-content { flex: 1; z-index: 2; }
-        .hero-subtitle { font-size: 1.2rem; letter-spacing: 5px; color: var(--text-primary); opacity: 0.8; margin-bottom: 10px; font-family: 'Kanit', sans-serif; }
-        .hero-title { font-size: 5.5rem; line-height: 0.9; margin: 0 0 25px 0; font-family: 'Abril Fatface', serif; color: var(--text-secondary); text-shadow: 4px 4px 0px var(--border-color); }
-        .hero-desc { font-size: 1.1rem; line-height: 1.6; color: var(--text-secondary); opacity: 0.7; max-width: 550px; margin-bottom: 40px; font-weight: 300; }
-        .hero-buttons { display: flex; gap: 20px; }
-        .glitch-btn { padding: 15px 40px; background: var(--text-primary); color: var(--bg-color); font-weight: 900; text-decoration: none; font-family: 'Kanit', sans-serif; letter-spacing: 1px; transition: all 0.3s; }
-        .glitch-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--text-primary); }
-        .ghost-btn { padding: 15px 40px; border: 2px solid var(--text-primary); color: var(--text-primary); font-weight: 900; text-decoration: none; font-family: 'Kanit', sans-serif; letter-spacing: 1px; transition: all 0.3s; }
-        .ghost-btn:hover { background: var(--text-primary); color: var(--bg-color); }
-        .hero-visual { flex: 1; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; }
-        .visual-circle { width: 450px; height: 450px; border-radius: 50%; border: 1px solid var(--border-color); position: absolute; animation: rotateCircle 25s linear infinite; }
-        .visual-circle::before { content: ''; position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; background: var(--text-primary); border-radius: 50%; box-shadow: 0 0 20px var(--text-primary); }
-        .visual-text { font-size: 12rem; font-family: 'Kanit', sans-serif; font-weight: 900; color: var(--text-secondary); opacity: 0.03; line-height: 0.8; text-align: center; user-select: none; }
-        @keyframes rotateCircle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .lobby-card {
+            position: relative; flex: 1; height: 100%;
+            background-position: center; background-size: cover; background-repeat: no-repeat;
+            border-radius: 4px; overflow: hidden;
+            transition: flex var(--card-transition), filter var(--card-transition), transform 0.1s ease-out;
+            cursor: pointer;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            box-shadow: 0 10px 30px var(--shadow-color);
+            display: flex; flex-direction: column; justify-content: flex-end;
+            border: 1px solid var(--border-color);
+        }
+
+        .lobby-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent 60%);
+            z-index: 1; transition: opacity 0.3s;
+        }
+
+        .lobby-container:hover .lobby-card { filter: grayscale(100%) brightness(0.4); }
+        .lobby-container .lobby-card:hover {
+            flex: 3; filter: grayscale(0%) brightness(1.1); z-index: 2; border-color: var(--text-primary);
+        }
+
+        .lobby-content {
+            position: relative; z-index: 2; padding: 20px; text-align: center;
+        }
+
+        .role-icon {
+            width: 40px; height: 40px; margin: 0 auto 10px;
+            border: 1px solid var(--text-primary);
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.5); transform: rotate(45deg);
+        }
+        .role-icon span { transform: rotate(-45deg); font-size: 20px; color: var(--text-primary); }
+
+        .lobby-title {
+            font-family: 'Orbitron', sans-serif; /* ORBITRON */
+            font-size: 2.5rem; color: var(--text-primary);
+            font-weight: 800;
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(240, 230, 210, 0.3); white-space: nowrap; line-height: 1;
+        }
+
+        .lobby-desc {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.3rem; color: #ccc; opacity: 0; transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            text-transform: uppercase; font-weight: 600; letter-spacing: 1px;
+        }
+        .lobby-card:hover .lobby-desc { opacity: 1; transform: translateY(0); }
+
+        .lobby-status {
+            margin-top: 15px; font-size: 1rem; color: var(--text-primary);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold; opacity: 0; transform: scale(0.8);
+            transition: all 0.3s 0.1s; letter-spacing: 3px;
+        }
+        .lobby-card:hover .lobby-status { opacity: 1; transform: scale(1); }
+
+        .line-deco {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 2px; height: 40px; background: rgba(255,255,255,0.2); z-index: 2;
+        }
+
+        /* LOBBY GÖRSELLERİ */
+        .lobby-card:nth-child(1) { background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop'); }
+        .lobby-card:nth-child(2) { background-image: url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1930&auto=format&fit=crop'); }
+        .lobby-card:nth-child(3) { background-image: url('https://images.unsplash.com/photo-1624138784181-6c3774635a15?q=80&w=2070&auto=format&fit=crop'); }
+        .lobby-card:nth-child(4) { background-image: url('https://images.unsplash.com/photo-1614726365723-49faaa5bf3c6?q=80&w=1974&auto=format&fit=crop'); }
+        .lobby-card:nth-child(5) { background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop'); }
 
         /* --- SAĞ MENÜ --- */
-        .right-nav { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 20px; z-index: 999; }
-        .nav-tab { width: 15px; height: 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: 3px; cursor: pointer; transition: all 0.3s ease; }
+        .right-nav { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 999; }
+        .nav-tab { width: 12px; height: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: 2px; cursor: pointer; transition: all 0.3s ease; }
         .nav-tab:hover, .nav-tab.active { background-color: var(--text-primary); box-shadow: 0 0 15px var(--text-primary); transform: scale(1.3); border-color: transparent; }
 
         /* --- DİĞER SAYFALAR --- */
-        .page-section { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.5s ease; }
+        .page-section { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.5s ease; position: relative; }
         .page-section.active { display: flex; }
-        .other-page-content { font-size: 4rem; color: var(--text-primary); text-transform: uppercase; font-family: 'Kanit', sans-serif; text-align: center; }
+        
+        .page-title { 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem; color: var(--text-primary); 
+            text-transform: uppercase; letter-spacing: 5px; margin-bottom: 20px; 
+            text-shadow: 4px 4px 0 var(--shadow-color);
+        }
+        
+        .page-body { font-size: 1.3rem; max-width: 800px; text-align: center; line-height: 1.6; color: #ccc; font-family: 'Rajdhani', sans-serif; }
+        
+        .back-btn { 
+            margin-top: 40px; padding: 12px 35px; border: 1px solid var(--text-primary); 
+            color: var(--text-primary); font-family: 'Orbitron', sans-serif; font-weight: 700; 
+            text-transform: uppercase; cursor: pointer; transition: all 0.3s; background: transparent; letter-spacing: 1px;
+        }
+        .back-btn:hover { background: var(--text-primary); color: var(--bg-color); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- SOL ÇEKMECE --- */
@@ -101,12 +193,13 @@
         .drawer-container:hover { transform: translateX(260px); }
         .drawer-content { background: var(--drawer-bg); backdrop-filter: blur(15px); border-right: 1px solid var(--border-color); padding: 30px 20px; display: flex; flex-direction: column; gap: 30px; width: 100%; box-sizing: border-box; box-shadow: 10px 0 30px var(--shadow-color); border-radius: 0 0 20px 0; transition: background 0.5s, border 0.5s; }
         .drawer-handle { position: absolute; top: 0; right: -60px; width: 60px; height: 80px; background: var(--handle-bg); border-radius: 0 15px 15px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 5px 0 15px var(--border-color); transition: all 0.3s ease; }
-        .drawer-handle::after { content: '»'; color: var(--handle-arrow); font-weight: 900; font-size: 2.5rem; line-height: 0; padding-bottom: 5px; }
+        .drawer-handle::after { content: '»'; color: var(--handle-arrow); font-weight: 900; font-size: 2.5rem; line-height: 0; padding-bottom: 5px; font-family: 'Orbitron', sans-serif; }
         .drawer-container:hover .drawer-handle { background: #5A189A; right: -50px; width: 50px; }
         .drawer-container:hover .drawer-handle::after { content: '«'; color: white; }
+        
         .side-item { display: flex; align-items: center; gap: 15px; cursor: pointer; text-decoration: none; color: var(--text-secondary); width: 100%; overflow: hidden; }
         .side-icon { width: 30px; height: 30px; fill: var(--icon-fill); transition: all 0.3s; flex-shrink: 0; }
-        .side-text { font-family: 'Kanit', sans-serif; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 1px; color: #888; position: relative; white-space: nowrap; }
+        .side-text { font-family: 'Orbitron', sans-serif; font-weight: 600; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; color: #888; position: relative; white-space: nowrap; }
         .side-item:hover .side-text { color: var(--icon-hover-text); }
         .side-item:hover .kick-icon { fill: #00FF41; filter: drop-shadow(0 0 8px #00FF41); }
         .side-item:hover .tiktok-icon { fill: #00F2EA; filter: drop-shadow(0 0 8px #00F2EA); }
@@ -129,29 +222,30 @@
         .bottom-dock.dock-hidden { transform: translateY(110%) !important; pointer-events: none; }
         .bottom-dock.force-open { transform: translateY(0) !important; }
 
-        .scene {
-            position: relative; width: 100%; height: 100%; 
-            display: flex; justify-content: center; align-items: center;
-            perspective: 1200px; padding-top: 80px; 
+        .scene { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; perspective: 1200px; padding-top: 80px; }
+        .card { 
+            position: absolute; width: 650px; height: 360px; border-radius: 4px; 
+            background: var(--card-bg); display: flex; justify-content: center; align-items: center; 
+            box-shadow: 0 25px 60px var(--shadow-color); 
+            transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1), background 0.5s; 
+            overflow: hidden; 
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            border: 1px solid var(--border-color); 
+            left: 50%; top: 50%; margin-left: -325px; margin-top: -180px; 
         }
-
-        .card {
-            position: absolute; width: 650px; height: 360px; border-radius: 20px;
-            background: var(--card-bg); display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 25px 60px var(--shadow-color);
-            transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1), background 0.5s;
-            overflow: hidden; border: 1px solid var(--border-color);
-            left: 50%; top: 50%; margin-left: -325px; margin-top: -180px;
-        }
-
         .card iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
         
         .card-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; cursor: pointer; background: transparent; 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; 
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent 50%); 
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; box-sizing: border-box;
+            transition: opacity 0.3s;
         }
 
-        .card.active { border: 2px solid var(--text-primary); box-shadow: 0 0 80px rgba(255, 255, 255, 0.1); z-index: 200; }
+        .vid-title { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: var(--text-primary); text-transform: uppercase; line-height: 1; margin: 0; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        .vid-subtitle { font-family: 'Rajdhani', sans-serif; font-size: 1rem; color: #fff; opacity: 0.8; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .card.active { border: 2px solid var(--text-primary); box-shadow: 0 0 50px rgba(255, 255, 255, 0.1); z-index: 200; }
         .card.active iframe { pointer-events: auto; }
 
         .toggle-switch { position: fixed; top: 30px; right: 30px; width: 60px; height: 30px; background: #5A189A; border-radius: 30px; display: flex; align-items: center; padding: 2px; cursor: pointer; z-index: 300; transition: background 0.5s; }
@@ -159,13 +253,18 @@
         .toggle-switch.active .toggle-circle { transform: translateX(30px); background: #333; }
         .toggle-switch.active { background: #FFD700; }
         
-        .info-text { position: fixed; bottom: 130px; opacity: 0.4; font-size: 0.7rem; letter-spacing: 2px; z-index: 50; pointer-events: none; color: var(--text-secondary); transition: opacity 0.3s; }
+        .info-text { 
+            position: fixed; bottom: 130px; opacity: 0.4; font-size: 0.8rem; letter-spacing: 3px; 
+            z-index: 50; pointer-events: none; color: var(--text-secondary); transition: opacity 0.3s;
+            font-family: 'Orbitron', sans-serif; 
+        }
         .info-text.hidden { opacity: 0; }
 
-        /* Responsive */
         @media (max-width: 1000px) {
-            .hero-container { flex-direction: column; text-align: center; height: auto; padding: 40px 20px; }
-            .hero-visual { display: none; } .hero-desc { margin: 0 auto 30px auto; } .hero-buttons { justify-content: center; }
+            .lobby-container { flex-direction: column; height: auto; padding-bottom: 50px; }
+            .lobby-card { width: 100%; height: 250px; clip-path: none; margin-bottom: 10px; }
+            .lobby-title { font-size: 2.5rem; }
+            .lobby-card:hover { flex: 1.5; }
         }
 
     </style>
@@ -175,37 +274,95 @@
     <div class="toggle-switch" id="themeToggle"><div class="toggle-circle"></div></div>
 
     <div class="header">
-        <h1>SHRBRK</h1>
+        <h1 onclick="switchPage(1)">SHRBRK</h1>
         <h2>Seher ÖZDEN – Burak SEYMEN</h2>
     </div>
 
     <div class="right-nav">
         <div class="nav-tab active" onclick="switchPage(1)" title="Anasayfa"></div>
-        <div class="nav-tab" onclick="switchPage(2)" title="Sayfa 2"></div>
-        <div class="nav-tab" onclick="switchPage(3)" title="Sayfa 3"></div>
+        <div class="nav-tab" onclick="switchPage(2)" title="Yayınlar"></div>
+        <div class="nav-tab" onclick="switchPage(3)" title="Oyunlar"></div>
+        <div class="nav-tab" onclick="switchPage(4)" title="Hakkımızda"></div>
+        <div class="nav-tab" onclick="switchPage(5)" title="Ekipman"></div>
+        <div class="nav-tab" onclick="switchPage(6)" title="İletişim"></div>
     </div>
 
     <div id="page1" class="page-content-wrapper">
-        <div class="hero-container">
-            <div class="hero-content">
-                <h3 class="hero-subtitle">WELCOME TO THE</h3>
-                <h1 class="hero-title">SHRBRK<br>UNIVERSE</h1>
-                <p class="hero-desc">Oyun dünyasının en kaotik ve eğlenceli çifti.<br> Yayınlar, vloglar ve sınırsız eğlence için doğru yerdesin.</p>
-                <div class="hero-buttons">
-                    <a href="#" class="glitch-btn">DISCORD'A KATIL</a>
-                    <a href="#" class="ghost-btn">İLETİŞİME GEÇ</a>
+        <div class="lobby-container" id="lobby">
+            <div class="lobby-card" onclick="switchPage(2)">
+                <div class="line-deco"></div>
+                <div class="lobby-content">
+                    <div class="role-icon"><span>🎥</span></div>
+                    <h2 class="lobby-title hack-text" data-value="YAYINLAR">YAYINLAR</h2>
+                    <p class="lobby-desc hack-text" data-value="Canlı Yayın Takvimi">Canlı Yayın Takvimi</p>
+                    <div class="lobby-status hack-text" data-value="ONLINE">ONLINE</div>
                 </div>
             </div>
-            <div class="hero-visual">
-                <div class="visual-circle"></div>
-                <div class="visual-text">SHR<br>BRK</div> 
+            <div class="lobby-card" onclick="switchPage(3)">
+                <div class="line-deco"></div>
+                <div class="lobby-content">
+                    <div class="role-icon"><span>🎮</span></div>
+                    <h2 class="lobby-title hack-text" data-value="OYUNLAR">OYUNLAR</h2>
+                    <p class="lobby-desc hack-text" data-value="Favori Oyunlarımız">Favori Oyunlarımız</p>
+                    <div class="lobby-status hack-text" data-value="READY">READY</div>
+                </div>
+            </div>
+            <div class="lobby-card" onclick="switchPage(4)">
+                <div class="line-deco"></div>
+                <div class="lobby-content">
+                    <div class="role-icon"><span>👑</span></div>
+                    <h2 class="lobby-title hack-text" data-value="HAKKIMIZDA">HAKKIMIZDA</h2>
+                    <p class="lobby-desc hack-text" data-value="Biz Kimiz?">Biz Kimiz?</p>
+                    <div class="lobby-status hack-text" data-value="SHRBRK">SHRBRK</div>
+                </div>
+            </div>
+            <div class="lobby-card" onclick="switchPage(5)">
+                <div class="line-deco"></div>
+                <div class="lobby-content">
+                    <div class="role-icon"><span>🖥️</span></div>
+                    <h2 class="lobby-title hack-text" data-value="EKİPMAN">EKİPMAN</h2>
+                    <p class="lobby-desc hack-text" data-value="Setup & Gear">Setup & Gear</p>
+                    <div class="lobby-status hack-text" data-value="LOADING...">LOADING...</div>
+                </div>
+            </div>
+            <div class="lobby-card" onclick="switchPage(6)">
+                <div class="line-deco"></div>
+                <div class="lobby-content">
+                    <div class="role-icon"><span>📩</span></div>
+                    <h2 class="lobby-title hack-text" data-value="İLETİŞİM">İLETİŞİM</h2>
+                    <p class="lobby-desc hack-text" data-value="Sponsorluk & İş">Sponsorluk & İş</p>
+                    <div class="lobby-status hack-text" data-value="OPEN">OPEN</div>
+                </div>
             </div>
         </div>
         <div class="info-text" id="infoText">AŞAĞI SCROLL • SPACE</div>
     </div>
 
-    <div id="page2" class="page-section"><div class="other-page-content">SAYFA 2</div></div>
-    <div id="page3" class="page-section"><div class="other-page-content">SAYFA 3</div></div>
+    <div id="page2" class="page-section">
+        <h1 class="page-title">YAYINLAR</h1>
+        <p class="page-body">Burada haftalık yayın takvimi ve canlı yayın geçmişi yer alacak.</p>
+        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
+    </div>
+    <div id="page3" class="page-section">
+        <h1 class="page-title">OYUNLAR</h1>
+        <p class="page-body">Valorant, CS2, LoL ve daha fazlası. Oynadığımız oyunların listesi.</p>
+        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
+    </div>
+    <div id="page4" class="page-section">
+        <h1 class="page-title">HAKKIMIZDA</h1>
+        <p class="page-body">SHRBRK, oyun ve eğlence dünyasında bir araya gelen iki tutkulu oyuncunun hikayesi.</p>
+        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
+    </div>
+    <div id="page5" class="page-section">
+        <h1 class="page-title">EKİPMAN</h1>
+        <p class="page-body">Mouse: Logitech G Pro X Superlight<br>Klavye: Custom Build<br>Kulaklık: HyperX Cloud II</p>
+        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
+    </div>
+    <div id="page6" class="page-section">
+        <h1 class="page-title">İLETİŞİM</h1>
+        <p class="page-body">shrbrk@example.com üzerinden bizimle iletişime geçebilirsiniz.</p>
+        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
+    </div>
 
     <div class="drawer-container">
         <div class="drawer-content">
@@ -219,213 +376,155 @@
 
     <div class="bottom-dock" id="bottomDock">
         <div class="scene" id="scene">
-            <div class="card active">
-                <div class="card-overlay" onclick="enableInteraction(this)"></div>
-                <iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA&enablejsapi=1&rel=0" allowfullscreen></iframe>
-            </div>
-            <div class="card">
-                <div class="card-overlay" onclick="enableInteraction(this)"></div>
-                <iframe src="https://www.youtube.com/embed/dJePNIhwf9o?enablejsapi=1&rel=0" allowfullscreen></iframe>
-            </div>
-            <div class="card">
-                <div class="card-overlay" onclick="enableInteraction(this)"></div>
-                <iframe src="https://www.youtube.com/embed?listType=playlist&list=UUlK9upmQDJxAqcGBw8oh0oA&enablejsapi=1&rel=0" allowfullscreen></iframe>
-            </div>
-            <div class="card">
-                <div class="card-overlay" onclick="enableInteraction(this)"></div>
-                <iframe src="https://www.instagram.com/reel/DSAsvLpiGfL/embed" allowtransparency="true" allowfullscreen></iframe>
-            </div>
-            <div class="card">
-                <div class="card-overlay" onclick="enableInteraction(this)"></div>
-                <iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA&enablejsapi=1&rel=0" allowfullscreen></iframe>
-            </div>
+            <div class="card active"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="YOUTUBE">YOUTUBE</h2><div class="vid-subtitle">LATEST VIDEOS</div></div><iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA&enablejsapi=1&rel=0" allowfullscreen></iframe></div>
+            <div class="card"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="HIGHLIGHT">HIGHLIGHT</h2><div class="vid-subtitle">BEST MOMENTS</div></div><iframe src="https://www.youtube.com/embed/dJePNIhwf9o?enablejsapi=1&rel=0" allowfullscreen></iframe></div>
+            <div class="card"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="PLAYLIST">PLAYLIST</h2><div class="vid-subtitle">SHRBRK SPECIAL</div></div><iframe src="https://www.youtube.com/embed?listType=playlist&list=UUlK9upmQDJxAqcGBw8oh0oA&enablejsapi=1&rel=0" allowfullscreen></iframe></div>
+            <div class="card"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="SOCIALS">SOCIALS</h2><div class="vid-subtitle">INSTAGRAM REELS</div></div><iframe src="https://www.instagram.com/reel/DSAsvLpiGfL/embed" allowtransparency="true" allowfullscreen></iframe></div>
+            <div class="card"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="ARCHIVE">ARCHIVE</h2><div class="vid-subtitle">OLD BUT GOLD</div></div><iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA&enablejsapi=1&rel=0" allowfullscreen></iframe></div>
         </div>
     </div>
 
     <script>
-        function enableInteraction(element) {
-            if (element.parentElement.classList.contains('active')) { element.style.display = 'none'; }
-        }
+        function enableInteraction(element) { if (element.parentElement.classList.contains('active')) { element.style.display = 'none'; } }
 
         let currentPage = 1;
         const bottomDock = document.getElementById('bottomDock');
-        const page1Content = document.getElementById('page1');
-        const page2Content = document.getElementById('page2');
-        const page3Content = document.getElementById('page3');
         const infoText = document.getElementById('infoText');
         const tabs = document.querySelectorAll('.nav-tab');
+        
+        const pages = {
+            1: document.getElementById('page1'),
+            2: document.getElementById('page2'),
+            3: document.getElementById('page3'),
+            4: document.getElementById('page4'),
+            5: document.getElementById('page5'),
+            6: document.getElementById('page6')
+        };
 
         function switchPage(pageId) {
             if (currentPage === pageId) return;
             currentPage = pageId;
             tabs.forEach(t => t.classList.remove('active'));
-            tabs[pageId - 1].classList.add('active');
-            if (pageId === 1) {
-                page1Content.style.display = 'flex';
-                page2Content.classList.remove('active'); page3Content.classList.remove('active');
-                bottomDock.classList.remove('dock-hidden'); infoText.classList.remove('hidden');
-            } else {
-                page1Content.style.display = 'none';
-                bottomDock.classList.add('dock-hidden'); infoText.classList.add('hidden');
-                if (pageId === 2) { page2Content.classList.add('active'); page3Content.classList.remove('active'); } 
-                else if (pageId === 3) { page3Content.classList.add('active'); page2Content.classList.remove('active'); }
-            }
+            if(tabs[pageId - 1]) tabs[pageId - 1].classList.add('active');
+            Object.values(pages).forEach(page => { if(page) { page.style.display = 'none'; page.classList.remove('active'); } });
+            const targetPage = pages[pageId];
+            if(targetPage) { if(pageId === 1) targetPage.style.display = 'flex'; else targetPage.classList.add('active'); }
+            if (pageId === 1) { bottomDock.classList.remove('dock-hidden'); infoText.classList.remove('hidden'); } 
+            else { bottomDock.classList.add('dock-hidden'); infoText.classList.add('hidden'); }
         }
 
         const toggleBtn = document.getElementById('themeToggle');
         const body = document.body;
         toggleBtn.addEventListener('click', () => { toggleBtn.classList.toggle('active'); body.classList.toggle('light-mode'); });
 
-        // Hacker Effect
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+        const runMatrixEffect = (element, delay = 0) => {
+            if(!element) return;
+            const originalText = element.dataset.value;
+            setTimeout(() => {
+                let iteration = 0;
+                if(element.interval) clearInterval(element.interval);
+                element.interval = setInterval(() => {
+                    element.innerText = originalText.split("").map((l, i) => {
+                        if(i < iteration) return originalText[i];
+                        return letters[Math.floor(Math.random() * letters.length)];
+                    }).join("");
+                    if(iteration >= originalText.length) clearInterval(element.interval);
+                    iteration += 1 / 2;
+                }, 30);
+            }, delay);
+        };
+
+        const lobbyCards = document.querySelectorAll('.lobby-card');
+        lobbyCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const title = card.querySelector('.lobby-title');
+                const p = card.querySelector('.lobby-desc');
+                const status = card.querySelector('.lobby-status');
+                runMatrixEffect(title, 0); runMatrixEffect(p, 150); runMatrixEffect(status, 300);
+            });
+        });
+
         const sideItems = document.querySelectorAll('.side-item');
         sideItems.forEach(item => {
             const textElement = item.querySelector('.side-text');
             const originalText = textElement.dataset.original;
-            let effectInterval = null; let leaveTimeout = null; let isAnimating = false;
+            let effectInterval = null;
             item.addEventListener('mouseenter', () => {
-                if (leaveTimeout) clearTimeout(leaveTimeout); if (isAnimating) return; 
-                isAnimating = true; textElement.classList.add('hacking-effect');
-                let startTime = Date.now();
-                const runEffect = () => {
-                    let elapsed = Date.now() - startTime;
-                    if (elapsed >= 800) { textElement.innerText = originalText; textElement.classList.remove('hacking-effect'); isAnimating = false; clearInterval(effectInterval); return; }
-                    if (elapsed > 600) { if (Math.random() > 0.5) textElement.innerText = originalText.split("").map(l => letters[Math.floor(Math.random() * letters.length)]).join(""); } 
-                    else { textElement.innerText = originalText.split("").map(l => letters[Math.floor(Math.random() * letters.length)]).join(""); }
-                };
-                effectInterval = setInterval(runEffect, 30);
+                let iteration = 0; clearInterval(effectInterval);
+                effectInterval = setInterval(() => {
+                    textElement.innerText = originalText.split("").map((l, i) => {
+                        if(i < iteration) return originalText[i];
+                        return letters[Math.floor(Math.random() * letters.length)];
+                    }).join("");
+                    if(iteration >= originalText.length) clearInterval(effectInterval);
+                    iteration += 1/3;
+                }, 30);
             });
-            item.addEventListener('mouseleave', () => {
-                leaveTimeout = setTimeout(() => { clearInterval(effectInterval); textElement.innerText = originalText; textElement.classList.remove('hacking-effect'); isAnimating = false; }, 150);
-            });
+            item.addEventListener('mouseleave', () => { clearInterval(effectInterval); textElement.innerText = originalText; });
         });
 
-        // --- SLIDER & VIDEO CONTROL ---
         const cards = document.querySelectorAll('.card'); const totalCards = cards.length;
         let scrollStep = 0; let isThrottled = false;
 
         updateLayout();
 
-        // 1. MOUSE TRAP: Mouse dock üzerindeyse SAYFA SCROLL'U KAPAT
-        bottomDock.addEventListener('mouseenter', () => {
-            document.body.style.overflow = 'hidden'; // Sayfayı kilitle
-        });
-        
-        bottomDock.addEventListener('mouseleave', () => {
-            document.body.style.overflow = 'auto'; // Sayfayı serbest bırak
-            updateLayout(); // Düzeni tazele
-        });
+        bottomDock.addEventListener('mouseenter', () => { document.body.style.overflow = 'hidden'; triggerVideoEffects(); });
+        bottomDock.addEventListener('mouseleave', () => { document.body.style.overflow = 'auto'; stopCurrentVideo(); updateLayout(); });
 
-        // 2. BI-DIRECTIONAL SCROLL & VIDEO STOP
         bottomDock.addEventListener('wheel', (e) => { 
             if (isThrottled) return;
-            
-            // Hangi yöne scroll?
-            if (e.deltaY > 0) {
-                // AŞAĞI: İleri
-                stopCurrentVideo(); // Öncekini durdur
-                scrollStep++; 
-                updateLayout(); 
-                throttle(); 
-            } else if (e.deltaY < 0) {
-                // YUKARI: Geri
-                stopCurrentVideo(); // Öncekini durdur
-                scrollStep--; 
-                // scrollStep eksiye düşerse düzeltme mantığı updateLayout'ta var mı?
-                // JS'de negatif modulo sorunu için aşağıda düzenleme yapacağım.
-                updateLayout(); 
-                throttle(); 
-            }
+            if (e.deltaY > 0) { stopCurrentVideo(); scrollStep++; updateLayout(); throttle(); triggerVideoEffects(); } 
+            else if (e.deltaY < 0) { stopCurrentVideo(); scrollStep--; updateLayout(); throttle(); triggerVideoEffects(); }
         }, { passive: true });
 
         function throttle() { isThrottled = true; setTimeout(() => isThrottled = false, 500); }
 
-        // Video Durdurma Fonksiyonu (IFrame'e Pause komutu yollar)
+        function triggerVideoEffects() {
+            const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
+            const activeCard = cards[activeIndex];
+            const title = activeCard.querySelector('.vid-title');
+            if(title) runMatrixEffect(title, 0);
+        }
+
         function stopCurrentVideo() {
-            // Şuan aktif olan kartı bul
-            // Modulo negatif sayı düzeltmesi: ((x % n) + n) % n
             const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
             const activeCard = cards[activeIndex];
             const iframe = activeCard.querySelector('iframe');
-            
-            // Eğer YouTube ise
-            if (iframe.src.includes("youtube.com")) {
-                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-            } 
-            // Eğer Instagram ise (API yok, reload en temiz çözüm)
-            else {
-                const src = iframe.src;
-                iframe.src = src; 
-            }
-            
-            // Kalkanı geri getir
+            if (iframe.src.includes("youtube.com")) { iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); } 
+            else { const src = iframe.src; iframe.src = src; }
             const overlay = activeCard.querySelector('.card-overlay');
-            if(overlay) overlay.style.display = 'block';
+            if(overlay) overlay.style.display = 'flex';
         }
 
         function updateLayout() {
-            // Negatif sayılar için güvenli Modulo hesaplama
             const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
-
             cards.forEach((card, index) => {
-                // Dairesel fark hesabı
                 let distance = (index - activeIndex) % totalCards;
-                if (distance < 0) distance += totalCards; 
-                if (distance > totalCards / 2) distance -= totalCards;
-                
+                if (distance < 0) distance += totalCards; if (distance > totalCards / 2) distance -= totalCards;
                 card.classList.remove('active'); 
-
-                if (distance === 0) { 
-                    card.classList.add('active'); 
-                    card.style.transform = `translateX(0) scale(1) translateZ(50px)`; 
-                    card.style.zIndex = 100; 
-                } 
-                else if (Math.abs(distance) === 1) { 
-                    card.style.transform = `translateX(${300 * distance}px) translateY(-25px) scale(0.7) translateZ(100px) rotateY(${+20 * distance}deg)`; 
-                    card.style.zIndex = 50; 
-                } 
-                else { 
-                    card.style.transform = `translateX(${475 * Math.sign(distance)}px) translateY(-50px) scale(0.4) translateZ(50px) rotateY(${20 * Math.sign(distance)}deg)`; 
-                    card.style.zIndex = 10; 
-                }
+                if (distance === 0) { card.classList.add('active'); card.style.transform = `translateX(0) scale(1) translateZ(50px)`; card.style.zIndex = 100; } 
+                else if (Math.abs(distance) === 1) { card.style.transform = `translateX(${300 * distance}px) translateY(-25px) scale(0.7) translateZ(100px) rotateY(${+20 * distance}deg)`; card.style.zIndex = 50; } 
+                else { card.style.transform = `translateX(${475 * Math.sign(distance)}px) translateY(-50px) scale(0.4) translateZ(50px) rotateY(${20 * Math.sign(distance)}deg)`; card.style.zIndex = 10; }
             });
         }
 
         bottomDock.addEventListener('mousemove', (e) => { 
-            const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
-            const activeCard = cards[activeIndex]; 
-            if (!activeCard) return; 
+            const activeCard = cards[scrollStep % totalCards]; if (!activeCard) return; 
             const x = (window.innerWidth / 2 - e.pageX) / 60; const y = (window.innerHeight / 2 - e.pageY) / 60; 
             activeCard.style.transform = `translateX(0) scale(1) translateZ(50px) rotateY(${-x}deg) rotateX(${y}deg)`; 
         });
         
-        // TIKLAMA İLE GEÇİŞ
         cards.forEach((card, index) => { 
             card.addEventListener('click', (e) => { 
-                // Eğer kalkan'a tıklandıysa zaten enableInteraction çalışır
-                // Burası yan kartlara tıklayınca geçiş için
                 const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
                 let distance = (index - activeIndex) % totalCards; 
                 if (distance < 0) distance += totalCards; if (distance > totalCards / 2) distance -= totalCards; 
-                
-                if (distance !== 0) { 
-                    stopCurrentVideo();
-                    if(distance === 1) scrollStep++;
-                    else if(distance === -1) scrollStep--;
-                    else scrollStep += distance; // Uzaktakine tıklandıysa
-                    
-                    updateLayout(); 
-                } 
+                if (distance !== 0) { stopCurrentVideo(); if(distance === 1) scrollStep++; else if(distance === -1) scrollStep--; else scrollStep += distance; updateLayout(); triggerVideoEffects(); } 
             }); 
         });
 
-        // SPACE TUŞU
-        document.addEventListener('keydown', (e) => { 
-            if (currentPage === 1 && e.code === 'Space') { 
-                e.preventDefault(); 
-                bottomDock.classList.toggle('force-open');
-            } 
-        });
+        document.addEventListener('keydown', (e) => { if (currentPage === 1 && e.code === 'Space') { e.preventDefault(); bottomDock.classList.toggle('force-open'); } });
 
     </script>
 </body>
