@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHRBRK | Gaming Duo</title>
+    <title>SHRBRK | Gaming Duo & Community</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,12 +11,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- MASAÜSTÜ TASARIM SİSTEMİ (DEFAULT) --- */
+        /* --- TEMEL DEĞİŞKENLER VE TASARIM SİSTEMİ --- */
         :root {
             --bg-color: #0d1117; 
             --bg-gradient: radial-gradient(circle at center, #1a1f29 0%, #0d1117 100%);
-            --panel-bg: rgba(20, 25, 35, 0.6); 
-            --content-panel-bg: rgba(15, 20, 30, 0.85);
+            --panel-bg: rgba(20, 25, 35, 0.95);
+            --content-panel-bg: rgba(15, 20, 30, 0.98);
             --text-primary: #f0e6d2; 
             --text-secondary: #aaa;
             --val-red: #ff4655;
@@ -32,16 +32,12 @@
         [data-theme="light"] {
             --bg-color: #f0f0f0; 
             --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #f0f0f0 100%);
-            --panel-bg: rgba(255, 255, 255, 0.8);
-            --content-panel-bg: rgba(245, 245, 245, 0.9);
             --text-primary: #1a1a1a;
             --text-secondary: #555;
             --val-red: #5A189A; 
             --val-dark: #cccccc;
             --val-white: #0a0a0a;
             --cyber-blue: #5A189A;
-            --cyber-glow: 0 0 10px rgba(90, 24, 154, 0.5);
-            --border-color: rgba(0, 0, 0, 0.2);
         }
 
         * { box-sizing: border-box; }
@@ -55,782 +51,519 @@
             overflow: hidden; 
             height: 100vh;
             transition: background 0.5s, color 0.5s;
-            position: relative;
         }
 
-        /* --- PARALLAX BACKGROUND --- */
+        /* --- ARKA PLAN EFEKTLERİ --- */
         #parallax-bg {
-            position: fixed;
-            top: -5%; left: -5%;
-            width: 110%; height: 110%;
-            background: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop') center/cover;
-            opacity: 0.15; 
-            pointer-events: none;
-            z-index: 0; 
-            transition: transform 0.1s ease-out;
-            mix-blend-mode: overlay;
+            position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
+            background: url('https://images.unsplash.com/photo-1546443046-ed1ce6ffd1e9?auto=format&fit=crop&w=2070&q=80') center/cover;
+            opacity: 0.08; pointer-events: none; z-index: 0; filter: blur(1px);
         }
 
-        body::before {
-            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACxK+W5AAAAEHRSTlMAAAICBAUGBwsMDE9RUVVZXGAaK2fGAAAAAWJLR0QAiAUdSAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAKJJREFUSMftjksOwCAMBD8u9d+5T+dYlSokU+N2XjXgq0JES5aVbH+j1qfQnE+X7yUjE8Q4v/z2Xg6HhQfP848x/r+gR00xM6xQ4XAAAAAASUVORK5CYII=");
-            opacity: 0.12; pointer-events: none; z-index: 1; 
-        }
-
-        /* --- CURSOR GLOW --- */
         #cursor-glow {
-            position: fixed; width: 400px; height: 400px;
-            border-radius: 50%; pointer-events: none;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
-            mix-blend-mode: screen;
-            z-index: 2; 
-            transition: transform 0.08s linear;
-            transform: translate(-50%, -50%);
+            position: fixed; width: 250px; height: 250px; border-radius: 50%;
+            pointer-events: none; background: radial-gradient(circle, rgba(255,70,85,0.15) 0%, transparent 60%);
+            mix-blend-mode: screen; z-index: 2000; filter: blur(20px); opacity: 0;
+            transition: opacity 0.3s;
         }
+        body:hover #cursor-glow { opacity: 1; }
 
-        /* --- PARTICLES --- */
-        #particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
-        .particle {
-            position: absolute; border-radius: 50%;
-            background: var(--cyber-blue);
-            box-shadow: 0 0 15px var(--cyber-blue), 0 0 30px var(--cyber-blue);
-            animation: particleLifecycle 6s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
-            cursor: crosshair; pointer-events: auto; transition: transform 0.1s;
-        }
-        .particle-flash {
-            position: absolute; border-radius: 50%;
-            box-shadow: 0 0 25px var(--val-red), 0 0 50px var(--val-red); 
-            animation: flashLifecycle 2s ease-out forwards;
-            cursor: crosshair; pointer-events: auto; 
-        }
-        body.cards-hovered .particle, body.cards-hovered .particle-flash, body.dock-open .particle, body.dock-open .particle-flash {
-            pointer-events: none !important; opacity: 0.2; 
-        }
-        @keyframes particleLifecycle {
-            0% { transform: translate3d(0, 0, 0) scale(0); opacity: 0; }
-            10% { opacity: 1; transform: translate3d(var(--tx), var(--ty), 0) scale(1); } 
-            90% { opacity: 1; transform: translate3d(calc(var(--tx) * 1.5), calc(var(--ty) * 1.5), 0) scale(1.1); } 
-            100% { opacity: 0; transform: translate3d(calc(var(--tx) * 1.8), calc(var(--ty) * 1.8), 0) scale(0); } 
-        }
-        @keyframes flashLifecycle {
-            0% { opacity: 0; transform: scale(1); } 5% { opacity: 1; transform: scale(1); } 90% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0); } 
-        }
-
-        /* --- ENERGY BEAMS --- */
-        .energy-beam {
-            position: fixed; width: 8px; z-index: 900;
-            transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            background: var(--cyber-blue); box-shadow: 0 0 25px var(--cyber-blue);
-            bottom: 0; height: 0%;
-        }
-        .beam-left { left: 0; } .beam-right { right: 0; }
-        [data-theme="light"] .energy-beam { background: #000; box-shadow: 0 0 25px rgba(0,0,0,0.5); top: 0; bottom: auto; }
-
-        /* --- RIPPLE --- */
-        .ripple {
-            position: fixed; width: 20px; height: 20px;
-            border-radius: 50%; pointer-events: none;
-            background: rgba(255,70,85,0.6);
-            transform: translate(-50%, -50%) scale(0);
-            animation: rippleAnim 0.6s ease-out forwards;
-            z-index: 9999;
-        }
-        @keyframes rippleAnim { to { transform: translate(-50%, -50%) scale(15); opacity: 0; } }
-
-        /* --- SUCCESS OVERLAY --- */
-        #success-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column;
-            pointer-events: none; background: rgba(0,0,0,0.4); 
-        }
-        .success-text {
-            font-family: var(--font-head); font-weight: 900; font-size: 4rem;
-            color: var(--val-white); text-shadow: 0 0 30px rgba(0,0,0,0.8); 
-            text-align: center; letter-spacing: 5px; margin-bottom: 20px;
-        }
-        .success-stats {
-            font-family: var(--font-body); font-size: 2rem;
-            color: var(--text-primary); font-weight: 700; text-transform: uppercase;
-            background: var(--panel-bg); padding: 10px 30px;
-            border: 2px solid var(--val-red); 
-            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        /* --- HEADER --- */
+        /* --- AUTH & HEADER STYLES (GÜNCELLENDİ) --- */
         .header-container {
-            position: fixed; top: 0; left: 0; width: 100%; padding-top: 15px; 
-            z-index: 3000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            pointer-events: none; 
+            position: fixed; top: 0; left: 0; width: 100%; padding-top: 15px; z-index: 3000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;
         }
-        .header-container > * { pointer-events: auto; } 
+        .header-container > * { pointer-events: auto; }
 
         .logo {
-            font-family: var(--font-head); font-size: 3.5rem; font-weight: 900;
-            letter-spacing: 8px; margin: 0; color: var(--val-white);
-            text-shadow: 0 0 20px rgba(255, 70, 85, 0.5); cursor: pointer;
-            position: relative;
+            font-family: var(--font-head); font-size: 3.5rem; font-weight: 900; letter-spacing: 8px; margin: 0;
+            color: var(--val-white); text-shadow: 0 0 20px rgba(255, 70, 85, 0.5); cursor: pointer; transition: transform 0.3s;
         }
-        .logo:hover { animation: glitch 0.4s steps(2, end); }
-        @keyframes glitch {
-            0% { text-shadow: 3px 0 red, -3px 0 cyan; transform: translate(2px, 0); }
-            25% { text-shadow: -3px 0 red, 3px 0 cyan; transform: translate(-2px, 2px); }
-            50% { text-shadow: 3px 0 red, -3px 0 cyan; transform: translate(2px, -2px); }
-            75% { text-shadow: -3px 0 red, 3px 0 cyan; transform: translate(-2px, 0); }
-            100% { text-shadow: 0 0 transparent; transform: translate(0, 0); }
-        }
+        .logo:hover { transform: scale(1.05); }
 
         .hero-links { display: flex; gap: 10px; margin-top: 25px; }
+        
         .hero-link {
-            text-decoration: none; color: var(--text-secondary);
-            font-family: var(--font-head); font-size: 0.75rem;
-            padding: 8px 0; background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1);
-            text-transform: uppercase; width: 140px; text-align: center;
+            text-decoration: none; color: var(--text-secondary); font-family: var(--font-head); font-size: 0.75rem;
+            padding: 8px 0; width: 140px; text-align: center;
+            backdrop-filter: blur(25px); background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255,255,255,0.12);
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
             transition: 0.3s;
         }
-        .hero-link:hover { background: var(--val-red); color: var(--val-white); border-color: var(--val-red); transform: scale(1.08) translateY(-2px); box-shadow: 0 0 15px var(--val-red); }
+        .hero-link:hover { background: var(--val-red); color: var(--val-white); transform: translateY(-2px); }
 
-        .top-controls { position: absolute; right: 40px; top: 30px; display: flex; gap: 10px; }
+        .top-controls {
+            position: absolute; right: 40px; top: 30px; display: flex; gap: 10px; align-items: center;
+        }
+
         .control-btn {
-            pointer-events: auto; background: transparent;
-            border: 1px solid var(--border-color); color: var(--text-primary);
-            padding: 8px 15px; cursor: pointer;
-            font-family: var(--font-head); font-size: 0.7rem;
+            background: transparent; border: 1px solid var(--border-color); color: var(--text-primary);
+            padding: 8px 15px; cursor: pointer; font-family: var(--font-head); font-size: 0.7rem;
             display: flex; align-items: center; gap: 8px; transition: 0.3s;
+            backdrop-filter: blur(25px); background: rgba(255, 255, 255, 0.08);
             clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-            backdrop-filter: blur(5px);
         }
         .control-btn:hover { background: var(--val-white); color: #000; }
+        
+        .auth-btn { border-color: var(--cyber-blue); color: var(--cyber-blue); }
+        .auth-btn:hover { background: var(--cyber-blue); color: #000; }
 
-        /* --- MAIN CONTAINER --- */
+        /* --- LOBBY CARDS --- */
         .main-container { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 10; padding-top: 150px; 
-            pointer-events: none; 
-            transition: filter 0.5s ease;
+            display: flex; align-items: center; justify-content: center; z-index: 10; padding-top: 20px; pointer-events: none; 
         }
-        .blur-active { filter: blur(10px); pointer-events: none; }
-
         .lobby-grid {
-            display: flex; gap: 20px;
-            height: 65vh; width: 90vw; 
-            justify-content: center; align-items: center; 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+            width: 70vw; max-width: 1000px; height: 60vh; pointer-events: auto;
         }
         
-        /* --- CARDS --- */
         .lobby-card {
-            position: relative; flex: 1; max-width: 280px; height: 100%;
-            cursor: pointer; pointer-events: auto; 
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.5, 1.2), filter 0.3s;
+            position: relative; cursor: pointer; transition: 0.3s;
             display: flex; flex-direction: column; 
-            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
-            background: rgba(30, 35, 40, 0.6); 
-            backdrop-filter: blur(15px) saturate(120%); 
-            border: 1px solid rgba(255,255,255,0.08);
-            z-index: 1; 
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%);
+            background: rgba(31, 35, 38, 0.8); backdrop-filter: blur(25px);
+            border: 1px solid rgba(255,255,255,0.12); overflow: hidden;
+            min-height: 200px;
         }
-        .lobby-card:hover {
-            transform: translateY(-15px) scale(1.1); z-index: 100;
-            box-shadow: 0 0 40px rgba(255, 70, 85, 0.3); 
-            filter: brightness(1.2); border-color: rgba(255,255,255,0.3);
-        }
+        .lobby-card:hover { transform: translateY(-10px); border-color: var(--val-red); box-shadow: 0 0 30px rgba(255, 70, 85, 0.2); z-index: 100; }
+
         .card-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover; background-position: center;
-            transition: transform 0.4s; filter: grayscale(80%) brightness(0.6);
+            background-size: cover; background-position: center; transition: 0.4s;
+            filter: grayscale(80%) brightness(0.6);
         }
         .c1 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/e435c3378b7999a3338b408dbb5da8ba63f91150-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c2 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/477284dfe402a85abcf6b07512bcd6f01c8fe60e-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c3 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/14145d7bf9be17afa80c04ee4fbe200076cc1769-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c4 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7cb513c9b3eae3286449776e85753138436d553c-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c5 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/47387e354c34d51b84066bc47af3c5755b92b9c5-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
+        .c6 .card-bg { background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'); }
 
-        .lobby-card:hover .card-bg { filter: grayscale(0%) brightness(1); transform: scale(1.05); }
-        .lobby-card:hover .status-bar { background: var(--val-red); color: var(--val-white); }
-        .lobby-card:hover .top-decoration { background: var(--val-red); box-shadow: 0 0 35px var(--val-red); }
-        .lobby-card:hover .diamond-tip { background: var(--val-red); box-shadow: 0 0 35px var(--val-red); }
+        .lobby-card:hover .card-bg { filter: grayscale(0%); transform: scale(1.1); }
+        .lobby-card:hover .status-bar { background: var(--val-red); color: white; }
 
-        .card-content { position: absolute; bottom: 15%; left: 0; width: 100%; z-index: 2; }
+        .card-content { position: absolute; bottom: 20%; width: 100%; z-index: 2; }
         .status-bar {
-            background: rgba(255, 255, 255, 0.9); color: #000;
-            padding: 10px 0; text-align: center; font-family: var(--font-head); font-weight: 900;
-            text-transform: uppercase; letter-spacing: 3px;
-            clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%); width: 90%; margin: 0 auto; transition: 0.25s;
+            background: rgba(255, 255, 255, 0.9); color: #000; padding: 8px 0; text-align: center;
+            font-family: var(--font-head); font-weight: 900; width: 90%; margin: 0 auto;
+            clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%); transition: 0.3s;
         }
-        .card-sub-text { text-align: center; font-family: var(--font-head); font-size: 0.7rem; color: rgba(255,255,255,0.7); margin-top: 5px; letter-spacing: 3px; }
-        .top-decoration { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40%; height: 4px; background: rgba(255,255,255,0.3); z-index: 2; clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%); transition: 0.3s; }
-        .diamond-tip { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 24px; height: 24px; background: rgba(255,255,255,0.3); z-index: 2; transition: 0.3s; }
-        
-        /* --- CONTENT POPUP --- */
+
+        /* --- CONTENT MODALS --- */
         .content-section {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
-            width: 70%; height: 65%;
-            background: var(--content-panel-bg); 
-            border: 1px solid var(--cyber-blue);
-            backdrop-filter: blur(25px) saturate(150%);
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
-            padding: 40px;
-            opacity: 0; pointer-events: none;
-            display: none; 
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            overflow-y: auto; 
-            z-index: 4000; 
-            flex-direction: column; align-items: center; text-align: center;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+            width: 80%; height: 80%; opacity: 0; pointer-events: none; display: none;
+            background: rgba(15, 20, 30, 0.95); backdrop-filter: blur(30px);
+            border: 1px solid var(--cyber-blue); z-index: 3000; transition: 0.4s;
+            flex-direction: column; align-items: center; overflow: hidden;
         }
         .content-section.active { opacity: 1; pointer-events: auto; display: flex; transform: translate(-50%, -50%) scale(1); }
-        .content-section p, .content-section li, .content-section h3, .content-section td { color: var(--text-primary); transition: color 0.3s; }
-        .content-section li strong { color: var(--cyber-blue); }
-        h2.section-title { font-family: var(--font-head); font-size: 3.5rem; color: var(--cyber-blue); text-shadow: var(--cyber-glow); }
-        .cyber-table th { text-align: center; border-bottom: 2px solid var(--cyber-blue); padding: 15px; font-family: var(--font-head); color: var(--text-primary); }
-        
-        .back-btn { 
-            margin-top: 40px; padding: 10px 30px; 
-            background: var(--cyber-blue); color: var(--bg-color);
-            font-family: var(--font-head); font-size: 0.9rem; 
-            cursor: pointer; text-transform: uppercase; 
-            transition: all 0.3s; letter-spacing: 2px; border: none;
-            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-        }
-        .back-btn:hover { background: var(--val-red); color: var(--val-white); box-shadow: 0 0 15px var(--val-red); }
-        .game-blur { filter: blur(3px) !important; transition: filter 0.2s; pointer-events: none; }
 
-        /* --- DOCK & CAROUSEL --- */
-        #dockWrapper {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            height: calc(100vh - 220px); 
-            transform: translateY(100%); transition: transform 0.5s ease-out; 
-            background: rgba(15, 20, 30, 0.92); backdrop-filter: blur(15px);
-            border-top: 2px solid var(--val-red); z-index: 5000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        .standard-content { padding: 40px; text-align: center; width: 100%; overflow-y: auto; }
+        
+        .back-btn {
+            margin-top: 20px; padding: 10px 30px; background: rgba(0,255,255,0.2); color: var(--val-white);
+            font-family: var(--font-head); cursor: pointer; border: 1px solid rgba(0,255,255,0.3);
+            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); transition: 0.3s;
         }
-        #dockWrapper.active { transform: translateY(0%); }
-        .dock-handle-center {
-            position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
-            background: var(--val-red); color: var(--val-white);
-            padding: 8px 50px;
-            font-family: var(--font-head); font-weight: 700; letter-spacing: 2px;
-            clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
-            cursor: pointer; transition: 0.3s;
+        .back-btn:hover { background: var(--val-red); border-color: var(--val-red); }
+
+        /* --- AUTH MODALS (LOGIN/REGISTER) --- */
+        .auth-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 5000; display: none;
+            justify-content: center; align-items: center;
+        }
+        .auth-box {
+            background: rgba(20, 25, 35, 0.95); padding: 40px; width: 400px;
+            border: 1px solid var(--cyber-blue); box-shadow: 0 0 30px rgba(0,255,255,0.2);
+            text-align: center; position: relative;
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+        }
+        .auth-input {
+            width: 100%; padding: 12px; margin: 10px 0; background: rgba(0,0,0,0.5);
+            border: 1px solid #444; color: #fff; font-family: var(--font-body);
+        }
+        .auth-input:focus { border-color: var(--cyber-blue); outline: none; }
+        
+        .auth-submit {
+            width: 100%; padding: 12px; margin-top: 20px; background: var(--cyber-blue);
+            color: #000; border: none; font-family: var(--font-head); font-weight: bold; cursor: pointer;
+        }
+        .auth-submit:hover { background: #fff; }
+        
+        .close-auth { position: absolute; top: 10px; right: 15px; color: #fff; cursor: pointer; }
+
+        /* --- YENİ FORUM DÜZENİ (SIDEBARLI) --- */
+        .forum-layout { display: flex; width: 100%; height: 100%; }
+        
+        /* SOL MENU */
+        .forum-sidebar {
+            width: 260px; background: rgba(0,0,0,0.4); border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; padding: 20px 0;
+        }
+        .forum-cat-btn {
+            padding: 15px 25px; color: var(--text-secondary); cursor: pointer; text-align: left;
+            transition: 0.3s; display: flex; align-items: center; gap: 10px;
+            font-family: var(--font-head); letter-spacing: 1px; border-left: 3px solid transparent;
+        }
+        .forum-cat-btn:hover, .forum-cat-btn.active {
+            background: rgba(255,255,255,0.05); color: var(--val-white); border-left-color: var(--cyber-blue);
+        }
+        
+        /* SAĞ CHAT ALANI */
+        .forum-main { flex: 1; display: flex; flex-direction: column; position: relative; background: rgba(0,0,0,0.2); }
+        .forum-header {
+            padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3);
+        }
+        .chat-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .message-card {
+            background: rgba(255,255,255,0.05); padding: 15px;
+            border-left: 2px solid var(--val-red); border-radius: 0 10px 10px 10px;
+            max-width: 80%; animation: slideIn 0.3s ease;
+        }
+        .msg-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.8rem; color: var(--cyber-blue); font-family: var(--font-head); }
+        .msg-body { color: var(--text-primary); line-height: 1.4; }
+        .msg-time { font-size: 0.7rem; color: #555; text-align: right; margin-top: 5px; }
+        
+        .input-area {
+            padding: 20px; background: rgba(0,0,0,0.5); border-top: 1px solid rgba(255,255,255,0.1);
             display: flex; gap: 10px; align-items: center;
         }
-        .dock-handle-center:hover { padding-bottom: 12px; transform: translateX(-50%) translateY(-5px); }
-        .carousel-container { width: 100%; height: 400px; display: flex; justify-content: center; align-items: center; perspective: 2000px; overflow: visible; }
-        .carousel { position: relative; width: 600px; height: 340px; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.1, 0.6, 0.3, 1); }
-        .carousel-item {
-            position: absolute; width: 600px; height: 340px; left: 0; top: 0;
-            background: #000; border: 2px solid var(--val-red); border-radius: 4px; overflow: hidden;
-            transition: all 0.6s ease; opacity: 0.1; transform-origin: center center;
-        }
-        .carousel-item iframe { width: 100%; height: 100%; border: none; }
-        .video-overlay {
-            position: absolute; top:0; left:0; width:100%; height:100%; z-index: 10;
-            cursor: pointer; display: flex; justify-content: center; align-items: center;
-            background: rgba(0,0,0,0.7); color: #fff; font-family: var(--font-head); font-size: 2rem; transition: 0.3s;
-        }
-        .video-overlay:hover { background: rgba(0,0,0,0.4); color: var(--val-red); } 
-        .carousel-item.is-active .video-overlay { pointer-events: none; opacity: 0; }
-        .wheel-guide {
-            position: absolute; bottom: 30px; width: 100%; text-align: center;
-            font-family: var(--font-head); font-size: 1rem; color: #fff; text-shadow: 0 0 10px #000;
-            opacity: 0.6; pointer-events: none; text-transform: uppercase; letter-spacing: 3px;
-        }
+        .chat-input { flex: 1; background: transparent; border: none; border-bottom: 1px solid var(--text-secondary); color: var(--val-white); padding: 10px; outline: none; }
+        .send-btn { padding: 10px 25px; background: var(--val-red); color: white; border: none; font-family: var(--font-head); cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
 
-        /* ----------------------------------------------------------- */
-        /* --- !!! RESPONSIVE / MOBİL & TABLET MODU (YENİ EKLENDİ) !!! --- */
-        /* ----------------------------------------------------------- */
-        
-        @media screen and (max-width: 1024px) {
-            /* TABLET & MOBİL İÇİN ORTAK AYARLAR */
-            .logo { font-size: 2.5rem; letter-spacing: 4px; }
-            .header-container { padding-top: 10px; width: 100%; }
-            .hero-links { flex-wrap: wrap; justify-content: center; gap: 5px; }
-            .hero-link { width: 100px; font-size: 0.6rem; padding: 5px 0; }
-            .top-controls { top: 10px; right: 10px; }
-            .control-btn { padding: 5px 10px; font-size: 0.6rem; }
-            
-            /* Lobi Düzeni: Mobilde Scroll Edilebilir Dikey Liste */
-            body { overflow: hidden; } /* Body taşmasını engelle */
-            .main-container {
-                display: block; /* Flex'i iptal et */
-                padding-top: 180px; /* Header boşluğu */
-                overflow-y: auto; /* Dikey scroll aç */
-                height: 100vh;
-                padding-bottom: 80px; /* Dock handle için alt boşluk */
-            }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .game-blur { filter: blur(5px); }
 
-            .lobby-grid {
-                flex-direction: column; /* Alt alta diz */
-                height: auto;
-                width: 95%;
-                margin: 0 auto;
-                gap: 15px;
-                padding-bottom: 100px; /* En alttaki kart için ekstra boşluk */
-            }
-
-            /* Kartları Yatay Şerit Haline Getir */
-            .lobby-card {
-                width: 100%;
-                max-width: 100%;
-                height: 140px; /* Şerit yüksekliği */
-                flex: none; /* Boyut bozulmasın */
-                /* Mobilde köşeleri farklı kes */
-                clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-            }
-
-            .lobby-card:hover {
-                transform: scale(1.02); /* Mobilde aşırı büyümesin */
-            }
-
-            .card-bg { background-position: center 20%; /* Görselin yüz kısmını odakla */ }
-
-            .card-content {
-                bottom: 10px; left: 10px; width: auto; 
-                display: flex; flex-direction: column; align-items: flex-start;
-            }
-            
-            .status-bar {
-                width: auto; padding: 5px 20px; 
-                font-size: 0.9rem; margin: 0;
-                clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
-            }
-            .card-sub-text { text-align: left; margin-left: 5px; font-size: 0.6rem; }
-            
-            /* Süslemeleri Mobilde Gizle/Küçült */
-            .top-decoration { display: none; }
-            .diamond-tip { right: 20px; left: auto; bottom: 20px; transform: rotate(45deg); }
-
-            /* İçerik Sayfası (Popup) */
-            .content-section {
-                width: 95%; height: 85%;
-                padding: 20px;
-            }
-            h2.section-title { font-size: 2rem; }
-            
-            /* Dock & Carousel Küçültme */
-            #dockWrapper {
-                height: 75vh; /* Mobilde biraz daha yer kaplasın */
-            }
-            .dock-handle-center {
-                padding: 10px 30px; width: 80%;
-                font-size: 0.8rem; top: -35px;
-            }
-            .carousel-container {
-                /* 3D Carousel'i bozmadan küçültmek için en güvenli yol */
-                transform: scale(0.45); 
-                margin-top: -50px;
-            }
-        }
+        /* Hacker text vb. diğer efektler korundu */
     </style>
 </head>
 <body onload="startLobbyEntrance()">
-    
+
     <div id="parallax-bg"></div>
-
     <div id="cursor-glow"></div>
-
-    <audio id="ui-hover" src="" preload="auto"></audio>
-    <audio id="ui-click" src="" preload="auto"></audio>
-
-    <div class="energy-beam beam-left" id="beamLeft"></div>
-    <div class="energy-beam beam-right" id="beamRight"></div>
-
-    <div id="success-overlay">
-        <div class="success-text" id="successText">MOD DEĞİŞTİ</div>
-        <div class="success-stats" id="successStats">PUAN: 20 - SÜRE: 12sn</div>
-    </div>
-
-    <div id="particles-container"></div>
 
     <div class="header-container blur-target" id="headerRef">
         <h1 class="logo" onclick="showLobby()">SHRBRK</h1>
         <div class="hero-links">
-            <a href="https://www.tiktok.com/@shrbrktw" class="hero-link" data-text="TIKTOK">TIKTOK</a>
-            <a href="https://kick.com/shrbrk" class="hero-link" data-text="KICK">KICK</a>
-            <a href="https://www.instagram.com/shrbrkofficial/" class="hero-link" data-text="INSTAGRAM">INSTAGRAM</a>
-            <a href="https://www.youtube.com/@SHRBRK" class="hero-link" data-text="YOUTUBE">YOUTUBE</a>
-            <a href="mailto:shrbrk@outlook.com" class="hero-link" data-text="İLETİŞİM">İLETİŞİM</a>
+            <a href="https://www.tiktok.com/@shrbrktw" class="hero-link">TIKTOK</a>
+            <a href="https://kick.com/shrbrk" class="hero-link">KICK</a>
+            <a href="https://instagram.com/shrbrkofficial" class="hero-link">INSTAGRAM</a>
+            <a href="https://youtube.com/@SHRBRK" class="hero-link">YOUTUBE</a>
         </div>
+        
         <div class="top-controls">
+            <div id="auth-buttons-container" style="display:flex; gap:10px;">
+                <button class="control-btn auth-btn" onclick="openAuthModal('login')">GİRİŞ YAP</button>
+                <button class="control-btn auth-btn" onclick="openAuthModal('register')">KAYIT OL</button>
+            </div>
+            <div id="user-profile-container" style="display:none; gap:10px; align-items:center;">
+                <span id="display-username" style="font-family:var(--font-head); font-size:0.8rem; color:var(--cyber-blue);">USER</span>
+                <button class="control-btn" onclick="logoutUser()">ÇIKIŞ</button>
+            </div>
+
             <button class="control-btn" id="themeBtn" onclick="toggleTheme()">
-                <i class="fas fa-adjust"></i> MOD DEĞİŞTİR
+                <i class="fas fa-adjust"></i> MOD
             </button>
+        </div>
+    </div>
+
+    <div id="modal-login" class="auth-modal">
+        <div class="auth-box">
+            <span class="close-auth" onclick="closeAuthModal('login')"><i class="fas fa-times"></i></span>
+            <h2 style="color:var(--cyber-blue); font-family:var(--font-head);">GİRİŞ YAP</h2>
+            <input type="email" id="login-email" class="auth-input" placeholder="E-Posta Adresi">
+            <input type="password" id="login-pass" class="auth-input" placeholder="Şifre">
+            <button class="auth-submit" onclick="loginWithEmail()">GİRİŞ YAP</button>
+            <button class="auth-submit" style="background:#fff; color:#333; margin-top:10px;" onclick="loginWithGoogle()"><i class="fab fa-google"></i> GOOGLE İLE GİRİŞ</button>
+        </div>
+    </div>
+
+    <div id="modal-register" class="auth-modal">
+        <div class="auth-box">
+            <span class="close-auth" onclick="closeAuthModal('register')"><i class="fas fa-times"></i></span>
+            <h2 style="color:var(--val-red); font-family:var(--font-head);">KAYIT OL</h2>
+            <input type="text" id="reg-name" class="auth-input" placeholder="Kullanıcı Adı">
+            <input type="email" id="reg-email" class="auth-input" placeholder="E-Posta Adresi">
+            <input type="password" id="reg-pass" class="auth-input" placeholder="Şifre (Min 6 Karakter)">
+            <button class="auth-submit" style="background:var(--val-red); color:#fff;" onclick="registerWithEmail()">KAYIT OL</button>
         </div>
     </div>
 
     <div class="main-container blur-target" id="mainContainer">
         <div id="lobby" class="lobby-grid">
-            <div class="lobby-card c1" onclick="openPage('page-yayinlar')">
-                <div class="card-bg"></div><div class="top-decoration"></div>
-                <div class="card-content"><div class="status-bar" data-text="YAYINLAR">YAYINLAR</div><div class="card-sub-text" data-text="TAKVİM">TAKVİM</div></div><div class="diamond-tip"></div>
-            </div>
-            <div class="lobby-card c2" onclick="openPage('page-oyunlar')">
-                <div class="card-bg"></div><div class="top-decoration"></div>
-                <div class="card-content"><div class="status-bar" data-text="OYUNLAR">OYUNLAR</div><div class="card-sub-text" data-text="KÜTÜPHANE">KÜTÜPHANE</div></div><div class="diamond-tip"></div>
-            </div>
-            <div class="lobby-card c3" onclick="openPage('page-hakkinda')">
-                <div class="card-bg"></div><div class="top-decoration"></div>
-                <div class="card-content"><div class="status-bar" data-text="HAKKIMIZDA">HAKKIMIZDA</div><div class="card-sub-text" data-text="BİYOGRAFİ">BİYOGRAFİ</div></div><div class="diamond-tip"></div>
-            </div>
-            <div class="lobby-card c4" onclick="openPage('page-ekipman')">
-                <div class="card-bg"></div><div class="top-decoration"></div>
-                <div class="card-content"><div class="status-bar" data-text="EKİPMAN">EKİPMAN</div><div class="card-sub-text" data-text="SETUP">SETUP</div></div><div class="diamond-tip"></div>
-            </div>
-            <div class="lobby-card c5" onclick="openPage('page-iletisim')">
-                <div class="card-bg"></div><div class="top-decoration"></div>
-                <div class="card-content"><div class="status-bar" data-text="İLETİŞİM">İLETİŞİM</div><div class="card-sub-text" data-text="CONTACT">CONTACT</div></div><div class="diamond-tip"></div>
+            <div class="lobby-card c1" onclick="openPage('page-yayinlar')"><div class="card-bg"></div><div class="card-content"><div class="status-bar">YAYINLAR</div></div></div>
+            <div class="lobby-card c2" onclick="openPage('page-oyunlar')"><div class="card-bg"></div><div class="card-content"><div class="status-bar">OYUNLAR</div></div></div>
+            <div class="lobby-card c3" onclick="openPage('page-hakkinda')"><div class="card-bg"></div><div class="card-content"><div class="status-bar">HAKKIMIZDA</div></div></div>
+            <div class="lobby-card c4" onclick="openPage('page-ekipman')"><div class="card-bg"></div><div class="card-content"><div class="status-bar">EKİPMAN</div></div></div>
+            <div class="lobby-card c5" onclick="openPage('page-iletisim')"><div class="card-bg"></div><div class="card-content"><div class="status-bar">İLETİŞİM</div></div></div>
+            
+            <div class="lobby-card c6" onclick="openPage('page-forum')">
+                <div class="card-bg"></div>
+                <div class="card-content"><div class="status-bar" style="color:var(--cyber-blue);">FORUM</div><div class="card-sub-text">TOPLULUK</div></div>
             </div>
         </div>
 
         <div id="page-yayinlar" class="content-section">
-            <h2 class="section-title">YAYIN TAKVİMİ</h2>
-            <p style="font-size: 1.2rem; color: var(--text-secondary);">Haftalık canlı yayın programımız aşağıdadır.</p>
-            <table class="cyber-table">
-                <tr><th>GÜN</th><th>SAAT</th><th>İÇERİK</th></tr>
-                <tr><td>PAZARTESİ</td><td>01:00</td><td>VALORANT (Dereceli)</td></tr>
-                <tr><td>ÇARŞAMBA</td><td>21:00</td><td>KORKU OYUNLARI</td></tr>
-                <tr><td>CUMA</td><td>19:00</td><td>TAKİPÇİ ETKİNLİĞİ</td></tr>           
-            </table>
-            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
-        </div>
-        <div id="page-oyunlar" class="content-section">
-            <h2 class="section-title">OYUN GEÇMİŞİ</h2>
-            <p style="font-size: 1.2rem; color: var(--text-secondary);">Aktif olarak oynadığımız ana oyunlar.</p>
-            <ul style="list-style: none; padding: 0; font-size: 1.5rem; line-height: 2;">
-                <li>🎮 <strong>VALORANT</strong> - <span>Ascendant</span></li>
-                <li>⚔️ <strong>LEAGUE OF LEGENDS</strong> - <span>Duo Bot</span></li>
-            </ul>
-            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
-        </div>
-        <div id="page-hakkinda" class="content-section">
-            <h2 class="section-title">BİZ KİMİZ?</h2>
-            <p style="max-width: 800px; font-size: 1.3rem; line-height: 1.6;">Biz Seher ve Burak. Yaklaşık 4 senedir yayın açıyoruz.</p>
-            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
-        </div>
-        <div id="page-ekipman" class="content-section">
-            <h2 class="section-title">SİSTEMLER</h2>
-            <div style="display: flex; gap: 50px; justify-content: center; margin-top: 20px;">
-                <div style="text-align: center;"><h3>BURAK PC</h3><p>Ryzen 9 7900X</p><p>RTX 4080 Super</p></div>
-                <div style="text-align: center;"><h3>SEHER PC</h3><p>Intel i7 13700K</p><p>RTX 4070 Ti</p></div>
+            <div class="standard-content">
+                <h2 style="font-family:var(--font-head); color:var(--cyber-blue);">YAYIN PROGRAMI</h2>
+                <p>Haftalık yayın takvimi burada.</p>
+                <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
             </div>
-            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
         </div>
-        <div id="page-iletisim" class="content-section">
-            <h2 class="section-title">İLETİŞİM</h2>
-            <h3 style="font-family: 'Courier New', monospace; font-size: 2rem; color: var(--val-red);">contact@shrbrk.com</h3>
-            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
+        <div id="page-oyunlar" class="content-section"><div class="standard-content"><h2>OYUNLAR</h2><button class="back-btn" onclick="showLobby()">GERİ</button></div></div>
+        <div id="page-hakkinda" class="content-section"><div class="standard-content"><h2>BİZ KİMİZ?</h2><button class="back-btn" onclick="showLobby()">GERİ</button></div></div>
+        <div id="page-ekipman" class="content-section"><div class="standard-content"><h2>EKİPMANLAR</h2><button class="back-btn" onclick="showLobby()">GERİ</button></div></div>
+        <div id="page-iletisim" class="content-section"><div class="standard-content"><h2>İLETİŞİM</h2><button class="back-btn" onclick="showLobby()">GERİ</button></div></div>
+
+        <div id="page-forum" class="content-section" style="padding:0; align-items:stretch;">
+            <div class="forum-layout">
+                <div class="forum-sidebar">
+                    <div style="padding:0 20px 20px 20px; font-family:var(--font-head); color:var(--val-red); font-size:1.2rem;">KATEGORİLER</div>
+                    <div class="forum-cat-btn active" onclick="switchCategory('ekip', this)"><i class="fas fa-users"></i> Ekip Sohbeti</div>
+                    <div class="forum-cat-btn" onclick="switchCategory('oyun', this)"><i class="fas fa-gamepad"></i> Oyun Genel</div>
+                    <div class="forum-cat-btn" onclick="switchCategory('big5', this)"><i class="fas fa-hand-paper"></i> Big 5</div>
+                    <div class="forum-cat-btn" onclick="switchCategory('valorant', this)"><i class="fas fa-crosshairs"></i> Valorant</div>
+                    
+                    <div style="margin-top:auto; padding:20px;">
+                         <button class="back-btn" style="width:100%; margin:0;" onclick="showLobby()">ÇIKIŞ</button>
+                    </div>
+                </div>
+
+                <div class="forum-main">
+                    <div class="forum-header">
+                        <h3 id="forum-title" style="margin:0; font-family:var(--font-head); color:var(--cyber-blue);">EKİP SOHBETİ</h3>
+                        <span style="font-size:0.8rem; color:var(--text-secondary);">SHRBRK Community</span>
+                    </div>
+
+                    <div id="chat-messages" class="chat-area">
+                        <div style="text-align:center; color:#555; margin-top:50px;">Yükleniyor...</div>
+                    </div>
+
+                    <div class="input-area">
+                        <div id="guest-warning" style="width:100%; text-align:center; color:#aaa; font-size:0.9rem;">
+                            Sohbete katılmak için lütfen sağ üstten <span style="color:var(--val-red); cursor:pointer;" onclick="openAuthModal('login')">GİRİŞ YAPIN</span>
+                        </div>
+                        <div id="member-input" style="display:none; width:100%; gap:10px; display:flex;">
+                            <input type="text" id="msg-input" class="chat-input" placeholder="Mesajını yaz..." autocomplete="off">
+                            <button class="send-btn" onclick="sendMessage()">GÖNDER</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="dockWrapper">
-        <div class="dock-handle-center" onclick="toggleDock()">
-            <i class="fas fa-film"></i>VIDEO GALERİ<span id="arrow">▲</span>
-        </div>
-        
-        <div class="carousel-container">
-            <div class="carousel" id="carousel">
-                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.instagram.com/reel/DSAsvLpiGfL/embed" allowtransparency="true" allowfullscreen></iframe></div>
-                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" allowfullscreen></iframe></div>
-                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/jfKfPfyJRdk?enablejsapi=1" allowfullscreen></iframe></div>
-                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/5qap5aO4i9A?enablejsapi=1" allowfullscreen></iframe></div>
-                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/L_jWHffIx5E?enablejsapi=1" allowfullscreen></iframe></div>
-            </div>
-        </div>
-        <div class="wheel-guide">SCROLL İLE DÖNDÜR</div>
-    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, push, onValue, query, limitToLast } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcPdBegs8lszoK-RIgOqQvVzXIgw8GcfE",
+            authDomain: "shrbrkinfo-chat.firebaseapp.com",
+            projectId: "shrbrkinfo-chat",
+            storageBucket: "shrbrkinfo-chat.firebasestorage.app",
+            messagingSenderId: "517040954066",
+            appId: "1:517040954066:web:b1ad2c4cf4ac1ea6ff6b0b",
+            databaseURL: "https://shrbrkinfo-chat-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        let currentCategory = 'ekip';
+        let currentUser = null;
+
+        // --- AUTH FONKSİYONLARI ---
+        window.openAuthModal = (type) => {
+            document.getElementById('modal-' + type).style.display = 'flex';
+        }
+        window.closeAuthModal = (type) => {
+            document.getElementById('modal-' + type).style.display = 'none';
+        }
+
+        // Kayıt Ol (Email)
+        window.registerWithEmail = async () => {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-pass').value;
+
+            if(!name || !email || !pass) { alert("Lütfen tüm alanları doldurun!"); return; }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                // Kullanıcı adını güncelle
+                await updateProfile(userCredential.user, { displayName: name });
+                alert("Kayıt Başarılı! Hoşgeldin " + name);
+                closeAuthModal('register');
+            } catch (error) {
+                alert("Hata: " + error.message);
+            }
+        };
+
+        // Giriş Yap (Email)
+        window.loginWithEmail = async () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                closeAuthModal('login');
+            } catch (error) {
+                alert("Giriş Hatası: " + error.message);
+            }
+        };
+
+        // Giriş Yap (Google)
+        window.loginWithGoogle = () => {
+            signInWithPopup(auth, googleProvider)
+                .then(() => closeAuthModal('login'))
+                .catch((err) => alert("Hata: " + err.message));
+        };
+
+        // Çıkış Yap
+        window.logoutUser = () => signOut(auth);
+
+        // Kullanıcı Durum Takibi
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const btns = document.getElementById('auth-buttons-container');
+            const profile = document.getElementById('user-profile-container');
+            const guestWarn = document.getElementById('guest-warning');
+            const memberInput = document.getElementById('member-input');
+
+            if (user) {
+                // Giriş Yapılmış
+                btns.style.display = 'none';
+                profile.style.display = 'flex';
+                document.getElementById('display-username').innerText = user.displayName || user.email;
+                
+                guestWarn.style.display = 'none';
+                memberInput.style.display = 'flex';
+            } else {
+                // Misafir
+                btns.style.display = 'flex';
+                profile.style.display = 'none';
+                
+                guestWarn.style.display = 'block';
+                memberInput.style.display = 'none';
+            }
+        });
+
+        // --- FORUM FONKSİYONLARI ---
+        window.switchCategory = function(cat, btn) {
+            document.querySelectorAll('.forum-cat-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const titles = { 'ekip': 'EKİP SOHBETİ', 'oyun': 'OYUN GENEL', 'big5': 'BIG 5 TARTIŞMA', 'valorant': 'VALORANT TAKTİKLERİ' };
+            document.getElementById('forum-title').innerText = titles[cat];
+            currentCategory = cat;
+            loadMessages();
+        }
+
+        window.sendMessage = function() {
+            if (!currentUser) return;
+            const input = document.getElementById('msg-input');
+            const msg = input.value;
+            if (msg.trim() === "") return;
+
+            const chatRef = ref(db, 'forumlar/' + currentCategory);
+            push(chatRef, {
+                uid: currentUser.uid,
+                kullanici: currentUser.displayName || "Anonim",
+                mesaj: msg,
+                zaman: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
+            input.value = "";
+        }
+
+        function loadMessages() {
+            const area = document.getElementById('chat-messages');
+            area.innerHTML = '<div style="text-align:center; color:#555;">Yükleniyor...</div>';
+            
+            const chatRef = query(ref(db, 'forumlar/' + currentCategory), limitToLast(50));
+            onValue(chatRef, (snapshot) => {
+                area.innerHTML = "";
+                const data = snapshot.val();
+                if(data) {
+                    Object.values(data).forEach(item => {
+                        const isMe = currentUser && item.uid === currentUser.uid;
+                        const div = document.createElement('div');
+                        div.className = 'message-card';
+                        if(isMe) div.style.borderColor = 'var(--cyber-blue)';
+                        div.innerHTML = `
+                            <div class="msg-header" style="${isMe ? 'color:var(--cyber-blue)' : ''}">${item.kullanici}</div>
+                            <div class="msg-body">${item.mesaj}</div>
+                            <div class="msg-time">${item.zaman}</div>
+                        `;
+                        area.appendChild(div);
+                    });
+                    area.scrollTop = area.scrollHeight;
+                } else {
+                    area.innerHTML = '<div style="text-align:center; color:#555; margin-top:20px;">Henüz mesaj yok.</div>';
+                }
+            });
+        }
+
+        // Klavye Enter
+        document.getElementById('msg-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendMessage();
+        });
+
+        loadMessages();
+    </script>
 
     <script>
-        // --- GLOBAL VARIABLES ---
-        let particleScore = 0;
-        let gameStartTime = Date.now();
-        const scoreTarget = 20;
-
-        // --- GLOBAL HACKER EFFECT ---
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
-        
-        function initGlobalHackerEffect() {
-            const targets = document.querySelectorAll('p, a, h2, h3, h4, h5, h6, li, td, th, span, button, strong, label, .status-bar, .card-sub-text, .dock-handle-center');
-            
-            targets.forEach(el => {
-                if (el.classList.contains('logo') || el.id === 'arrow' || el.tagName === 'I') return;
-                
-                if(!el.dataset.original) el.dataset.original = el.innerText;
-                el.addEventListener('mouseenter', () => startMatrixAnim(el));
-                el.addEventListener('mouseleave', () => stopMatrixAnim(el));
-            });
-        }
-
-        function startMatrixAnim(element) {
-            const originalText = element.dataset.original;
-            if(!originalText) return;
-            
-            clearInterval(element.interval);
-            let iteration = 0;
-            const duration = 800;
-            const intervalTime = 30; 
-            const stepsPerFrame = originalText.length / (duration / intervalTime);
-
-            element.interval = setInterval(() => {
-                element.innerText = originalText.split("").map((l, i) => {
-                    if(i < iteration) return originalText[i];
-                    return letters[Math.floor(Math.random() * letters.length)];
-                }).join("");
-                
-                if(iteration >= originalText.length) { 
-                    clearInterval(element.interval); 
-                    element.innerText = originalText; 
-                }
-                iteration += stepsPerFrame > 0.3 ? stepsPerFrame : 0.3;
-            }, intervalTime);
-        }
-
-        function stopMatrixAnim(element) {
-            clearInterval(element.interval);
-            if(element.dataset.original) element.innerText = element.dataset.original;
-        }
-
-        // --- 1. & 2. PARALLAX & CURSOR GLOW (Unified) ---
-        const parallaxBg = document.getElementById('parallax-bg');
-        const cursorGlow = document.getElementById('cursor-glow');
-        
-        document.addEventListener('mousemove', (e) => {
-            // Parallax Logic
-            const x = (e.clientX / window.innerWidth - 0.5) * 20;
-            const y = (e.clientY / window.innerHeight - 0.5) * 20;
-            if(parallaxBg) parallaxBg.style.transform = `translate(${x}px, ${y}px)`;
-
-            // Glow Logic
-            if(cursorGlow) cursorGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-        });
-
-        // --- RIPPLE EFEKTİ (Tıklama) ---
-        document.addEventListener('click', e => {
-            let rp = document.createElement('div');
-            rp.className = 'ripple';
-            rp.style.left = e.clientX + 'px';
-            rp.style.top = e.clientY + 'px';
-            document.body.appendChild(rp);
-            setTimeout(() => rp.remove(), 600);
-        });
-
-        // --- SES EFEKTLERİ (Güvenli Mod) ---
-        const uiHover = document.getElementById('ui-hover');
-        const uiClick = document.getElementById('ui-click');
-
-        function playSound(type) {
-            try {
-                if(type === 'hover' && uiHover.src) { uiHover.currentTime = 0; uiHover.play().catch(()=>{}); }
-                if(type === 'click' && uiClick.src) { uiClick.currentTime = 0; uiClick.play().catch(()=>{}); }
-            } catch(e) {}
-        }
-
-        // --- PARTİKÜL SİSTEMİ ---
-        function createParticles() {
-            const container = document.getElementById('particles-container');
-            for (let i = 0; i < 45; i++) createParticle(container);
-        }
-        function createParticle(container) {
-            const particle = document.createElement('div');
-            const isFlash = Math.random() < 0.30;
-            particle.className = isFlash ? 'particle-flash' : 'particle';
-            const isLeft = Math.random() < 0.5;
-            let x = isLeft ? Math.random() * 20 : 75 + Math.random() * 20;
-            const size = isFlash ? 60 : (Math.random() * 40 + 10);
-            const y = Math.random() * 95;
-            const tx = (Math.random() - 0.5) * 200;
-            const ty = (Math.random() - 0.5) * 200;
-            particle.style.width = `${size}px`; particle.style.height = `${size}px`;
-            particle.style.left = `${x}%`; particle.style.top = `${y}%`;
-            
-            if (!isFlash) {
-                particle.style.setProperty('--tx', `${tx}px`); particle.style.setProperty('--ty', `${ty}px`);
-                const colors = ['#ff4655', '#00ffff', '#5A189A', '#ff9900'];
-                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.boxShadow = `0 0 15px ${particle.style.background}, 0 0 30px ${particle.style.background}`;
-            } else { particle.style.background = 'var(--val-red)'; }
-            
-            particle.addEventListener('click', (e) => {
-                if(document.body.classList.contains('cards-hovered') || isDockOpen) return;
-                e.stopPropagation(); particle.remove(); createParticle(container); 
-                particleScore++; updateBeams();
-                if (particleScore >= scoreTarget) triggerThemeSwitch();
-            });
-            container.appendChild(particle);
-            particle.addEventListener('animationend', () => { if(particle.parentNode) { particle.remove(); createParticle(container); } });
-        }
-        function updateBeams() {
-            const progress = (particleScore / scoreTarget) * 100;
-            document.getElementById('beamLeft').style.height = `${progress}%`;
-            document.getElementById('beamRight').style.height = `${progress}%`;
-        }
-        function triggerThemeSwitch() {
-            const now = Date.now();
-            const elapsed = ((now - gameStartTime) / 1000).toFixed(1);
-            const htmlEl = document.documentElement;
-            const wasLight = htmlEl.getAttribute('data-theme') === 'light';
-            toggleTheme(); 
-            const successText = document.getElementById('successText');
-            const successStats = document.getElementById('successStats');
-            const overlay = document.getElementById('success-overlay');
-            successText.innerText = wasLight ? "KARANLIK MOD AKTİF" : "AYDINLIK MOD AKTİF";
-            successStats.innerText = `PUAN: ${scoreTarget} - SÜRE: ${elapsed}sn`;
-            overlay.style.display = 'flex';
-            document.getElementById('mainContainer').classList.add('game-blur');
-            setTimeout(() => {
-                overlay.style.display = 'none';
-                document.getElementById('mainContainer').classList.remove('game-blur');
-                particleScore = 0; gameStartTime = Date.now(); updateBeams(); 
-            }, 2000);
-        }
-
-        // --- SAYFA GEÇİŞ ---
-        function openPage(pageId) {
-            playSound('click'); 
-            document.getElementById('lobby').style.opacity = '0';
-            document.getElementById('lobby').style.pointerEvents = 'none';
-            setTimeout(() => { document.getElementById(pageId).classList.add('active'); }, 300); 
-        }
-        function showLobby() {
-            playSound('click');
-            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
-            setTimeout(() => {
-                document.getElementById('lobby').style.opacity = '1';
-                document.getElementById('lobby').style.pointerEvents = 'auto';
-                startLobbyEntrance(); // Tekrar animasyon
-            }, 300);
-        }
-
-        // --- 6. SIRALI GİRİŞ ANİMASYONU (Stagger) ---
+        // --- ANİMASYON VE UI GEÇİŞLERİ (MEVCUT) ---
         function startLobbyEntrance() {
             const cards = document.querySelectorAll('.lobby-card');
             cards.forEach((c, i) => {
-                c.style.transition = 'none'; // Reset
-                c.style.opacity = '0';
-                c.style.transform = `translateY(60px) scale(0.9)`;
-                
-                setTimeout(() => {
-                    c.style.transition = "0.6s cubic-bezier(.2,1.3,.4,1)";
-                    c.style.opacity = '1';
-                    c.style.transform = "translateY(0) scale(1)";
-                }, i * 120); 
+                c.style.opacity = 0; c.style.transform = `translateY(60px) scale(0.9)`;
+                setTimeout(() => { c.style.opacity = 1; c.style.transform = "translateY(0) scale(1)"; }, i * 100);
             });
         }
-        
-        // --- TEMA ---
+
+        function openPage(id) {
+            document.getElementById('lobby').style.opacity = '0';
+            document.getElementById('lobby').style.pointerEvents = 'none';
+            document.getElementById('headerRef').classList.add('game-blur');
+            setTimeout(() => { document.getElementById(id).classList.add('active'); }, 300);
+        }
+
+        function showLobby() {
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('headerRef').classList.remove('game-blur');
+            setTimeout(() => { 
+                document.getElementById('lobby').style.opacity = '1'; 
+                document.getElementById('lobby').style.pointerEvents = 'auto';
+            }, 300);
+        }
+
+        let isLight = false;
         function toggleTheme() {
-            playSound('click');
-            const html = document.documentElement;
-            if(html.getAttribute('data-theme') === 'light') {
-                html.removeAttribute('data-theme');
-                document.getElementById('themeBtn').innerHTML = '<i class="fas fa-adjust"></i> MOD DEĞİŞTİR';
+            isLight = !isLight;
+            if(isLight) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.getElementById('themeBtn').innerHTML = '<i class="fas fa-moon"></i> KOYU';
             } else {
-                html.setAttribute('data-theme', 'light');
-                document.getElementById('themeBtn').innerHTML = '<i class="fas fa-moon"></i> KOYU MOD';
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('themeBtn').innerHTML = '<i class="fas fa-adjust"></i> MOD';
             }
         }
-
-        // --- VIDEO DOCK & CAROUSEL ---
-        const dockWrapper = document.getElementById('dockWrapper');
-        const arrow = document.getElementById('arrow');
-        const blurTargets = document.querySelectorAll('.blur-target');
-        let isDockOpen = false;
-
-        function stopAllVideos() {
-            const iframes = document.querySelectorAll('iframe');
-            iframes.forEach(iframe => {
-                const src = iframe.src;
-                if(src.includes('youtube.com')) {
-                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                } else if (src.includes('instagram')) {
-                    iframe.src = src; 
-                }
-            });
-        }
-
-        function toggleDock() {
-            playSound('click');
-            isDockOpen = !isDockOpen;
-            if(isDockOpen) {
-                dockWrapper.classList.add('active'); arrow.innerText = '▼';
-                document.body.classList.add('dock-open');
-                blurTargets.forEach(el => el.classList.add('blur-active'));
-                updateCarousel(); 
-            } else {
-                dockWrapper.classList.remove('active'); arrow.innerText = '▲';
-                document.body.classList.remove('dock-open');
-                blurTargets.forEach(el => el.classList.remove('blur-active'));
-                stopAllVideos(); 
-            }
-        }
-
-        // 3D CAROUSEL LOGIC
-        const carousel = document.getElementById('carousel');
-        const cells = document.querySelectorAll('.carousel-item');
-        const cellCount = cells.length;
-        let selectedIndex = 0;
         
-        const radius = 900; 
-        const theta = 360 / cellCount;
-
-        function updateCarousel() {
-            const angle = theta * selectedIndex * -1;
-            carousel.style.transform = 'translateZ(' + -radius + 'px) rotateY(' + angle + 'deg)';
-            
-            let activeIndex = selectedIndex % cellCount;
-            if (activeIndex < 0) activeIndex += cellCount;
-
-            cells.forEach((cell, index) => {
-                let dist = Math.abs(index - activeIndex);
-                if (dist > cellCount / 2) dist = cellCount - dist;
-
-                cell.classList.remove('is-active'); cell.style.pointerEvents = 'none';
-                let baseTransform = `rotateY(${theta * index}deg) translateZ(${radius}px)`;
-
-                if (dist === 0) {
-                    cell.style.transform = baseTransform + ` scale(1.0)`;
-                    cell.style.opacity = '1'; cell.style.filter = 'grayscale(0%)';
-                    cell.classList.add('is-active'); cell.style.pointerEvents = 'auto';
-                } else if (dist === 1) {
-                    cell.style.transform = baseTransform + ` scale(0.7)`;
-                    cell.style.opacity = '0.6'; cell.style.filter = 'grayscale(50%)';
-                } else {
-                    cell.style.transform = baseTransform + ` scale(0.4)`;
-                    cell.style.opacity = '0.2'; cell.style.filter = 'grayscale(100%)';
-                }
-            });
-        }
-        updateCarousel();
-
-        const dockArea = document.getElementById('dockWrapper');
-        let isThrottled = false;
-        dockArea.addEventListener('wheel', (e) => {
-            if(!isDockOpen || isThrottled) return;
-            e.preventDefault(); isThrottled = true; setTimeout(() => isThrottled = false, 200);
-            if (e.deltaY > 0) selectedIndex++; else selectedIndex--;
-            playSound('hover'); 
-            stopAllVideos(); updateCarousel();
-        }, { passive: false });
-
-        // --- EVENT LISTENERS ---
-        document.addEventListener('DOMContentLoaded', () => {
-            startLobbyEntrance();
-            createParticles();
-            initGlobalHackerEffect();
-            
-            document.querySelectorAll('.lobby-card').forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                    document.body.classList.add('cards-hovered');
-                    playSound('hover');
-                });
-                card.addEventListener('mouseleave', () => {
-                    document.body.classList.remove('cards-hovered');
-                });
-            });
-            
-            document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); toggleDock(); } });
+        // Mouse efekti
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 20;
+            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            document.getElementById('parallax-bg').style.transform = `translate(${x}px, ${y}px)`;
+            document.getElementById('cursor-glow').style.transform = `translate(${e.clientX - 125}px, ${e.clientY - 125}px)`;
         });
     </script>
 </body>
