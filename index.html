@@ -3,529 +3,691 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHRBRK - Orbitron Edition</title>
+    <title>SHRBRK | Gaming Duo</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* --- YENİ FONT PAKETİ (ORBITRON & RAJDHANI) --- */
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
-
-        /* --- DEĞİŞKENLER --- */
+        /* --- TASARIM SİSTEMİ --- */
         :root {
-            --bg-color: #050505;
-            --text-primary: #f0e6d2; /* Gold/Krem */
-            --text-secondary: #ffffff;
-            --drawer-bg: rgba(10, 10, 10, 0.95);
-            --card-bg: #1a1a1a;
-            --handle-bg: #f0e6d2;
-            --handle-arrow: #000;
-            --border-color: rgba(255, 255, 255, 0.2);
-            --shadow-color: rgba(0,0,0,0.8);
-            --icon-fill: #666;
-            --icon-hover-text: #fff;
-            --card-transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            --bg-color: #0d1117; 
+            --bg-gradient: radial-gradient(circle at center, #1a1f29 0%, #0d1117 100%);
+            --panel-bg: rgba(20, 25, 35, 0.95);
+            --content-panel-bg: rgba(15, 20, 30, 0.98);
+            --text-primary: #f0e6d2; 
+            --text-secondary: #aaa;
+            --val-red: #ff4655;
+            --val-dark: #1f2326;
+            --val-white: #ece8e1;
+            --cyber-blue: #00ffff;
+            --cyber-glow: 0 0 10px rgba(0, 255, 255, 0.5);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --font-head: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
         }
 
-        body.light-mode {
-            --bg-color: #ffffff;
+        /* LIGHT MODE */
+        [data-theme="light"] {
+            --bg-color: #f0f0f0; 
+            --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #f0f0f0 100%);
+            --panel-bg: rgba(255, 255, 255, 0.95);
+            --content-panel-bg: rgba(245, 245, 245, 0.98);
             --text-primary: #1a1a1a;
-            --text-secondary: #000000;
-            --drawer-bg: rgba(240, 240, 240, 0.95);
-            --card-bg: #e0e0e0;
-            --handle-bg: #333;
-            --handle-arrow: #fff;
+            --text-secondary: #555;
+            --val-red: #5A189A; 
+            --val-dark: #cccccc;
+            --val-white: #0a0a0a;
+            --cyber-blue: #5A189A;
+            --cyber-glow: 0 0 10px rgba(90, 24, 154, 0.5);
             --border-color: rgba(0, 0, 0, 0.2);
-            --shadow-color: rgba(0,0,0,0.2);
-            --icon-fill: #999;
-            --icon-hover-text: #000;
         }
 
-        html { scroll-behavior: smooth; }
-
+        * { box-sizing: border-box; }
+        
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-color);
-            color: var(--text-secondary);
-            min-height: 250vh; 
-            overflow-x: hidden;
-            /* Ana metin fontu: Rajdhani */
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 500;
-            display: flex; flex-direction: column; align-items: center;
-            transition: background-color 0.5s ease, color 0.5s ease;
+            background-image: var(--bg-gradient);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            overflow: hidden; 
+            height: 100vh;
+            transition: background 0.5s, color 0.5s;
+            position: relative;
+        }
+
+        /* GRAIN */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACxK+W5AAAAEHRSTlMAAAICBAUGBwsMDE9RUVVZXGAaK2fGAAAAAWJLR0QAiAUdSAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAKJJREFUSMftjksOwCAMBD8u9d+5T+dYlSokU+N2XjXgq0JES5aVbH+j1qfQnE+X7yUjE8Q4v/z2Xg6HhQfP848x/r+gR00xM6xQ4XAAAAAASUVORK5CYII=");
+            opacity: 0.15; pointer-events: none; z-index: 100;
+        }
+
+        /* --- PARÇACIK SİSTEMİ --- */
+        #particles-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; 
+            z-index: 5; 
+        }
+
+        .particle {
+            position: absolute; border-radius: 50%;
+            background: var(--cyber-blue);
+            box-shadow: 0 0 15px var(--cyber-blue), 0 0 30px var(--cyber-blue);
+            animation: particleLifecycle 6s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+            cursor: crosshair; 
+            pointer-events: auto; /* Tıklanabilir */
+            transition: transform 0.1s;
+        }
+
+        .particle-flash {
+            position: absolute; border-radius: 50%;
+            box-shadow: 0 0 25px var(--val-red), 0 0 50px var(--val-red); 
+            animation: flashLifecycle 2s ease-out forwards;
+            cursor: crosshair; pointer-events: auto; 
+        }
+
+        body.cards-hovered .particle, 
+        body.cards-hovered .particle-flash,
+        body.dock-open .particle, 
+        body.dock-open .particle-flash {
+            pointer-events: none !important;
+            opacity: 0.2; 
+        }
+
+        @keyframes particleLifecycle {
+            0% { transform: translate3d(0, 0, 0) scale(0); opacity: 0; }
+            10% { opacity: 1; transform: translate3d(var(--tx), var(--ty), 0) scale(1); } 
+            90% { opacity: 1; transform: translate3d(calc(var(--tx) * 1.5), calc(var(--ty) * 1.5), 0) scale(1.1); } 
+            100% { opacity: 0; transform: translate3d(calc(var(--tx) * 1.8), calc(var(--ty) * 1.8), 0) scale(0); } 
+        }
+        @keyframes flashLifecycle {
+            0% { opacity: 0; transform: scale(1); }
+            5% { opacity: 1; transform: scale(1); } 
+            90% { opacity: 1; transform: scale(1); } 
+            100% { opacity: 0; transform: scale(0); } 
+        }
+
+        /* --- ENERJİ BARLARI --- */
+        .energy-beam {
+            position: fixed; width: 8px; z-index: 900;
+            transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--cyber-blue); box-shadow: 0 0 25px var(--cyber-blue);
+            bottom: 0; height: 0%;
+        }
+        .beam-left { left: 0; }
+        .beam-right { right: 0; }
+        [data-theme="light"] .energy-beam { 
+            background: #000; box-shadow: 0 0 25px rgba(0,0,0,0.5); 
+            top: 0; bottom: auto; 
+        }
+
+        /* --- BAŞARI MESAJI --- */
+        #success-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column;
+            pointer-events: none; background: rgba(0,0,0,0.4); 
+        }
+        .success-text {
+            font-family: var(--font-head); font-weight: 900; font-size: 4rem;
+            color: var(--val-white); text-shadow: 0 0 30px rgba(0,0,0,0.8); 
+            text-align: center; letter-spacing: 5px; margin-bottom: 20px;
+        }
+        .success-stats {
+            font-family: var(--font-body); font-size: 2rem;
+            color: var(--text-primary); font-weight: 700; text-transform: uppercase;
+            background: var(--panel-bg); padding: 10px 30px;
+            border: 2px solid var(--val-red); 
+            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         /* --- HEADER --- */
-        .header { text-align: center; margin-top: 5vh; z-index: 200; position: relative; flex-shrink: 0; }
-        
-        h1 {
-            /* BAŞLIK FONTU: ORBITRON */
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900; /* Ekstra Kalın */
-            font-size: 5rem; 
-            color: var(--text-primary); margin: 0;
-            letter-spacing: 5px; /* Geniş aralık */
-            text-shadow: 4px 4px 0px var(--border-color); 
-            cursor: pointer;
-            transition: color 0.5s, transform 0.2s;
+        .header-container {
+            position: fixed; top: 0; left: 0; width: 100%; padding-top: 15px; 
+            z-index: 3000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            pointer-events: none; 
         }
-        h1:hover { transform: scale(1.02); }
-        h1:active { transform: scale(0.98); }
+        .header-container > * { pointer-events: auto; } 
 
-        h2 { 
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.2rem; 
-            font-weight: 600; 
-            letter-spacing: 8px; /* Çok geniş aralık modern durur */
-            margin-top: 5px; 
-            color: var(--text-primary); 
-            opacity: 0.8; 
-            text-transform: uppercase;
-            transition: color 0.5s; 
+        .logo {
+            font-family: var(--font-head); font-size: 3.5rem; font-weight: 900;
+            letter-spacing: 8px; margin: 0; color: var(--val-white);
+            text-shadow: 0 0 20px rgba(255, 70, 85, 0.5); cursor: pointer;
         }
 
-        /* --- LOBBY CONTAINER (ANASAYFA) --- */
-        .page-content-wrapper {
-            width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 30px;
-        }
-
-        .lobby-container {
-            display: flex; gap: 15px; width: 90%; height: 65vh; perspective: 1000px;
-        }
-
-        .lobby-card {
-            position: relative; flex: 1; height: 100%;
-            background-position: center; background-size: cover; background-repeat: no-repeat;
-            border-radius: 4px; overflow: hidden;
-            transition: flex var(--card-transition), filter var(--card-transition), transform 0.1s ease-out;
-            cursor: pointer;
+        .hero-links { display: flex; gap: 10px; margin-top: 25px; }
+        .hero-link {
+            text-decoration: none; color: var(--text-secondary);
+            font-family: var(--font-head); font-size: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.1); padding: 8px 0;
+            background: rgba(255,255,255,0.05); text-transform: uppercase;
+            width: 140px; text-align: center;
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            box-shadow: 0 10px 30px var(--shadow-color);
-            display: flex; flex-direction: column; justify-content: flex-end;
-            border: 1px solid var(--border-color);
+            transition: 0.3s;
         }
+        .hero-link:hover { background: var(--val-red); color: var(--val-white); border-color: var(--val-red); transform: scale(1.08) translateY(-2px); }
 
-        .lobby-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent 60%);
-            z-index: 1; transition: opacity 0.3s;
+        .top-controls { position: absolute; right: 40px; top: 30px; display: flex; gap: 10px; }
+        .control-btn {
+            pointer-events: auto; background: transparent;
+            border: 1px solid var(--border-color); color: var(--text-primary);
+            padding: 8px 15px; cursor: pointer;
+            font-family: var(--font-head); font-size: 0.7rem;
+            display: flex; align-items: center; gap: 8px; transition: 0.3s;
+            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
         }
+        .control-btn:hover { background: var(--val-white); color: #000; }
 
-        .lobby-container:hover .lobby-card { filter: grayscale(100%) brightness(0.4); }
-        .lobby-container .lobby-card:hover {
-            flex: 3; filter: grayscale(0%) brightness(1.1); z-index: 2; border-color: var(--text-primary);
-        }
-
-        .lobby-content {
-            position: relative; z-index: 2; padding: 20px; text-align: center;
-        }
-
-        .role-icon {
-            width: 40px; height: 40px; margin: 0 auto 10px;
-            border: 1px solid var(--text-primary);
+        /* --- LOBBY MERKEZİ --- */
+        .main-container { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.5); transform: rotate(45deg);
+            z-index: 10; padding-top: 150px; 
+            pointer-events: none; 
+            transition: filter 0.5s ease;
         }
-        .role-icon span { transform: rotate(-45deg); font-size: 20px; color: var(--text-primary); }
+        .blur-active { filter: blur(10px); pointer-events: none; }
 
-        .lobby-title {
-            font-family: 'Orbitron', sans-serif; /* ORBITRON */
-            font-size: 2.5rem; color: var(--text-primary);
-            font-weight: 800;
-            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(240, 230, 210, 0.3); white-space: nowrap; line-height: 1;
-        }
-
-        .lobby-desc {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.3rem; color: #ccc; opacity: 0; transform: translateY(20px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            text-transform: uppercase; font-weight: 600; letter-spacing: 1px;
-        }
-        .lobby-card:hover .lobby-desc { opacity: 1; transform: translateY(0); }
-
-        .lobby-status {
-            margin-top: 15px; font-size: 1rem; color: var(--text-primary);
-            font-family: 'Orbitron', sans-serif;
-            font-weight: bold; opacity: 0; transform: scale(0.8);
-            transition: all 0.3s 0.1s; letter-spacing: 3px;
-        }
-        .lobby-card:hover .lobby-status { opacity: 1; transform: scale(1); }
-
-        .line-deco {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            width: 2px; height: 40px; background: rgba(255,255,255,0.2); z-index: 2;
-        }
-
-        /* LOBBY GÖRSELLERİ */
-        .lobby-card:nth-child(1) { background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop'); }
-        .lobby-card:nth-child(2) { background-image: url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1930&auto=format&fit=crop'); }
-        .lobby-card:nth-child(3) { background-image: url('https://images.unsplash.com/photo-1624138784181-6c3774635a15?q=80&w=2070&auto=format&fit=crop'); }
-        .lobby-card:nth-child(4) { background-image: url('https://images.unsplash.com/photo-1614726365723-49faaa5bf3c6?q=80&w=1974&auto=format&fit=crop'); }
-        .lobby-card:nth-child(5) { background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop'); }
-
-        /* --- SAĞ MENÜ --- */
-        .right-nav { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 999; }
-        .nav-tab { width: 12px; height: 12px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: 2px; cursor: pointer; transition: all 0.3s ease; }
-        .nav-tab:hover, .nav-tab.active { background-color: var(--text-primary); box-shadow: 0 0 15px var(--text-primary); transform: scale(1.3); border-color: transparent; }
-
-        /* --- DİĞER SAYFALAR --- */
-        .page-section { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.5s ease; position: relative; }
-        .page-section.active { display: flex; }
-        
-        .page-title { 
-            font-family: 'Orbitron', sans-serif;
-            font-size: 5rem; color: var(--text-primary); 
-            text-transform: uppercase; letter-spacing: 5px; margin-bottom: 20px; 
-            text-shadow: 4px 4px 0 var(--shadow-color);
+        .lobby-grid {
+            display: flex; gap: 20px;
+            height: 65vh; width: 90vw; 
+            justify-content: center; align-items: center; 
         }
         
-        .page-body { font-size: 1.3rem; max-width: 800px; text-align: center; line-height: 1.6; color: #ccc; font-family: 'Rajdhani', sans-serif; }
+        .lobby-card {
+            position: relative; flex: 1; max-width: 280px; height: 100%;
+            cursor: pointer; pointer-events: auto; 
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.5, 1.2), filter 0.3s;
+            display: flex; flex-direction: column; 
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+            background: var(--val-dark); z-index: 1; 
+            transform: translateY(0) scale(1); opacity: 1;
+        }
+        
+        .lobby-card:hover {
+            transform: translateY(-15px) scale(1.1); 
+            z-index: 100;
+            box-shadow: 0 0 30px var(--val-red); 
+            filter: brightness(1.2);
+        }
+        
+        .card-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            transition: transform 0.4s; filter: grayscale(80%) brightness(0.6);
+        }
+        .c1 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/e435c3378b7999a3338b408dbb5da8ba63f91150-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
+        .c2 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/477284dfe402a85abcf6b07512bcd6f01c8fe60e-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
+        .c3 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/14145d7bf9be17afa80c04ee4fbe200076cc1769-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
+        .c4 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7cb513c9b3eae3286449776e85753138436d553c-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
+        .c5 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/47387e354c34d51b84066bc47af3c5755b92b9c5-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
+
+        .lobby-card:hover .card-bg { filter: grayscale(0%) brightness(1); transform: scale(1.05); }
+        .lobby-card:hover .status-bar { background: var(--val-red); color: var(--val-white); }
+        .lobby-card:hover .top-decoration { background: var(--val-red); box-shadow: 0 0 35px var(--val-red); }
+        .lobby-card:hover .diamond-tip { background: var(--val-red); box-shadow: 0 0 35px var(--val-red); }
+
+        .card-content { position: absolute; bottom: 15%; left: 0; width: 100%; z-index: 2; }
+        .status-bar {
+            background: rgba(255, 255, 255, 0.9); color: #000;
+            padding: 10px 0; text-align: center; font-family: var(--font-head); font-weight: 900;
+            text-transform: uppercase; letter-spacing: 3px;
+            clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%); width: 90%; margin: 0 auto; transition: 0.25s;
+        }
+        .card-sub-text { text-align: center; font-family: var(--font-head); font-size: 0.7rem; color: rgba(255,255,255,0.7); margin-top: 5px; letter-spacing: 3px; }
+        .top-decoration { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40%; height: 4px; background: rgba(255,255,255,0.3); z-index: 2; clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%); transition: 0.3s; }
+        .diamond-tip { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 24px; height: 24px; background: rgba(255,255,255,0.3); z-index: 2; transition: 0.3s; }
+        
+        /* --- İÇERİK SAYFALARI --- */
+        .content-section {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
+            width: 70%; height: 65%;
+            background: var(--content-panel-bg); 
+            border: 1px solid var(--cyber-blue);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            backdrop-filter: blur(20px); padding: 40px;
+            opacity: 0; pointer-events: none;
+            display: none; 
+            transition: opacity 0.1s ease, transform 0.15s ease;
+            overflow-y: auto; 
+            z-index: 4000; 
+            flex-direction: column; align-items: center; text-align: center;
+        }
+        
+        .content-section.active { opacity: 1; pointer-events: auto; display: flex; transform: translate(-50%, -50%) scale(1); }
+
+        .content-section p, .content-section li, .content-section h3, .content-section td { color: var(--text-primary); transition: color 0.3s; }
+        .content-section li strong { color: var(--cyber-blue); }
+        h2.section-title { font-family: var(--font-head); font-size: 3.5rem; color: var(--cyber-blue); text-shadow: var(--cyber-glow); }
+        .cyber-table th { text-align: center; border-bottom: 2px solid var(--cyber-blue); padding: 15px; font-family: var(--font-head); color: var(--text-primary); }
         
         .back-btn { 
-            margin-top: 40px; padding: 12px 35px; border: 1px solid var(--text-primary); 
-            color: var(--text-primary); font-family: 'Orbitron', sans-serif; font-weight: 700; 
-            text-transform: uppercase; cursor: pointer; transition: all 0.3s; background: transparent; letter-spacing: 1px;
+            margin-top: 40px; padding: 10px 30px; 
+            background: var(--cyber-blue); color: var(--bg-color);
+            font-family: var(--font-head); font-size: 0.9rem; 
+            cursor: pointer; text-transform: uppercase; 
+            transition: all 0.3s; letter-spacing: 2px; border: none;
+            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
         }
-        .back-btn:hover { background: var(--text-primary); color: var(--bg-color); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- SOL ÇEKMECE --- */
-        .drawer-container { position: fixed; top: 150px; left: -260px; width: 260px; z-index: 999; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-        .drawer-container:hover { transform: translateX(260px); }
-        .drawer-content { background: var(--drawer-bg); backdrop-filter: blur(15px); border-right: 1px solid var(--border-color); padding: 30px 20px; display: flex; flex-direction: column; gap: 30px; width: 100%; box-sizing: border-box; box-shadow: 10px 0 30px var(--shadow-color); border-radius: 0 0 20px 0; transition: background 0.5s, border 0.5s; }
-        .drawer-handle { position: absolute; top: 0; right: -60px; width: 60px; height: 80px; background: var(--handle-bg); border-radius: 0 15px 15px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 5px 0 15px var(--border-color); transition: all 0.3s ease; }
-        .drawer-handle::after { content: '»'; color: var(--handle-arrow); font-weight: 900; font-size: 2.5rem; line-height: 0; padding-bottom: 5px; font-family: 'Orbitron', sans-serif; }
-        .drawer-container:hover .drawer-handle { background: #5A189A; right: -50px; width: 50px; }
-        .drawer-container:hover .drawer-handle::after { content: '«'; color: white; }
+        .back-btn:hover { background: var(--val-red); color: var(--val-white); box-shadow: 0 0 15px var(--val-red); }
         
-        .side-item { display: flex; align-items: center; gap: 15px; cursor: pointer; text-decoration: none; color: var(--text-secondary); width: 100%; overflow: hidden; }
-        .side-icon { width: 30px; height: 30px; fill: var(--icon-fill); transition: all 0.3s; flex-shrink: 0; }
-        .side-text { font-family: 'Orbitron', sans-serif; font-weight: 600; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; color: #888; position: relative; white-space: nowrap; }
-        .side-item:hover .side-text { color: var(--icon-hover-text); }
-        .side-item:hover .kick-icon { fill: #00FF41; filter: drop-shadow(0 0 8px #00FF41); }
-        .side-item:hover .tiktok-icon { fill: #00F2EA; filter: drop-shadow(0 0 8px #00F2EA); }
-        .side-item:hover .youtube-icon { fill: #FF0000; filter: drop-shadow(0 0 8px #FF0000); }
-        .side-item:hover .insta-icon { fill: #E1306C; filter: drop-shadow(0 0 8px #E1306C); }
-        .hacking-effect { color: var(--icon-hover-text) !important; text-shadow: 3px 0 rgba(255,0,0,0.8), -3px 0 rgba(0,255,255,0.8); }
+        .game-blur { filter: blur(3px) !important; transition: filter 0.2s; pointer-events: none; }
 
-        /* --- ALT ÇEKMECE (DOCK) --- */
-        .bottom-dock {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60vh; z-index: 100;
-            overflow: hidden; border-radius: 40px 40px 0 0; 
-            transform: translateY(80%); 
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-            display: flex; justify-content: center; align-items: center;
-            backdrop-filter: blur(10px);
-            background: linear-gradient(to top, var(--bg-color), rgba(0,0,0,0.5));
+        /* --- YENİ DOCK SİSTEMİ (BOUNCE KALDIRILDI) --- */
+        #dockWrapper {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            height: calc(100vh - 220px); 
+            transform: translateY(100%);
+            /* BOUNCE EFEKTI YERİNE STANDART EASE-OUT GELDİ */
+            transition: transform 0.5s ease-out; 
+            background: rgba(15, 20, 30, 0.98); 
+            border-top: 0px solid var(--val-red);
+            backdrop-filter: blur(2px);
+            z-index: 5000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
+
+        #dockWrapper.active {
+            transform: translateY(0%);
+        }
+
+        .dock-handle-center {
+            position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+            background: var(--val-red); color: var(--val-white);
+            padding: 8px 50px;
+            font-family: var(--font-head); font-weight: 700; letter-spacing: 2px;
+            clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
+            cursor: pointer; transition: 0.3s;
+            display: flex; gap: 10px; align-items: center;
+        }
+        .dock-handle-center:hover { padding-bottom: 12px; transform: translateX(-50%) translateY(-5px); }
+
+        /* 3D CAROUSEL CSS */
+        .carousel-container { width: 100%; height: 400px; display: flex; justify-content: center; align-items: center; perspective: 2000px; overflow: visible; }
+        .carousel { position: relative; width: 600px; height: 340px; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.1, 0.6, 0.3, 1); }
+        .carousel-item {
+            position: absolute; width: 600px; height: 340px; left: 0; top: 0;
+            background: #000; border: 2px solid var(--val-red); border-radius: 4px; overflow: hidden;
+            transition: all 0.6s ease; opacity: 0.1; transform-origin: center center;
+        }
+        .carousel-item iframe { width: 100%; height: 100%; border: none; }
         
-        .bottom-dock:hover { transform: translateY(0); }
-        .bottom-dock.dock-hidden { transform: translateY(110%) !important; pointer-events: none; }
-        .bottom-dock.force-open { transform: translateY(0) !important; }
-
-        .scene { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; perspective: 1200px; padding-top: 80px; }
-        .card { 
-            position: absolute; width: 650px; height: 360px; border-radius: 4px; 
-            background: var(--card-bg); display: flex; justify-content: center; align-items: center; 
-            box-shadow: 0 25px 60px var(--shadow-color); 
-            transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1), background 0.5s; 
-            overflow: hidden; 
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            border: 1px solid var(--border-color); 
-            left: 50%; top: 50%; margin-left: -325px; margin-top: -180px; 
+        .video-overlay {
+            position: absolute; top:0; left:0; width:100%; height:100%; z-index: 10;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.7); color: #fff; font-family: var(--font-head); font-size: 2rem; transition: 0.3s;
         }
-        .card iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
+        .video-overlay:hover { background: rgba(0,0,0,0.4); color: var(--val-red); } 
+        .carousel-item.is-active .video-overlay { pointer-events: none; opacity: 0; }
         
-        .card-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; 
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent 50%); 
-            display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; box-sizing: border-box;
-            transition: opacity 0.3s;
+        .wheel-guide {
+            position: absolute; bottom: 30px; width: 100%; text-align: center;
+            font-family: var(--font-head); font-size: 1rem; color: #fff; text-shadow: 0 0 10px #000;
+            opacity: 0.6; pointer-events: none; text-transform: uppercase; letter-spacing: 3px;
         }
-
-        .vid-title { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: var(--text-primary); text-transform: uppercase; line-height: 1; margin: 0; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
-        .vid-subtitle { font-family: 'Rajdhani', sans-serif; font-size: 1rem; color: #fff; opacity: 0.8; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px; }
-        
-        .card.active { border: 2px solid var(--text-primary); box-shadow: 0 0 50px rgba(255, 255, 255, 0.1); z-index: 200; }
-        .card.active iframe { pointer-events: auto; }
-
-        .toggle-switch { position: fixed; top: 30px; right: 30px; width: 60px; height: 30px; background: #5A189A; border-radius: 30px; display: flex; align-items: center; padding: 2px; cursor: pointer; z-index: 300; transition: background 0.5s; }
-        .toggle-circle { width: 26px; height: 26px; background: #fff; border-radius: 50%; transition: transform 0.3s; }
-        .toggle-switch.active .toggle-circle { transform: translateX(30px); background: #333; }
-        .toggle-switch.active { background: #FFD700; }
-        
-        .info-text { 
-            position: fixed; bottom: 130px; opacity: 0.4; font-size: 0.8rem; letter-spacing: 3px; 
-            z-index: 50; pointer-events: none; color: var(--text-secondary); transition: opacity 0.3s;
-            font-family: 'Orbitron', sans-serif; 
-        }
-        .info-text.hidden { opacity: 0; }
-
-        @media (max-width: 1000px) {
-            .lobby-container { flex-direction: column; height: auto; padding-bottom: 50px; }
-            .lobby-card { width: 100%; height: 250px; clip-path: none; margin-bottom: 10px; }
-            .lobby-title { font-size: 2.5rem; }
-            .lobby-card:hover { flex: 1.5; }
-        }
-
     </style>
 </head>
-<body>
+<body onload="startLobbyEntrance()">
+    
+    <div class="energy-beam beam-left" id="beamLeft"></div>
+    <div class="energy-beam beam-right" id="beamRight"></div>
 
-    <div class="toggle-switch" id="themeToggle"><div class="toggle-circle"></div></div>
-
-    <div class="header">
-        <h1 onclick="switchPage(1)">SHRBRK</h1>
-        <h2>Seher ÖZDEN – Burak SEYMEN</h2>
+    <div id="success-overlay">
+        <div class="success-text" id="successText">MOD DEĞİŞTİ</div>
+        <div class="success-stats" id="successStats">PUAN: 20 - SÜRE: 12sn</div>
     </div>
 
-    <div class="right-nav">
-        <div class="nav-tab active" onclick="switchPage(1)" title="Anasayfa"></div>
-        <div class="nav-tab" onclick="switchPage(2)" title="Yayınlar"></div>
-        <div class="nav-tab" onclick="switchPage(3)" title="Oyunlar"></div>
-        <div class="nav-tab" onclick="switchPage(4)" title="Hakkımızda"></div>
-        <div class="nav-tab" onclick="switchPage(5)" title="Ekipman"></div>
-        <div class="nav-tab" onclick="switchPage(6)" title="İletişim"></div>
+    <div id="particles-container"></div>
+
+    <div class="header-container blur-target" id="headerRef">
+        <h1 class="logo" onclick="showLobby()">SHRBRK</h1>
+        <div class="hero-links">
+            <a href="https://www.tiktok.com/@shrbrktw" class="hero-link" data-text="TIKTOK">TIKTOK</a>
+            <a href="https://kick.com/shrbrk" class="hero-link" data-text="KICK">KICK</a>
+            <a href="https://www.instagram.com/shrbrkofficial/" class="hero-link" data-text="INSTAGRAM">INSTAGRAM</a>
+            <a href="https://www.youtube.com/@SHRBRK" class="hero-link" data-text="YOUTUBE">YOUTUBE</a>
+            <a href="mailto:shrbrk@outlook.com" class="hero-link" data-text="İLETİŞİM">İLETİŞİM</a>
+        </div>
+        <div class="top-controls">
+            <button class="control-btn" id="themeBtn" onclick="toggleTheme()">
+                <i class="fas fa-adjust"></i> MOD DEĞİŞTİR
+            </button>
+        </div>
     </div>
 
-    <div id="page1" class="page-content-wrapper">
-        <div class="lobby-container" id="lobby">
-            <div class="lobby-card" onclick="switchPage(2)">
-                <div class="line-deco"></div>
-                <div class="lobby-content">
-                    <div class="role-icon"><span>🎥</span></div>
-                    <h2 class="lobby-title hack-text" data-value="YAYINLAR">YAYINLAR</h2>
-                    <p class="lobby-desc hack-text" data-value="Canlı Yayın Takvimi">Canlı Yayın Takvimi</p>
-                    <div class="lobby-status hack-text" data-value="ONLINE">ONLINE</div>
-                </div>
+    <div class="main-container blur-target" id="mainContainer">
+        <div id="lobby" class="lobby-grid">
+            <div class="lobby-card c1" onclick="openPage('page-yayinlar')">
+                <div class="card-bg"></div><div class="top-decoration"></div>
+                <div class="card-content"><div class="status-bar" data-text="YAYINLAR">YAYINLAR</div><div class="card-sub-text" data-text="TAKVİM">TAKVİM</div></div><div class="diamond-tip"></div>
             </div>
-            <div class="lobby-card" onclick="switchPage(3)">
-                <div class="line-deco"></div>
-                <div class="lobby-content">
-                    <div class="role-icon"><span>🎮</span></div>
-                    <h2 class="lobby-title hack-text" data-value="OYUNLAR">OYUNLAR</h2>
-                    <p class="lobby-desc hack-text" data-value="Favori Oyunlarımız">Favori Oyunlarımız</p>
-                    <div class="lobby-status hack-text" data-value="READY">READY</div>
-                </div>
+            <div class="lobby-card c2" onclick="openPage('page-oyunlar')">
+                <div class="card-bg"></div><div class="top-decoration"></div>
+                <div class="card-content"><div class="status-bar" data-text="OYUNLAR">OYUNLAR</div><div class="card-sub-text" data-text="KÜTÜPHANE">KÜTÜPHANE</div></div><div class="diamond-tip"></div>
             </div>
-            <div class="lobby-card" onclick="switchPage(4)">
-                <div class="line-deco"></div>
-                <div class="lobby-content">
-                    <div class="role-icon"><span>👑</span></div>
-                    <h2 class="lobby-title hack-text" data-value="HAKKIMIZDA">HAKKIMIZDA</h2>
-                    <p class="lobby-desc hack-text" data-value="Biz Kimiz?">Biz Kimiz?</p>
-                    <div class="lobby-status hack-text" data-value="SHRBRK">SHRBRK</div>
-                </div>
+            <div class="lobby-card c3" onclick="openPage('page-hakkinda')">
+                <div class="card-bg"></div><div class="top-decoration"></div>
+                <div class="card-content"><div class="status-bar" data-text="HAKKIMIZDA">HAKKIMIZDA</div><div class="card-sub-text" data-text="BİYOGRAFİ">BİYOGRAFİ</div></div><div class="diamond-tip"></div>
             </div>
-            <div class="lobby-card" onclick="switchPage(5)">
-                <div class="line-deco"></div>
-                <div class="lobby-content">
-                    <div class="role-icon"><span>🖥️</span></div>
-                    <h2 class="lobby-title hack-text" data-value="EKİPMAN">EKİPMAN</h2>
-                    <p class="lobby-desc hack-text" data-value="Setup & Gear">Setup & Gear</p>
-                    <div class="lobby-status hack-text" data-value="LOADING...">LOADING...</div>
-                </div>
+            <div class="lobby-card c4" onclick="openPage('page-ekipman')">
+                <div class="card-bg"></div><div class="top-decoration"></div>
+                <div class="card-content"><div class="status-bar" data-text="EKİPMAN">EKİPMAN</div><div class="card-sub-text" data-text="SETUP">SETUP</div></div><div class="diamond-tip"></div>
             </div>
-            <div class="lobby-card" onclick="switchPage(6)">
-                <div class="line-deco"></div>
-                <div class="lobby-content">
-                    <div class="role-icon"><span>📩</span></div>
-                    <h2 class="lobby-title hack-text" data-value="İLETİŞİM">İLETİŞİM</h2>
-                    <p class="lobby-desc hack-text" data-value="Sponsorluk & İş">Sponsorluk & İş</p>
-                    <div class="lobby-status hack-text" data-value="OPEN">OPEN</div>
-                </div>
+            <div class="lobby-card c5" onclick="openPage('page-iletisim')">
+                <div class="card-bg"></div><div class="top-decoration"></div>
+                <div class="card-content"><div class="status-bar" data-text="İLETİŞİM">İLETİŞİM</div><div class="card-sub-text" data-text="CONTACT">CONTACT</div></div><div class="diamond-tip"></div>
             </div>
         </div>
-        <div class="info-text" id="infoText">AŞAĞI SCROLL • SPACE</div>
-    </div>
 
-    <div id="page2" class="page-section">
-        <h1 class="page-title">YAYINLAR</h1>
-        <p class="page-body">Burada haftalık yayın takvimi ve canlı yayın geçmişi yer alacak.</p>
-        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
-    </div>
-    <div id="page3" class="page-section">
-        <h1 class="page-title">OYUNLAR</h1>
-        <p class="page-body">Valorant, CS2, LoL ve daha fazlası. Oynadığımız oyunların listesi.</p>
-        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
-    </div>
-    <div id="page4" class="page-section">
-        <h1 class="page-title">HAKKIMIZDA</h1>
-        <p class="page-body">SHRBRK, oyun ve eğlence dünyasında bir araya gelen iki tutkulu oyuncunun hikayesi.</p>
-        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
-    </div>
-    <div id="page5" class="page-section">
-        <h1 class="page-title">EKİPMAN</h1>
-        <p class="page-body">Mouse: Logitech G Pro X Superlight<br>Klavye: Custom Build<br>Kulaklık: HyperX Cloud II</p>
-        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
-    </div>
-    <div id="page6" class="page-section">
-        <h1 class="page-title">İLETİŞİM</h1>
-        <p class="page-body">shrbrk@example.com üzerinden bizimle iletişime geçebilirsiniz.</p>
-        <button class="back-btn" onclick="switchPage(1)">GERİ DÖN</button>
-    </div>
-
-    <div class="drawer-container">
-        <div class="drawer-content">
-            <a href="#" class="side-item"><svg class="side-icon kick-icon" viewBox="0 0 24 24"><path d="M3,3v18h4v-7l5,7h5l-6-8l5-7h-4l-5,6V3H3z"/></svg><span class="side-text" data-original="KICK">KICK</span></a>
-            <a href="#" class="side-item"><svg class="side-icon tiktok-icon" viewBox="0 0 24 24"><path d="M12.5,3v10.5C12.5,14.9,11.4,16,10,16s-2.5-1.1-2.5-2.5S8.6,11,10,11v-3c-3,0-5.5,2.5-5.5,5.5S7,19,10,19s5.5-2.5,5.5-5.5V6c1.7,0,3.2,0.7,4.3,1.8l2.1-2.1C20.3,4.1,18.3,3,16,3H12.5z"/></svg><span class="side-text" data-original="TIKTOK">TIKTOK</span></a>
-            <a href="#" class="side-item"><svg class="side-icon youtube-icon" viewBox="0 0 24 24"><path d="M21.6,7.1c-0.2-0.9-1-1.6-1.8-1.8C18.2,5,12,5,12,5s-6.2,0-7.8,0.4c-0.9,0.2-1.6,0.9-1.8,1.8C2,8.8,2,12,2,12s0,3.2,0.4,4.9c0.2,0.9,1,1.6,1.8,1.8C5.8,19,12,19,12,19s6.2,0,7.8-0.4c0.9-0.2,1.6-0.9,1.8-1.8C22,15.2,22,12,22,12S22,8.8,21.6,7.1z M10,15V9l5.2,3L10,15z"/></svg><span class="side-text" data-original="YOUTUBE">YOUTUBE</span></a>
-            <a href="#" class="side-item"><svg class="side-icon insta-icon" viewBox="0 0 24 24"><path d="M7.8,2H16.2C19.4,2,22,4.6,22,7.8V16.2A5.8,5.8,0,0,1,16.2,22H7.8C4.6,22,2,19.4,2,16.2V7.8A5.8,5.8,0,0,1,7.8,2m0,2A3.8,3.8,0,0,0,4,7.8V16.2A3.8,3.8,0,0,0,7.8,20H16.2A3.8,3.8,0,0,0,20,16.2V7.8A3.8,3.8,0,0,0,16.2,4H7.8M12,7a5,5,0,1,1-5,5a5,5,0,0,1,5-5m0,2a3,3,0,1,0,3,3a3,3,0,0,0-3-3m5.3-3.2a1.5,1.5,0,1,1-1.5,1.5a1.5,1.5,0,0,1,1.5-1.5Z"/></svg><span class="side-text" data-original="INSTAGRAM">INSTAGRAM</span></a>
+        <div id="page-yayinlar" class="content-section">
+            <h2 class="section-title">YAYIN TAKVİMİ</h2>
+            <p style="font-size: 1.2rem; color: var(--text-secondary);">Haftalık canlı yayın programımız aşağıdadır.</p>
+            <table class="cyber-table">
+                <tr><th>GÜN</th><th>SAAT</th><th>İÇERİK</th></tr>
+                <tr><td>PAZARTESİ</td><td>01:00</td><td>VALORANT (Dereceli)</td></tr>
+                <tr><td>ÇARŞAMBA</td><td>21:00</td><td>KORKU OYUNLARI</td></tr>
+                <tr><td>CUMA</td><td>19:00</td><td>TAKİPÇİ ETKİNLİĞİ</td></tr>           
+            </table>
+            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
         </div>
-        <div class="drawer-handle"></div>
+        <div id="page-oyunlar" class="content-section">
+            <h2 class="section-title">OYUN GEÇMİŞİ</h2>
+            <p style="font-size: 1.2rem; color: var(--text-secondary);">Aktif olarak oynadığımız ana oyunlar.</p>
+            <ul style="list-style: none; padding: 0; font-size: 1.5rem; line-height: 2;">
+                <li>🎮 <strong>VALORANT</strong> - <span>Ascendant</span></li>
+                <li>⚔️ <strong>LEAGUE OF LEGENDS</strong> - <span>Duo Bot</span></li>
+            </ul>
+            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
+        </div>
+        <div id="page-hakkinda" class="content-section">
+            <h2 class="section-title">BİZ KİMİZ?</h2>
+            <p style="max-width: 800px; font-size: 1.3rem; line-height: 1.6;">Biz Seher ve Burak. Yaklaşık 4 senedir yayın açıyoruz.</p>
+            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
+        </div>
+        <div id="page-ekipman" class="content-section">
+            <h2 class="section-title">SİSTEMLER</h2>
+            <div style="display: flex; gap: 50px; justify-content: center; margin-top: 20px;">
+                <div style="text-align: center;"><h3>BURAK PC</h3><p>Ryzen 9 7900X</p><p>RTX 4080 Super</p></div>
+                <div style="text-align: center;"><h3>SEHER PC</h3><p>Intel i7 13700K</p><p>RTX 4070 Ti</p></div>
+            </div>
+            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
+        </div>
+        <div id="page-iletisim" class="content-section">
+            <h2 class="section-title">İLETİŞİM</h2>
+            <h3 style="font-family: 'Courier New', monospace; font-size: 2rem; color: var(--val-red);">contact@shrbrk.com</h3>
+            <button class="back-btn" onclick="showLobby()">LOBİYE DÖN</button>
+        </div>
     </div>
 
-    <div class="bottom-dock" id="bottomDock">
-        <div class="scene" id="scene">
-            <div class="card active"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="YOUTUBE">YOUTUBE</h2><div class="vid-subtitle">LATEST VIDEOS</div></div><iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA&enablejsapi=1&rel=0" allowfullscreen></iframe></div>
-            <div class="card"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="HIGHLIGHT">HIGHLIGHT</h2><div class="vid-subtitle">BEST MOMENTS</div></div><iframe src="https://www.youtube.com/embed/dJePNIhwf9o?enablejsapi=1&rel=0" allowfullscreen></iframe></div>
-            <div class="card"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="PLAYLIST">PLAYLIST</h2><div class="vid-subtitle">SHRBRK SPECIAL</div></div><iframe src="https://www.youtube.com/embed?listType=playlist&list=UUlK9upmQDJxAqcGBw8oh0oA&enablejsapi=1&rel=0" allowfullscreen></iframe></div>
-            <div class="card"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="SOCIALS">SOCIALS</h2><div class="vid-subtitle">INSTAGRAM REELS</div></div><iframe src="https://www.instagram.com/reel/DSAsvLpiGfL/embed" allowtransparency="true" allowfullscreen></iframe></div>
-            <div class="card"><div class="card-overlay" onclick="enableInteraction(this)"><div class="line-deco"></div><h2 class="vid-title hack-text" data-value="ARCHIVE">ARCHIVE</h2><div class="vid-subtitle">OLD BUT GOLD</div></div><iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA&enablejsapi=1&rel=0" allowfullscreen></iframe></div>
+    <div id="dockWrapper">
+        <div class="dock-handle-center" onclick="toggleDock()">
+            <i class="fas fa-film"></i>VIDEO GALERİ<span id="arrow"></span>
         </div>
+        
+        <div class="carousel-container">
+            <div class="carousel" id="carousel">
+                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.instagram.com/reel/DSAsvLpiGfL/embed" allowtransparency="true" allowfullscreen></iframe></div>
+                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" allowfullscreen></iframe></div>
+                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/jfKfPfyJRdk?enablejsapi=1" allowfullscreen></iframe></div>
+                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/5qap5aO4i9A?enablejsapi=1" allowfullscreen></iframe></div>
+                <div class="carousel-item"><div class="video-overlay"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/L_jWHffIx5E?enablejsapi=1" allowfullscreen></iframe></div>
+            </div>
+        </div>
+        <div class="wheel-guide">SCROLL İLE DÖNDÜR</div>
     </div>
 
     <script>
-        function enableInteraction(element) { if (element.parentElement.classList.contains('active')) { element.style.display = 'none'; } }
+        // --- GLOBAL VARIABLES ---
+        let particleScore = 0;
+        let gameStartTime = Date.now();
+        const scoreTarget = 20;
 
-        let currentPage = 1;
-        const bottomDock = document.getElementById('bottomDock');
-        const infoText = document.getElementById('infoText');
-        const tabs = document.querySelectorAll('.nav-tab');
-        
-        const pages = {
-            1: document.getElementById('page1'),
-            2: document.getElementById('page2'),
-            3: document.getElementById('page3'),
-            4: document.getElementById('page4'),
-            5: document.getElementById('page5'),
-            6: document.getElementById('page6')
-        };
-
-        function switchPage(pageId) {
-            if (currentPage === pageId) return;
-            currentPage = pageId;
-            tabs.forEach(t => t.classList.remove('active'));
-            if(tabs[pageId - 1]) tabs[pageId - 1].classList.add('active');
-            Object.values(pages).forEach(page => { if(page) { page.style.display = 'none'; page.classList.remove('active'); } });
-            const targetPage = pages[pageId];
-            if(targetPage) { if(pageId === 1) targetPage.style.display = 'flex'; else targetPage.classList.add('active'); }
-            if (pageId === 1) { bottomDock.classList.remove('dock-hidden'); infoText.classList.remove('hidden'); } 
-            else { bottomDock.classList.add('dock-hidden'); infoText.classList.add('hidden'); }
-        }
-
-        const toggleBtn = document.getElementById('themeToggle');
-        const body = document.body;
-        toggleBtn.addEventListener('click', () => { toggleBtn.classList.toggle('active'); body.classList.toggle('light-mode'); });
-
+        // --- GLOBAL HACKER EFFECT ---
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
-        const runMatrixEffect = (element, delay = 0) => {
-            if(!element) return;
-            const originalText = element.dataset.value;
-            setTimeout(() => {
-                let iteration = 0;
-                if(element.interval) clearInterval(element.interval);
-                element.interval = setInterval(() => {
-                    element.innerText = originalText.split("").map((l, i) => {
-                        if(i < iteration) return originalText[i];
-                        return letters[Math.floor(Math.random() * letters.length)];
-                    }).join("");
-                    if(iteration >= originalText.length) clearInterval(element.interval);
-                    iteration += 1 / 2;
-                }, 30);
-            }, delay);
-        };
-
-        const lobbyCards = document.querySelectorAll('.lobby-card');
-        lobbyCards.forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                const title = card.querySelector('.lobby-title');
-                const p = card.querySelector('.lobby-desc');
-                const status = card.querySelector('.lobby-status');
-                runMatrixEffect(title, 0); runMatrixEffect(p, 150); runMatrixEffect(status, 300);
-            });
-        });
-
-        const sideItems = document.querySelectorAll('.side-item');
-        sideItems.forEach(item => {
-            const textElement = item.querySelector('.side-text');
-            const originalText = textElement.dataset.original;
-            let effectInterval = null;
-            item.addEventListener('mouseenter', () => {
-                let iteration = 0; clearInterval(effectInterval);
-                effectInterval = setInterval(() => {
-                    textElement.innerText = originalText.split("").map((l, i) => {
-                        if(i < iteration) return originalText[i];
-                        return letters[Math.floor(Math.random() * letters.length)];
-                    }).join("");
-                    if(iteration >= originalText.length) clearInterval(effectInterval);
-                    iteration += 1/3;
-                }, 30);
-            });
-            item.addEventListener('mouseleave', () => { clearInterval(effectInterval); textElement.innerText = originalText; });
-        });
-
-        const cards = document.querySelectorAll('.card'); const totalCards = cards.length;
-        let scrollStep = 0; let isThrottled = false;
-
-        updateLayout();
-
-        bottomDock.addEventListener('mouseenter', () => { document.body.style.overflow = 'hidden'; triggerVideoEffects(); });
-        bottomDock.addEventListener('mouseleave', () => { document.body.style.overflow = 'auto'; stopCurrentVideo(); updateLayout(); });
-
-        bottomDock.addEventListener('wheel', (e) => { 
-            if (isThrottled) return;
-            if (e.deltaY > 0) { stopCurrentVideo(); scrollStep++; updateLayout(); throttle(); triggerVideoEffects(); } 
-            else if (e.deltaY < 0) { stopCurrentVideo(); scrollStep--; updateLayout(); throttle(); triggerVideoEffects(); }
-        }, { passive: true });
-
-        function throttle() { isThrottled = true; setTimeout(() => isThrottled = false, 500); }
-
-        function triggerVideoEffects() {
-            const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
-            const activeCard = cards[activeIndex];
-            const title = activeCard.querySelector('.vid-title');
-            if(title) runMatrixEffect(title, 0);
-        }
-
-        function stopCurrentVideo() {
-            const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
-            const activeCard = cards[activeIndex];
-            const iframe = activeCard.querySelector('iframe');
-            if (iframe.src.includes("youtube.com")) { iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); } 
-            else { const src = iframe.src; iframe.src = src; }
-            const overlay = activeCard.querySelector('.card-overlay');
-            if(overlay) overlay.style.display = 'flex';
-        }
-
-        function updateLayout() {
-            const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
-            cards.forEach((card, index) => {
-                let distance = (index - activeIndex) % totalCards;
-                if (distance < 0) distance += totalCards; if (distance > totalCards / 2) distance -= totalCards;
-                card.classList.remove('active'); 
-                if (distance === 0) { card.classList.add('active'); card.style.transform = `translateX(0) scale(1) translateZ(50px)`; card.style.zIndex = 100; } 
-                else if (Math.abs(distance) === 1) { card.style.transform = `translateX(${300 * distance}px) translateY(-25px) scale(0.7) translateZ(100px) rotateY(${+20 * distance}deg)`; card.style.zIndex = 50; } 
-                else { card.style.transform = `translateX(${475 * Math.sign(distance)}px) translateY(-50px) scale(0.4) translateZ(50px) rotateY(${20 * Math.sign(distance)}deg)`; card.style.zIndex = 10; }
-            });
-        }
-
-        bottomDock.addEventListener('mousemove', (e) => { 
-            const activeCard = cards[scrollStep % totalCards]; if (!activeCard) return; 
-            const x = (window.innerWidth / 2 - e.pageX) / 60; const y = (window.innerHeight / 2 - e.pageY) / 60; 
-            activeCard.style.transform = `translateX(0) scale(1) translateZ(50px) rotateY(${-x}deg) rotateX(${y}deg)`; 
-        });
         
-        cards.forEach((card, index) => { 
-            card.addEventListener('click', (e) => { 
-                const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
-                let distance = (index - activeIndex) % totalCards; 
-                if (distance < 0) distance += totalCards; if (distance > totalCards / 2) distance -= totalCards; 
-                if (distance !== 0) { stopCurrentVideo(); if(distance === 1) scrollStep++; else if(distance === -1) scrollStep--; else scrollStep += distance; updateLayout(); triggerVideoEffects(); } 
-            }); 
+        function initGlobalHackerEffect() {
+            // BAŞLIK HARİÇ TÜM METİN ELEMENTLERİNİ SEÇ
+            // p, a, button, h2-h6, span, li, td, label... ama .logo class'ı olan h1 hariç
+            const targets = document.querySelectorAll('p, a, h2, h3, h4, h5, h6, li, td, th, span, button, strong, label, .status-bar, .card-sub-text, .dock-handle-center');
+            
+            targets.forEach(el => {
+                // Eğer logo ise veya içinde ikon varsa veya ok işaretiyse atla
+                if (el.classList.contains('logo') || el.id === 'arrow' || el.tagName === 'I') return;
+                
+                // Orijinal metni sakla
+                if(!el.dataset.original) el.dataset.original = el.innerText;
+                
+                el.addEventListener('mouseenter', () => startMatrixAnim(el));
+                el.addEventListener('mouseleave', () => stopMatrixAnim(el));
+            });
+        }
+
+        function startMatrixAnim(element) {
+            const originalText = element.dataset.original;
+            if(!originalText) return;
+            
+            clearInterval(element.interval);
+            
+            let iteration = 0;
+            // 0.8 saniye (800ms) sürmesi için hesaplama
+            const duration = 800;
+            const intervalTime = 30; // Her kare süresi
+            const totalFrames = duration / intervalTime; 
+            // Her karede ne kadar ilerleyeceğimizi hesapla (metin uzunluğuna göre hızlanıp yavaşlar)
+            const stepsPerFrame = originalText.length / totalFrames;
+
+            element.interval = setInterval(() => {
+                element.innerText = originalText.split("").map((l, i) => {
+                    // Eğer harf sırası animasyon sırasından küçükse orijinal harfi göster
+                    if(i < iteration) return originalText[i];
+                    // Değilse rastgele harf göster
+                    return letters[Math.floor(Math.random() * letters.length)];
+                }).join("");
+                
+                // Bitiş kontrolü
+                if(iteration >= originalText.length) { 
+                    clearInterval(element.interval); 
+                    element.innerText = originalText; 
+                }
+                
+                // İlerleme miktarını ekle (en az 0.5 artsın ki çok kısa metinlerde takılmasın)
+                iteration += stepsPerFrame > 0.3 ? stepsPerFrame : 0.3;
+            }, intervalTime);
+        }
+
+        function stopMatrixAnim(element) {
+            clearInterval(element.interval);
+            // Mouse çekilirse anında orijinal haline dön
+            if(element.dataset.original) element.innerText = element.dataset.original;
+        }
+
+        // --- PARTİKÜL SİSTEMİ ---
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            for (let i = 0; i < 45; i++) createParticle(container);
+        }
+        function createParticle(container) {
+            const particle = document.createElement('div');
+            const isFlash = Math.random() < 0.30;
+            particle.className = isFlash ? 'particle-flash' : 'particle';
+            const isLeft = Math.random() < 0.5;
+            let x = isLeft ? Math.random() * 20 : 75 + Math.random() * 20;
+            const size = isFlash ? 60 : (Math.random() * 40 + 10);
+            const y = Math.random() * 95;
+            const tx = (Math.random() - 0.5) * 200;
+            const ty = (Math.random() - 0.5) * 200;
+            particle.style.width = `${size}px`; particle.style.height = `${size}px`;
+            particle.style.left = `${x}%`; particle.style.top = `${y}%`;
+            
+            if (!isFlash) {
+                particle.style.setProperty('--tx', `${tx}px`); particle.style.setProperty('--ty', `${ty}px`);
+                const colors = ['#ff4655', '#00ffff', '#5A189A', '#ff9900'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.boxShadow = `0 0 15px ${particle.style.background}, 0 0 30px ${particle.style.background}`;
+            } else { particle.style.background = 'var(--val-red)'; }
+            
+            particle.addEventListener('click', (e) => {
+                if(document.body.classList.contains('cards-hovered') || isDockOpen) return;
+                e.stopPropagation(); particle.remove(); createParticle(container); 
+                particleScore++; updateBeams();
+                if (particleScore >= scoreTarget) triggerThemeSwitch();
+            });
+            container.appendChild(particle);
+            particle.addEventListener('animationend', () => { if(particle.parentNode) { particle.remove(); createParticle(container); } });
+        }
+        function updateBeams() {
+            const progress = (particleScore / scoreTarget) * 100;
+            document.getElementById('beamLeft').style.height = `${progress}%`;
+            document.getElementById('beamRight').style.height = `${progress}%`;
+        }
+        function triggerThemeSwitch() {
+            const now = Date.now();
+            const elapsed = ((now - gameStartTime) / 1000).toFixed(1);
+            const htmlEl = document.documentElement;
+            const wasLight = htmlEl.getAttribute('data-theme') === 'light';
+            toggleTheme(); 
+            const successText = document.getElementById('successText');
+            const successStats = document.getElementById('successStats');
+            const overlay = document.getElementById('success-overlay');
+            successText.innerText = wasLight ? "KARANLIK MOD AKTİF" : "AYDINLIK MOD AKTİF";
+            successStats.innerText = `PUAN: ${scoreTarget} - SÜRE: ${elapsed}sn`;
+            overlay.style.display = 'flex';
+            document.getElementById('mainContainer').classList.add('game-blur');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                document.getElementById('mainContainer').classList.remove('game-blur');
+                particleScore = 0; gameStartTime = Date.now(); updateBeams(); 
+            }, 2000);
+        }
+
+        // --- SAYFA GEÇİŞ ---
+        function openPage(pageId) {
+            document.getElementById('lobby').style.opacity = '0';
+            document.getElementById('lobby').style.pointerEvents = 'none';
+            setTimeout(() => { document.getElementById(pageId).classList.add('active'); }, 300); 
+        }
+        function showLobby() {
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            setTimeout(() => {
+                document.getElementById('lobby').style.opacity = '1';
+                document.getElementById('lobby').style.pointerEvents = 'auto';
+            }, 300);
+        }
+        function startLobbyEntrance() {
+            document.querySelectorAll('.lobby-card').forEach(c => { c.style.transform = 'translateY(0) scale(1)'; c.style.opacity = '1'; });
+        }
+        
+        // --- TEMA ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            if(html.getAttribute('data-theme') === 'light') {
+                html.removeAttribute('data-theme');
+                document.getElementById('themeBtn').innerHTML = '<i class="fas fa-adjust"></i> MOD DEĞİŞTİR';
+            } else {
+                html.setAttribute('data-theme', 'light');
+                document.getElementById('themeBtn').innerHTML = '<i class="fas fa-moon"></i> KOYU MOD';
+            }
+        }
+
+        // --- VIDEO DOCK & CAROUSEL ---
+        const dockWrapper = document.getElementById('dockWrapper');
+        const arrow = document.getElementById('arrow');
+        const blurTargets = document.querySelectorAll('.blur-target');
+        let isDockOpen = false;
+
+        function stopAllVideos() {
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                const src = iframe.src;
+                if(src.includes('youtube.com')) {
+                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                } else if (src.includes('instagram')) {
+                    iframe.src = src; 
+                }
+            });
+        }
+
+        function toggleDock() {
+            isDockOpen = !isDockOpen;
+            if(isDockOpen) {
+                dockWrapper.classList.add('active'); arrow.innerText = '▼';
+                document.body.classList.add('dock-open');
+                blurTargets.forEach(el => el.classList.add('blur-active'));
+                updateCarousel(); 
+            } else {
+                dockWrapper.classList.remove('active'); arrow.innerText = '▲';
+                document.body.classList.remove('dock-open');
+                blurTargets.forEach(el => el.classList.remove('blur-active'));
+                stopAllVideos(); 
+            }
+        }
+
+        // 3D CAROUSEL LOGIC
+        const carousel = document.getElementById('carousel');
+        const cells = document.querySelectorAll('.carousel-item');
+        const cellCount = cells.length;
+        let selectedIndex = 0;
+        
+        const radius = 900; 
+        const theta = 360 / cellCount;
+
+        function updateCarousel() {
+            const angle = theta * selectedIndex * -1;
+            carousel.style.transform = 'translateZ(' + -radius + 'px) rotateY(' + angle + 'deg)';
+            
+            let activeIndex = selectedIndex % cellCount;
+            if (activeIndex < 0) activeIndex += cellCount;
+
+            cells.forEach((cell, index) => {
+                let dist = Math.abs(index - activeIndex);
+                if (dist > cellCount / 2) dist = cellCount - dist;
+
+                cell.classList.remove('is-active'); cell.style.pointerEvents = 'none';
+                let baseTransform = `rotateY(${theta * index}deg) translateZ(${radius}px)`;
+
+                if (dist === 0) {
+                    cell.style.transform = baseTransform + ` scale(1.0)`;
+                    cell.style.opacity = '1'; cell.style.filter = 'grayscale(0%)';
+                    cell.classList.add('is-active'); cell.style.pointerEvents = 'auto';
+                } else if (dist === 1) {
+                    cell.style.transform = baseTransform + ` scale(0.7)`;
+                    cell.style.opacity = '0.6'; cell.style.filter = 'grayscale(50%)';
+                } else {
+                    cell.style.transform = baseTransform + ` scale(0.4)`;
+                    cell.style.opacity = '0.2'; cell.style.filter = 'grayscale(100%)';
+                }
+            });
+        }
+        updateCarousel();
+
+        const dockArea = document.getElementById('dockWrapper');
+        let isThrottled = false;
+        dockArea.addEventListener('wheel', (e) => {
+            if(!isDockOpen || isThrottled) return;
+            e.preventDefault(); isThrottled = true; setTimeout(() => isThrottled = false, 200);
+            if (e.deltaY > 0) selectedIndex++; else selectedIndex--;
+            stopAllVideos(); updateCarousel();
+        }, { passive: false });
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            startLobbyEntrance();
+            createParticles();
+            initGlobalHackerEffect();
+            
+            document.querySelectorAll('.lobby-card').forEach(card => {
+                card.addEventListener('mouseenter', () => document.body.classList.add('cards-hovered'));
+                card.addEventListener('mouseleave', () => document.body.classList.remove('cards-hovered'));
+            });
+            
+            document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); toggleDock(); } });
         });
-
-        document.addEventListener('keydown', (e) => { if (currentPage === 1 && e.code === 'Space') { e.preventDefault(); bottomDock.classList.toggle('force-open'); } });
-
     </script>
 </body>
 </html>
