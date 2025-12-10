@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHRBRK - Fixed Scroll Interaction</title>
+    <title>SHRBRK - Final Control</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Kanit:wght@500;900&family=Montserrat:wght@300;500&display=swap');
 
+        /* --- DEĞİŞKENLER --- */
         :root {
             --bg-color: #050505;
             --text-primary: #f0e6d2;
@@ -43,11 +44,14 @@
             color: var(--text-secondary);
             min-height: 250vh; 
             overflow-x: hidden;
+            /* Dikey scroll varsayılan açık, JS ile yöneteceğiz */
+            overflow-y: auto;
             font-family: 'Montserrat', sans-serif;
             display: flex; flex-direction: column; align-items: center;
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
+        /* --- HEADER --- */
         .header { text-align: center; margin-top: 5vh; z-index: 200; position: relative; flex-shrink: 0; }
         h1 {
             font-family: 'Abril Fatface', serif; font-size: 5rem; color: var(--text-primary); margin: 0;
@@ -56,25 +60,43 @@
         }
         h2 { font-size: 1.1rem; font-weight: 300; letter-spacing: 1px; margin-top: 5px; color: var(--text-primary); opacity: 0.8; transition: color 0.5s; }
 
-        .page-content-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 50px; }
-        .content-placeholder {
-            width: 90%; height: 80vh; 
-            border: 3px dashed var(--border-color); border-radius: 20px;
-            display: flex; justify-content: center; align-items: center;
-            color: var(--text-primary); font-size: 3rem; text-transform: uppercase;
-            font-family: 'Kanit', sans-serif;
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(5px);
+        /* --- HERO --- */
+        .page-content-wrapper {
+            width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 40px;
         }
+        .hero-container {
+            width: 85%; height: 65vh; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 60px; box-sizing: border-box; border: 1px solid var(--border-color);
+            border-radius: 30px; background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(10px);
+            position: relative; overflow: hidden; transition: border 0.5s;
+        }
+        .hero-content { flex: 1; z-index: 2; }
+        .hero-subtitle { font-size: 1.2rem; letter-spacing: 5px; color: var(--text-primary); opacity: 0.8; margin-bottom: 10px; font-family: 'Kanit', sans-serif; }
+        .hero-title { font-size: 5.5rem; line-height: 0.9; margin: 0 0 25px 0; font-family: 'Abril Fatface', serif; color: var(--text-secondary); text-shadow: 4px 4px 0px var(--border-color); }
+        .hero-desc { font-size: 1.1rem; line-height: 1.6; color: var(--text-secondary); opacity: 0.7; max-width: 550px; margin-bottom: 40px; font-weight: 300; }
+        .hero-buttons { display: flex; gap: 20px; }
+        .glitch-btn { padding: 15px 40px; background: var(--text-primary); color: var(--bg-color); font-weight: 900; text-decoration: none; font-family: 'Kanit', sans-serif; letter-spacing: 1px; transition: all 0.3s; }
+        .glitch-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--text-primary); }
+        .ghost-btn { padding: 15px 40px; border: 2px solid var(--text-primary); color: var(--text-primary); font-weight: 900; text-decoration: none; font-family: 'Kanit', sans-serif; letter-spacing: 1px; transition: all 0.3s; }
+        .ghost-btn:hover { background: var(--text-primary); color: var(--bg-color); }
+        .hero-visual { flex: 1; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; }
+        .visual-circle { width: 450px; height: 450px; border-radius: 50%; border: 1px solid var(--border-color); position: absolute; animation: rotateCircle 25s linear infinite; }
+        .visual-circle::before { content: ''; position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; background: var(--text-primary); border-radius: 50%; box-shadow: 0 0 20px var(--text-primary); }
+        .visual-text { font-size: 12rem; font-family: 'Kanit', sans-serif; font-weight: 900; color: var(--text-secondary); opacity: 0.03; line-height: 0.8; text-align: center; user-select: none; }
+        @keyframes rotateCircle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+        /* --- SAĞ MENÜ --- */
         .right-nav { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 20px; z-index: 999; }
         .nav-tab { width: 15px; height: 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: 3px; cursor: pointer; transition: all 0.3s ease; }
         .nav-tab:hover, .nav-tab.active { background-color: var(--text-primary); box-shadow: 0 0 15px var(--text-primary); transform: scale(1.3); border-color: transparent; }
 
+        /* --- DİĞER SAYFALAR --- */
         .page-section { display: none; width: 100%; height: 100vh; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.5s ease; }
         .page-section.active { display: flex; }
         .other-page-content { font-size: 4rem; color: var(--text-primary); text-transform: uppercase; font-family: 'Kanit', sans-serif; text-align: center; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- SOL ÇEKMECE --- */
         .drawer-container { position: fixed; top: 150px; left: -260px; width: 260px; z-index: 999; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
         .drawer-container:hover { transform: translateX(260px); }
         .drawer-content { background: var(--drawer-bg); backdrop-filter: blur(15px); border-right: 1px solid var(--border-color); padding: 30px 20px; display: flex; flex-direction: column; gap: 30px; width: 100%; box-sizing: border-box; box-shadow: 10px 0 30px var(--shadow-color); border-radius: 0 0 20px 0; transition: background 0.5s, border 0.5s; }
@@ -82,7 +104,6 @@
         .drawer-handle::after { content: '»'; color: var(--handle-arrow); font-weight: 900; font-size: 2.5rem; line-height: 0; padding-bottom: 5px; }
         .drawer-container:hover .drawer-handle { background: #5A189A; right: -50px; width: 50px; }
         .drawer-container:hover .drawer-handle::after { content: '«'; color: white; }
-
         .side-item { display: flex; align-items: center; gap: 15px; cursor: pointer; text-decoration: none; color: var(--text-secondary); width: 100%; overflow: hidden; }
         .side-icon { width: 30px; height: 30px; fill: var(--icon-fill); transition: all 0.3s; flex-shrink: 0; }
         .side-text { font-family: 'Kanit', sans-serif; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 1px; color: #888; position: relative; white-space: nowrap; }
@@ -93,7 +114,7 @@
         .side-item:hover .insta-icon { fill: #E1306C; filter: drop-shadow(0 0 8px #E1306C); }
         .hacking-effect { color: var(--icon-hover-text) !important; text-shadow: 3px 0 rgba(255,0,0,0.8), -3px 0 rgba(0,255,255,0.8); }
 
-        /* --- DOCK --- */
+        /* --- ALT ÇEKMECE (DOCK) --- */
         .bottom-dock {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 60vh; z-index: 100;
             overflow: hidden; border-radius: 40px 40px 0 0; 
@@ -103,6 +124,7 @@
             backdrop-filter: blur(10px);
             background: linear-gradient(to top, var(--bg-color), rgba(0,0,0,0.5));
         }
+        
         .bottom-dock:hover { transform: translateY(0); }
         .bottom-dock.dock-hidden { transform: translateY(110%) !important; pointer-events: none; }
         .bottom-dock.force-open { transform: translateY(0) !important; }
@@ -122,18 +144,15 @@
             left: 50%; top: 50%; margin-left: -325px; margin-top: -180px;
         }
 
-        .card iframe { width: 100%; height: 100%; border: none; }
+        .card iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
         
-        /* --- YENİ: KORUYUCU KALKAN (OVERLAY) --- */
-        /* Bu katman videonun üzerinde durup scroll hareketini yakalar */
         .card-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; cursor: pointer;
-            /* Debug için hafif renk verebiliriz ama şimdilik şeffaf */
-            background: transparent; 
+            z-index: 10; cursor: pointer; background: transparent; 
         }
 
         .card.active { border: 2px solid var(--text-primary); box-shadow: 0 0 80px rgba(255, 255, 255, 0.1); z-index: 200; }
+        .card.active iframe { pointer-events: auto; }
 
         .toggle-switch { position: fixed; top: 30px; right: 30px; width: 60px; height: 30px; background: #5A189A; border-radius: 30px; display: flex; align-items: center; padding: 2px; cursor: pointer; z-index: 300; transition: background 0.5s; }
         .toggle-circle { width: 26px; height: 26px; background: #fff; border-radius: 50%; transition: transform 0.3s; }
@@ -142,6 +161,12 @@
         
         .info-text { position: fixed; bottom: 130px; opacity: 0.4; font-size: 0.7rem; letter-spacing: 2px; z-index: 50; pointer-events: none; color: var(--text-secondary); transition: opacity 0.3s; }
         .info-text.hidden { opacity: 0; }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .hero-container { flex-direction: column; text-align: center; height: auto; padding: 40px 20px; }
+            .hero-visual { display: none; } .hero-desc { margin: 0 auto 30px auto; } .hero-buttons { justify-content: center; }
+        }
 
     </style>
 </head>
@@ -161,12 +186,24 @@
     </div>
 
     <div id="page1" class="page-content-wrapper">
-        <div class="content-placeholder">
-            BURAYA İÇERİK GELECEK <br> 
-            <span style="font-size: 1rem; margin-top: 20px;">(Devasa Alan)</span>
+        <div class="hero-container">
+            <div class="hero-content">
+                <h3 class="hero-subtitle">WELCOME TO THE</h3>
+                <h1 class="hero-title">SHRBRK<br>UNIVERSE</h1>
+                <p class="hero-desc">Oyun dünyasının en kaotik ve eğlenceli çifti.<br> Yayınlar, vloglar ve sınırsız eğlence için doğru yerdesin.</p>
+                <div class="hero-buttons">
+                    <a href="#" class="glitch-btn">DISCORD'A KATIL</a>
+                    <a href="#" class="ghost-btn">İLETİŞİME GEÇ</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="visual-circle"></div>
+                <div class="visual-text">SHR<br>BRK</div> 
+            </div>
         </div>
         <div class="info-text" id="infoText">AŞAĞI SCROLL • SPACE</div>
     </div>
+
     <div id="page2" class="page-section"><div class="other-page-content">SAYFA 2</div></div>
     <div id="page3" class="page-section"><div class="other-page-content">SAYFA 3</div></div>
 
@@ -206,16 +243,10 @@
     </div>
 
     <script>
-        // --- ETKİLEŞİM YÖNETİMİ (YENİ) ---
-        // Karta tıklandığında kalkanı kaldır, videoya erişime izin ver
         function enableInteraction(element) {
-            // Sadece aktif karta izin ver
-            if (element.parentElement.classList.contains('active')) {
-                element.style.display = 'none'; // Kalkanı gizle
-            }
+            if (element.parentElement.classList.contains('active')) { element.style.display = 'none'; }
         }
 
-        // --- SAYFA GEÇİŞ MANTIĞI ---
         let currentPage = 1;
         const bottomDock = document.getElementById('bottomDock');
         const page1Content = document.getElementById('page1');
@@ -229,7 +260,6 @@
             currentPage = pageId;
             tabs.forEach(t => t.classList.remove('active'));
             tabs[pageId - 1].classList.add('active');
-
             if (pageId === 1) {
                 page1Content.style.display = 'flex';
                 page2Content.classList.remove('active'); page3Content.classList.remove('active');
@@ -246,6 +276,7 @@
         const body = document.body;
         toggleBtn.addEventListener('click', () => { toggleBtn.classList.toggle('active'); body.classList.toggle('light-mode'); });
 
+        // Hacker Effect
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
         const sideItems = document.querySelectorAll('.side-item');
         sideItems.forEach(item => {
@@ -258,8 +289,8 @@
                 let startTime = Date.now();
                 const runEffect = () => {
                     let elapsed = Date.now() - startTime;
-                    if (elapsed >= 1000) { textElement.innerText = originalText; textElement.classList.remove('hacking-effect'); isAnimating = false; clearInterval(effectInterval); return; }
-                    if (elapsed > 750) { if (Math.random() > 0.5) textElement.innerText = originalText.split("").map(l => letters[Math.floor(Math.random() * letters.length)]).join(""); } 
+                    if (elapsed >= 800) { textElement.innerText = originalText; textElement.classList.remove('hacking-effect'); isAnimating = false; clearInterval(effectInterval); return; }
+                    if (elapsed > 600) { if (Math.random() > 0.5) textElement.innerText = originalText.split("").map(l => letters[Math.floor(Math.random() * letters.length)]).join(""); } 
                     else { textElement.innerText = originalText.split("").map(l => letters[Math.floor(Math.random() * letters.length)]).join(""); }
                 };
                 effectInterval = setInterval(runEffect, 30);
@@ -269,29 +300,78 @@
             });
         });
 
-        // SLIDER
+        // --- SLIDER & VIDEO CONTROL ---
         const cards = document.querySelectorAll('.card'); const totalCards = cards.length;
         let scrollStep = 0; let isThrottled = false;
 
         updateLayout();
 
-        bottomDock.addEventListener('wheel', (e) => { 
-            e.preventDefault(); if (isThrottled) return; 
-            if (e.deltaY > 0) { scrollStep++; updateLayout(); throttle(); } 
-        }, { passive: false });
+        // 1. MOUSE TRAP: Mouse dock üzerindeyse SAYFA SCROLL'U KAPAT
+        bottomDock.addEventListener('mouseenter', () => {
+            document.body.style.overflow = 'hidden'; // Sayfayı kilitle
+        });
+        
+        bottomDock.addEventListener('mouseleave', () => {
+            document.body.style.overflow = 'auto'; // Sayfayı serbest bırak
+            updateLayout(); // Düzeni tazele
+        });
 
-        function throttle() { isThrottled = true; setTimeout(() => isThrottled = false, 600); }
+        // 2. BI-DIRECTIONAL SCROLL & VIDEO STOP
+        bottomDock.addEventListener('wheel', (e) => { 
+            if (isThrottled) return;
+            
+            // Hangi yöne scroll?
+            if (e.deltaY > 0) {
+                // AŞAĞI: İleri
+                stopCurrentVideo(); // Öncekini durdur
+                scrollStep++; 
+                updateLayout(); 
+                throttle(); 
+            } else if (e.deltaY < 0) {
+                // YUKARI: Geri
+                stopCurrentVideo(); // Öncekini durdur
+                scrollStep--; 
+                // scrollStep eksiye düşerse düzeltme mantığı updateLayout'ta var mı?
+                // JS'de negatif modulo sorunu için aşağıda düzenleme yapacağım.
+                updateLayout(); 
+                throttle(); 
+            }
+        }, { passive: true });
+
+        function throttle() { isThrottled = true; setTimeout(() => isThrottled = false, 500); }
+
+        // Video Durdurma Fonksiyonu (IFrame'e Pause komutu yollar)
+        function stopCurrentVideo() {
+            // Şuan aktif olan kartı bul
+            // Modulo negatif sayı düzeltmesi: ((x % n) + n) % n
+            const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
+            const activeCard = cards[activeIndex];
+            const iframe = activeCard.querySelector('iframe');
+            
+            // Eğer YouTube ise
+            if (iframe.src.includes("youtube.com")) {
+                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            } 
+            // Eğer Instagram ise (API yok, reload en temiz çözüm)
+            else {
+                const src = iframe.src;
+                iframe.src = src; 
+            }
+            
+            // Kalkanı geri getir
+            const overlay = activeCard.querySelector('.card-overlay');
+            if(overlay) overlay.style.display = 'block';
+        }
 
         function updateLayout() {
-            const activeIndex = scrollStep % totalCards;
-            
-            // HER DEĞİŞİMDE KALKANLARI GERİ GETİR (Reset)
-            // Böylece bir videoya tıkladıktan sonra başka videoya geçersen yine scroll çalışır
-            document.querySelectorAll('.card-overlay').forEach(overlay => overlay.style.display = 'block');
+            // Negatif sayılar için güvenli Modulo hesaplama
+            const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
 
             cards.forEach((card, index) => {
+                // Dairesel fark hesabı
                 let distance = (index - activeIndex) % totalCards;
-                if (distance < 0) distance += totalCards; if (distance > totalCards / 2) distance -= totalCards;
+                if (distance < 0) distance += totalCards; 
+                if (distance > totalCards / 2) distance -= totalCards;
                 
                 card.classList.remove('active'); 
 
@@ -312,14 +392,31 @@
         }
 
         bottomDock.addEventListener('mousemove', (e) => { 
-            const activeCard = cards[scrollStep % totalCards]; if (!activeCard) return; 
+            const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
+            const activeCard = cards[activeIndex]; 
+            if (!activeCard) return; 
             const x = (window.innerWidth / 2 - e.pageX) / 60; const y = (window.innerHeight / 2 - e.pageY) / 60; 
             activeCard.style.transform = `translateX(0) scale(1) translateZ(50px) rotateY(${-x}deg) rotateX(${y}deg)`; 
         });
         
-        // Mouse çekmeceden çıkınca da kalkanları resetle ki geri gelince scroll çalışsın
-        bottomDock.addEventListener('mouseleave', () => {
-            updateLayout();
+        // TIKLAMA İLE GEÇİŞ
+        cards.forEach((card, index) => { 
+            card.addEventListener('click', (e) => { 
+                // Eğer kalkan'a tıklandıysa zaten enableInteraction çalışır
+                // Burası yan kartlara tıklayınca geçiş için
+                const activeIndex = ((scrollStep % totalCards) + totalCards) % totalCards;
+                let distance = (index - activeIndex) % totalCards; 
+                if (distance < 0) distance += totalCards; if (distance > totalCards / 2) distance -= totalCards; 
+                
+                if (distance !== 0) { 
+                    stopCurrentVideo();
+                    if(distance === 1) scrollStep++;
+                    else if(distance === -1) scrollStep--;
+                    else scrollStep += distance; // Uzaktakine tıklandıysa
+                    
+                    updateLayout(); 
+                } 
+            }); 
         });
 
         // SPACE TUŞU
