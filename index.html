@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://w.soundcloud.com/player/api.js"></script>
 
     <style>
         /* --- TEMEL DEĞİŞKENLER (DARK DEFAULT) --- */
@@ -36,7 +37,6 @@
             --text-primary: #222;
             --text-secondary: #444;
             --val-dark: #f5f5f5;
-            /* Modal renklerini tersine çeviriyoruz */
             --modal-bg: rgba(240, 240, 240, 0.95);
             --modal-text: #111;
         }
@@ -58,13 +58,36 @@
         /* --- UI GİZLEME --- */
         .ui-hidden { opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }
 
-        /* --- PARALLAX --- */
+        /* --- BACKGROUND STYLING (CYBERPUNK MINIMALIST) --- */
         #parallax-bg {
             position: fixed; top: -5%; left: -5%; width: 110%; height: 110%;
             background: url('https://images.unsplash.com/photo-1546443046-ed1ce6ffd1e9?auto=format&fit=crop&w=2070&q=80') center/cover;
-            opacity: 0.10; pointer-events: none; z-index: 0;
+            opacity: 0.05; pointer-events: none; z-index: 0;
             filter: blur(4px); transition: transform 0.1s linear;
         }
+
+        /* Cyber Grid Floor */
+        .cyber-grid {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 50vh;
+            background: 
+                linear-gradient(transparent 0%, var(--val-red) 2%, transparent 3%),
+                linear-gradient(90deg, transparent 0%, var(--val-red) 2%, transparent 3%);
+            background-size: 100px 100px;
+            transform: perspective(500px) rotateX(60deg) translateY(100px) scale(2);
+            opacity: 0.1; pointer-events: none; z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+        @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
+
+        /* Decorative Orbs */
+        .cyber-orb {
+            position: fixed; border-radius: 50%; filter: blur(60px); opacity: 0.15; z-index: 0; pointer-events: none;
+            animation: orbFloat 10s ease-in-out infinite alternate;
+        }
+        .orb-1 { top: 20%; left: 20%; width: 300px; height: 300px; background: var(--cyber-blue); }
+        .orb-2 { bottom: 20%; right: 20%; width: 400px; height: 400px; background: var(--val-red); animation-duration: 15s; }
+
+        @keyframes orbFloat { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, -30px); } }
 
         /* --- CUSTOM CROSSHAIR --- */
         #custom-cursor {
@@ -111,6 +134,16 @@
         .hit-effect { position: absolute; width: 80px; height: 80px; border: 2px solid #fff; border-radius: 50%; animation: hitAnim 0.2s ease-out forwards; pointer-events: none; z-index: 9002; }
         @keyframes hitAnim { 0% { transform: scale(0.5); opacity: 1; border-width: 5px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
 
+        /* --- COUNTDOWN OVERLAY --- */
+        #countdown-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 11000;
+            display: none; justify-content: center; align-items: center;
+            font-family: 'Orbitron', sans-serif; font-size: 10rem;
+            color: var(--val-red); text-shadow: 0 0 50px var(--val-red);
+            pointer-events: none;
+        }
+
         /* --- OYUN HUD --- */
         #game-hud {
             position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
@@ -133,7 +166,7 @@
             pointer-events: auto; display: inline-flex; flex-direction: column; gap: 15px;
             background: var(--modal-bg); padding: 40px; border: 2px solid var(--val-red);
             align-items: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            color: var(--modal-text); /* Aydınlık modda yazı rengi değişir */
+            color: var(--modal-text); 
         }
         
         .big-btn {
@@ -161,6 +194,13 @@
         .action-btn:hover { background: var(--val-red); color: #fff; border-color: var(--val-red); }
         .share-btn { background: var(--cyber-blue); border-color: var(--cyber-blue); color: #000; font-weight: bold; }
         .share-btn:hover { background: #fff; }
+
+        /* WARNING TEXT */
+        .warning-text {
+            color: #ff4655; font-size: 0.9rem; margin-top: 15px; font-weight: bold; letter-spacing: 1px;
+            animation: pulseText 2s infinite;
+        }
+        @keyframes pulseText { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
 
         /* SETTINGS UI */
         .settings-row {
@@ -195,6 +235,16 @@
             transition: 0.3s;
         }
         #theme-toggle-btn:hover { background: var(--val-white); color: #000; }
+
+        /* MUSIC CONTROL BUTTON */
+        #music-ctrl-btn {
+            position: fixed; bottom: 30px; left: 30px; z-index: 8000;
+            background: rgba(0,0,0,0.7); border: 1px solid var(--val-red); color: #fff;
+            padding: 10px 20px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
+            cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+            transition: 0.3s; display: flex; gap: 10px; align-items: center;
+        }
+        #music-ctrl-btn:hover { background: var(--val-red); }
 
         /* LOBBY */
         .lobby-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 30px; z-index: 10; transition: opacity 0.5s; }
@@ -246,14 +296,42 @@
         .google-btn { width: 100%; padding: 12px; margin-top: 10px; background: #fff; color: #333; border: none; font-family: 'Orbitron', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
         .close-sidebar-btn, .auth-close { background: transparent; border: none; color: #fff; cursor: pointer; }
 
+        /* VIDEO DRAWER FIX */
         .video-trigger { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); padding: 10px 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--val-red); border-bottom: none; color: var(--val-white); font-family: 'Orbitron', sans-serif; cursor: pointer; z-index: 3000; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); transition: 0.3s;}
         #video-drawer { position: fixed; bottom: -100vh; left: 0; width: 100%; height: 90vh; background: rgba(10, 12, 16, 0.98); z-index: 3000; transition: bottom 0.6s; display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 2px solid var(--val-red); }
         #video-drawer.active { bottom: 0; }
-        .carousel-container { width: 100%; height: 60vh; perspective: 1500px; display: flex; justify-content: center; align-items: center; }
+        
+        .carousel-container { width: 100%; height: 60vh; perspective: 1500px; display: flex; justify-content: center; align-items: center; position: relative; }
         .carousel { position: relative; width: 600px; height: 350px; transform-style: preserve-3d; transition: transform 0.6s; }
-        .carousel-item { position: absolute; width: 600px; height: 350px; left: 0; top: 0; background: #000; border: 2px solid #333; transition: 0.6s; opacity: 0.3; filter: grayscale(100%); pointer-events: none; }
-        .carousel-item.active { opacity: 1; filter: grayscale(0%); pointer-events: auto; border-color: var(--val-red); box-shadow: 0 0 50px rgba(255, 70, 85, 0.2); }
-        .video-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; font-size: 3rem; color: #fff; cursor: pointer; z-index: 5; transition: 0.3s; }
+        
+        .carousel-item { 
+            position: absolute; width: 600px; height: 350px; left: 0; top: 0; 
+            background: #000; border: 2px solid #333; transition: 0.6s; 
+            opacity: 0.3; filter: grayscale(100%); pointer-events: none; 
+        }
+        .carousel-item.active { 
+            opacity: 1; filter: grayscale(0%); pointer-events: auto; 
+            border-color: var(--val-red); box-shadow: 0 0 50px rgba(255, 70, 85, 0.2); 
+        }
+        
+        .video-overlay { 
+            position: absolute; top:0; left:0; width:100%; height:100%; 
+            background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; 
+            font-size: 3rem; color: #fff; cursor: pointer; z-index: 5; transition: 0.3s; 
+        }
+        .carousel-item.playing .video-overlay { opacity: 0; pointer-events: none; }
+
+        /* NAVIGATION ARROWS */
+        .nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            font-size: 3rem; color: var(--val-red); cursor: pointer; z-index: 10;
+            background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px;
+            transition: 0.3s;
+        }
+        .nav-btn:hover { color: #fff; background: var(--val-red); }
+        .nav-btn.left { left: 5%; }
+        .nav-btn.right { right: 5%; }
+
 
         .page-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.4s; }
         .page-modal.active { opacity: 1; pointer-events: auto; }
@@ -269,12 +347,23 @@
 <body>
 
     <div id="parallax-bg"></div>
+    <div class="cyber-grid"></div>
+    <div class="cyber-orb orb-1"></div>
+    <div class="cyber-orb orb-2"></div>
     
+    <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/valorant&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false" width="1" height="1" scrolling="no" frameborder="no" allow="autoplay" style="position:fixed; top:-100px; opacity:0;"></iframe>
+
+    <button id="music-ctrl-btn" onclick="toggleMusic()">
+        <i class="fas fa-play" id="music-icon"></i> <span id="music-text">MÜZİĞİ OYNAT</span>
+    </button>
+
     <div id="custom-cursor">
         <div class="ch-h"></div>
         <div class="ch-v"></div>
         <div class="ch-dot"></div>
     </div>
+
+    <div id="countdown-overlay">3</div>
 
     <div id="game-layer"></div>
     
@@ -287,7 +376,7 @@
         <div class="start-content">
             <h2 style="margin:0; font-family:'Orbitron', sans-serif; color:var(--val-red); letter-spacing:3px;">ODAK MODU AYARLARI</h2>
             
-            <button class="big-btn" id="start-btn-text" onclick="startGame()">BAŞLAT</button>
+            <button class="big-btn" id="start-btn-text" onclick="initiateGame()">BAŞLAT</button>
             <button class="action-btn" id="resume-btn" onclick="resumeGame()" style="display:none; margin-top:10px;">DEVAM ET</button>
             
             <div class="settings-row">
@@ -310,7 +399,8 @@
                     <input type="range" id="cross-size-input" min="10" max="60" value="20" oninput="updateCrosshairSettings()">
                 </div>
             </div>
-            <div style="font-size:0.7rem; color:#666;">Zorluk değişirse skor sıfırlanır.</div>
+            <div style="font-size:0.7rem; color:#666; margin-top:5px;">Zorluk değişirse skor sıfırlanır.</div>
+            <div class="warning-text">Giriş Yapmazsanız Skorunuzu Paylaşamazsınız!</div>
         </div>
     </div>
 
@@ -402,6 +492,9 @@
     <div class="video-trigger" id="video-trigger" onclick="toggleVideoDrawer()"><i class="fas fa-film"></i> MEDYA GALERİSİ</div>
     <div id="video-drawer">
         <h2 style="font-family: 'Orbitron', sans-serif; color: var(--val-red); letter-spacing: 5px;">HIGHLIGHTS</h2>
+        <i class="fas fa-chevron-left nav-btn left" onclick="rotateCarousel(-1)"></i>
+        <i class="fas fa-chevron-right nav-btn right" onclick="rotateCarousel(1)"></i>
+
         <div class="carousel-container">
             <div class="carousel" id="carousel">
                 <div class="carousel-item active"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" allowfullscreen></iframe></div>
@@ -411,7 +504,7 @@
                 <div class="carousel-item"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/3dYiK6tqE4A?enablejsapi=1" allowfullscreen></iframe></div>
             </div>
         </div>
-        <div class="drawer-info" style="text-align:center; color:white; margin-top:20px;">VİDEOLAR ARASINDA GEZMEK İÇİN SCROLL YAPIN<br>[ SPACE İLE KAPAT ]</div>
+        <div class="drawer-info" style="text-align:center; color:white; margin-top:20px;">VİDEOLAR ARASINDA GEZMEK İÇİN OKLARI KULLANIN<br>[ SPACE İLE KAPAT ]</div>
     </div>
 
     <div id="p-yayin" class="page-modal"><div class="page-content"><h1>YAYIN PROGRAMI</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
@@ -443,6 +536,88 @@
         const googleProvider = new GoogleAuthProvider();
         let currentUser = null;
         let currentChannel = 'genel';
+
+        // --- SOUNDCLOUD LOGIC ---
+        let scWidget;
+        let isMusicPlaying = false;
+        const VALORANT_URL = "https://soundcloud.com/valorant";
+        const GENSHIN_URL = "https://soundcloud.com/user-678728947-759766535/sets/genshin-impact-relaxing-music";
+
+        window.onload = function() {
+            // Widget'ı başlat
+            const iframeElement = document.getElementById('sc-widget');
+            scWidget = SC.Widget(iframeElement);
+            
+            scWidget.bind(SC.Widget.Events.READY, function() {
+                playRandomTrack();
+                scWidget.bind(SC.Widget.Events.FINISH, function() {
+                    playRandomTrack(); 
+                });
+                // Durum değişimlerini dinle
+                scWidget.bind(SC.Widget.Events.PLAY, function() {
+                    isMusicPlaying = true;
+                    updateMusicButton();
+                });
+                scWidget.bind(SC.Widget.Events.PAUSE, function() {
+                    isMusicPlaying = false;
+                    updateMusicButton();
+                });
+            });
+
+            // Tarayıcılar otomatik başlatmayı engellerse diye tıklandığında başlat
+            document.body.addEventListener('click', function() {
+                if(!isMusicPlaying) scWidget.play();
+            }, { once: true });
+            
+            // Ayarları yükle
+            if(localStorage.getItem('shr_diff')) {
+                diffSelect.value = localStorage.getItem('shr_diff');
+                previousDiff = diffSelect.value;
+            }
+            if(localStorage.getItem('shr_color')) colorInput.value = localStorage.getItem('shr_color');
+            if(localStorage.getItem('shr_size')) sizeInput.value = localStorage.getItem('shr_size');
+            window.updateCrosshairSettings(); 
+            startPassiveParticles();
+
+            // 5 DAKİKADA BİR TOP LIST GÜNCELLE
+            setInterval(autoUpdateTopList, 5 * 60 * 1000);
+        };
+
+        window.toggleMusic = function() {
+            scWidget.toggle();
+        };
+
+        function updateMusicButton() {
+            const btnText = document.getElementById('music-text');
+            const btnIcon = document.getElementById('music-icon');
+            if(isMusicPlaying) {
+                btnText.innerText = "MÜZİĞİ DURDUR";
+                btnIcon.className = "fas fa-pause";
+            } else {
+                btnText.innerText = "MÜZİĞİ OYNAT";
+                btnIcon.className = "fas fa-play";
+            }
+        }
+
+        function playRandomTrack() {
+            scWidget.getSounds(function(sounds) {
+                if(sounds.length > 0) {
+                    const rand = Math.floor(Math.random() * sounds.length);
+                    scWidget.skip(rand);
+                    scWidget.play();
+                }
+            });
+        }
+
+        function loadMusic(theme) {
+            const url = (theme === 'light') ? GENSHIN_URL : VALORANT_URL;
+            scWidget.load(url, {
+                auto_play: true,
+                callback: function() {
+                    playRandomTrack();
+                }
+            });
+        }
 
         // AUTH
         window.openAuth = (type) => { document.getElementById('auth-modal-wrapper').style.display = 'flex'; document.getElementById('box-login').style.display = (type=='login'?'block':'none'); document.getElementById('box-register').style.display = (type=='register'?'block':'none'); }
@@ -492,7 +667,6 @@
                     const isMine = currentUser && m.uid === currentUser.uid;
                     const d = document.createElement('div');
                     d.className = isMine ? 'msg-line mine' : 'msg-line';
-                    // Odak modunda özel mesaj stili
                     if(currentChannel === 'odak') d.style.borderLeftColor = "#ff4655";
                     d.innerHTML = `<div class="msg-user"><span>${m.kullanici}</span></div><div class="msg-text">${m.mesaj}</div>`;
                     area.appendChild(d);
@@ -512,8 +686,13 @@
         // THEME
         window.toggleTheme = () => {
             const h = document.documentElement;
-            if(h.getAttribute('data-theme') === 'light') h.removeAttribute('data-theme');
-            else h.setAttribute('data-theme', 'light');
+            if(h.getAttribute('data-theme') === 'light') {
+                h.removeAttribute('data-theme');
+                loadMusic('dark'); // Valorant
+            } else {
+                h.setAttribute('data-theme', 'light');
+                loadMusic('light'); // Genshin
+            }
         }
 
         // UI HELPERS
@@ -521,7 +700,7 @@
         window.openPage = (id) => { if(isFocusMode) return; document.getElementById(id).classList.add('active'); document.getElementById('lobby-wrapper').classList.add('ui-hidden'); }
         window.closePage = () => { document.querySelectorAll('.page-modal').forEach(e=>e.classList.remove('active')); if(!isFocusMode) document.getElementById('lobby-wrapper').classList.remove('ui-hidden'); }
         
-        // --- GAME MODE (ODAK MODU) ---
+        // --- GAME MODE ---
         let isFocusMode = false;
         let gameActive = false;
         let gamePaused = false;
@@ -541,23 +720,13 @@
         const finalScoreDisplay = document.getElementById('final-score');
         const customCursor = document.getElementById('custom-cursor');
         const topControls = document.getElementById('game-controls-top');
+        const countdownOverlay = document.getElementById('countdown-overlay');
         
         const diffSelect = document.getElementById('diff-select');
         const colorInput = document.getElementById('cross-color-input');
         const sizeInput = document.getElementById('cross-size-input');
 
-        let previousDiff = "1100"; // Değişikliği takip etmek için
-
-        window.addEventListener('load', () => {
-            if(localStorage.getItem('shr_diff')) {
-                diffSelect.value = localStorage.getItem('shr_diff');
-                previousDiff = diffSelect.value;
-            }
-            if(localStorage.getItem('shr_color')) colorInput.value = localStorage.getItem('shr_color');
-            if(localStorage.getItem('shr_size')) sizeInput.value = localStorage.getItem('shr_size');
-            window.updateCrosshairSettings(); 
-            startPassiveParticles();
-        });
+        let previousDiff = "1100";
 
         document.addEventListener('mousemove', (e) => {
             if(isFocusMode && !gamePaused) {
@@ -572,15 +741,8 @@
         window.checkDifficultyChange = () => {
             const newDiff = diffSelect.value;
             if (newDiff !== previousDiff) {
-                // Zorluk değiştiyse oyunu sıfırla
                 window.resetGameVars();
                 previousDiff = newDiff;
-                
-                // Oyuncu oyun içindeyse bilgi ver (opsiyonel) veya direkt yansıtır
-                if(gameActive) {
-                    // Ayarlar menüsünde olduğu için oyun zaten duraklatılmış, 
-                    // ama arka plandaki skor sıfırlandı.
-                }
             }
             window.saveSettings();
         }
@@ -589,7 +751,6 @@
             const color = colorInput.value;
             const size = sizeInput.value;
             currentDiffTime = parseInt(diffSelect.value);
-
             document.documentElement.style.setProperty('--cross-color', color);
             document.documentElement.style.setProperty('--cross-size', size + 'px');
             window.saveSettings();
@@ -602,7 +763,6 @@
             currentDiffTime = parseInt(diffSelect.value);
         }
 
-        // --- PASİF PARTİKÜL ---
         function startPassiveParticles() {
             if(passiveInterval) clearInterval(passiveInterval);
             passiveInterval = setInterval(() => {
@@ -620,7 +780,6 @@
             setTimeout(() => p.remove(), 1000);
         }
 
-        // --- OYUN AKIŞI ---
         window.toggleGameMode = () => {
             isFocusMode = !isFocusMode;
             const uiElements = [document.getElementById('main-header'), document.getElementById('lobby-wrapper'), document.getElementById('sidebar-trigger'), document.getElementById('video-trigger')];
@@ -682,14 +841,33 @@
             if(activeTarget) { activeTarget.remove(); activeTarget = null; }
         }
 
-        window.resetAndStart = () => { resetGameVars(); startGame(); }
+        window.resetAndStart = () => { resetGameVars(); initiateGame(); }
         function stopGame() { gameActive = false; if(activeTarget) activeTarget.remove(); }
 
-        window.startGame = () => {
+        window.initiateGame = () => {
             window.saveSettings();
             resetGameVars();
             startScreen.style.display = 'none';
             resultScreen.style.display = 'none';
+            
+            // Countdown Başlat
+            countdownOverlay.style.display = 'flex';
+            let count = 3;
+            countdownOverlay.innerText = count;
+            
+            const int = setInterval(() => {
+                count--;
+                if(count > 0) {
+                    countdownOverlay.innerText = count;
+                } else {
+                    clearInterval(int);
+                    countdownOverlay.style.display = 'none';
+                    startGame(); 
+                }
+            }, 1000);
+        }
+
+        window.startGame = () => {
             hud.style.display = 'flex';
             gameActive = true;
             gamePaused = false;
@@ -706,56 +884,36 @@
             finalScoreDisplay.innerText = `${score} / ${targetLimit}`;
         }
 
-        // --- SKOR PAYLAŞIM VE TOP LIST (LİDERLİK) ---
         window.shareScore = async () => {
             if(!currentUser) { alert("Giriş yapmalısın!"); return; }
             const diffName = diffSelect.options[diffSelect.selectedIndex].text;
-            const diffKey = "diff_" + diffSelect.value; // Örn: diff_1100
-
-            // 1. Skoru Liderlik Tablosuna Kaydet (Sadece en yüksek skorunu tutmak istersen mantık değişebilir, şu an her denemeyi atıyoruz)
-            // Basitlik için her skoru kaydediyoruz, sonra sıralıyoruz.
+            const diffKey = "diff_" + diffSelect.value;
             const leaderboardRef = ref(db, 'leaderboard/' + diffKey);
-            await push(leaderboardRef, {
-                uid: currentUser.uid,
-                user: currentUser.displayName,
-                score: score,
-                timestamp: Date.now()
-            });
-
-            // 2. Top 3'ü Çek
-            const topQuery = query(leaderboardRef, orderByChild('score'), limitToLast(3));
-            const snapshot = await get(topQuery);
-            
-            let leaders = [];
-            if(snapshot.exists()) {
-                snapshot.forEach(child => leaders.push(child.val()));
-            }
-            // Firebase artan sıralama yapar, ters çevirip en yüksekleri al
-            leaders.reverse();
-
-            // 3. Mesajı Oluştur
-            let msg = `🎯 SKOR: ${score}/${targetLimit} (${diffName})<br><br>🏆 <strong>TOP 3 (${diffName})</strong>:<br>`;
-            leaders.forEach((l, index) => {
-                msg += `${index+1}. ${l.user} - ${l.score}<br>`;
-            });
-
-            // 4. Odak Kanalına Gönder
-            push(ref(db, 'forumlar/odak'), {
-                uid: "SYSTEM", // Sistem mesajı gibi görünsün
-                kullanici: "SHRBRK SYSTEM",
-                mesaj: msg
-            });
-            
+            await push(leaderboardRef, { uid: currentUser.uid, user: currentUser.displayName, score: score, timestamp: Date.now() });
+            await postTopListToChat(diffKey, diffName);
             alert("Skorun ve liderlik tablosu ODAK kanalına gönderildi!");
             toggleGameMode();
-            setTimeout(() => {
-                document.getElementById('chat-sidebar').classList.add('active');
-                const odakBtn = document.getElementById('btn-odak');
-                switchChannel('odak', odakBtn);
-            }, 500);
+            setTimeout(() => { document.getElementById('chat-sidebar').classList.add('active'); const odakBtn = document.getElementById('btn-odak'); switchChannel('odak', odakBtn); }, 500);
         }
 
-        // --- HEDEF SPAWN ---
+        async function autoUpdateTopList() {
+             const diffName = diffSelect.options[diffSelect.selectedIndex].text;
+             const diffKey = "diff_" + diffSelect.value;
+             // Opsiyonel: Her 5 dakikada bir güncelle
+        }
+
+        async function postTopListToChat(diffKey, diffName) {
+            const leaderboardRef = ref(db, 'leaderboard/' + diffKey);
+            const topQuery = query(leaderboardRef, orderByChild('score'), limitToLast(3));
+            const snapshot = await get(topQuery);
+            let leaders = [];
+            if(snapshot.exists()) { snapshot.forEach(child => leaders.push(child.val())); }
+            leaders.reverse();
+            let msg = `🎯 SKOR BİLGİSİ (${diffName})<br><br>🏆 <strong>TOP 3 LİSTESİ</strong>:<br>`;
+            leaders.forEach((l, index) => { msg += `${index+1}. ${l.user} - ${l.score}<br>`; });
+            push(ref(db, 'forumlar/odak'), { uid: "SYSTEM", kullanici: "SHRBRK SYSTEM", mesaj: msg });
+        }
+
         function scheduleNextTarget() {
             if(!gameActive || gamePaused) return;
             if(targetsSpawned >= targetLimit) { endGame(); return; }
@@ -771,11 +929,7 @@
             target.style.animation = `spawnPulse ${currentDiffTime/1000}s ease-in-out forwards`;
             let x = 5 + Math.random() * 90; let y = 5 + Math.random() * 90;
             target.style.left = x + '%'; target.style.top = y + '%';
-            target.addEventListener('mousedown', (e) => {
-                e.stopPropagation(); createHitEffect(e.clientX, e.clientY);
-                score++; scoreVal.innerText = score;
-                removeTarget(); 
-            });
+            target.addEventListener('mousedown', (e) => { e.stopPropagation(); createHitEffect(e.clientX, e.clientY); score++; scoreVal.innerText = score; removeTarget(); });
             target.addEventListener('animationend', () => { if(target.parentNode) removeTarget(); });
             gameLayer.appendChild(target);
         }
@@ -788,24 +942,26 @@
             document.body.appendChild(hit); setTimeout(() => hit.remove(), 300);
         }
 
-        // --- VIDEO DRAWER ---
         let videoOpen = false; const items = document.querySelectorAll('.carousel-item'); let idx = 0;
         window.toggleVideoDrawer = () => {
             if(isFocusMode) return; const d = document.getElementById('video-drawer');
             if(videoOpen) { d.classList.remove('active'); videoOpen = false; stopVideos(); }
             else { d.classList.add('active'); videoOpen = true; updateCar(); }
         }
+        window.rotateCarousel = (dir) => {
+            idx += dir; updateCar(); stopVideos();
+        }
         function updateCar() {
             const theta = 360 / items.length; document.getElementById('carousel').style.transform = `translateZ(-600px) rotateY(${theta * idx * -1}deg)`;
             items.forEach((it, i) => {
-                it.classList.remove('active'); let dist = Math.abs(i - (idx % items.length + items.length) % items.length);
+                it.classList.remove('active'); it.classList.remove('playing');
+                let dist = Math.abs(i - (idx % items.length + items.length) % items.length);
                 if(dist > items.length/2) dist = items.length - dist; if(dist === 0) it.classList.add('active');
                 it.style.transform = `rotateY(${theta*i}deg) translateZ(600px) scale(${dist===0?1:0.8})`;
             });
         }
         function stopVideos() { items.forEach(i=>{ let f=i.querySelector('iframe'); if(f) f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}','*'); i.classList.remove('playing'); }); }
         document.addEventListener('keydown', e => { if (e.key === 'Escape') { if(isFocusMode) window.toggleGameMode(); } if(e.code==='Space' && videoOpen && document.activeElement !== document.getElementById('chat-input')) { e.preventDefault(); window.toggleVideoDrawer(); } });
-        document.getElementById('video-drawer').addEventListener('wheel', e => { if(videoOpen){ e.preventDefault(); if(e.deltaY>0) idx++; else idx--; stopVideos(); updateCar(); }}, {passive:false});
         window.playVideo = (o) => { o.parentElement.classList.add('playing'); o.nextElementSibling.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}','*'); }
     </script>
 </body>
