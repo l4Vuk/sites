@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHRBRK | Command Center</title>
+    <title>SHRBRK | Time Attack Hub</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,6 +22,7 @@
             --cyber-blue: #00ffff;
             --text-primary: #ece8e1;
             --text-secondary: #8b9bb4;
+            --section-bg: rgba(15, 25, 35, 0.95);
             --modal-bg: rgba(15, 25, 35, 0.98);
             --modal-text: #fff;
             
@@ -36,6 +37,7 @@
             --text-primary: #222;
             --text-secondary: #444;
             --val-dark: #f5f5f5;
+            --section-bg: rgba(240, 240, 240, 0.95);
             --modal-bg: rgba(240, 240, 240, 0.98);
             --modal-text: #111;
         }
@@ -46,35 +48,46 @@
         [data-theme="light"] .video-trigger,
         [data-theme="light"] .spec-item,
         [data-theme="light"] .schedule-row,
-        [data-theme="light"] .video-card-dash,
-        [data-theme="light"] .comment-card {
+        [data-theme="light"] .gear-category,
+        [data-theme="light"] .game-stat-card,
+        [data-theme="light"] .content-section {
             background-color: #fff !important;
             color: #000 !important;
             border-color: #ccc !important;
         }
         [data-theme="light"] .cyber-grid {
-            background: 
-                linear-gradient(transparent 0%, #000 2%, transparent 3%),
-                linear-gradient(90deg, transparent 0%, #000 2%, transparent 3%) !important;
+            background: linear-gradient(transparent 0%, #000 2%, transparent 3%), linear-gradient(90deg, transparent 0%, #000 2%, transparent 3%) !important;
             background-size: 100px 100px !important;
-            opacity: 0.1 !important;
+            opacity: 0.2 !important;
         }
+        [data-theme="light"] .tab-btn { color: #555; }
+        [data-theme="light"] .tab-btn:hover { color: #000; }
 
         * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
 
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-color);
             background-image: var(--bg-gradient);
+            background-attachment: fixed;
             color: var(--text-primary);
             font-family: 'Rajdhani', sans-serif;
-            overflow: hidden; 
+            overflow-x: hidden; 
+            overflow-y: auto; 
             height: 100vh;
             user-select: none;
             transition: background 0.5s ease, color 0.5s ease;
         }
 
-        .ui-hidden { opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }
+        body.focus-mode { overflow: hidden; }
+        .ui-hidden { display: none !important; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1923; }
+        ::-webkit-scrollbar-thumb { background: var(--val-red); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fff; }
 
         /* --- BACKGROUND --- */
         #parallax-bg {
@@ -115,71 +128,74 @@
 
         /* --- HEADER & SOSYAL MEDYA --- */
         .header-container {
-            position: fixed; top: 0; left: 0; width: 100%; padding: 30px; z-index: 100;
+            position: fixed; top: 0; left: 0; width: 100%; padding: 30px; z-index: 5000;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
         .header-content {
             pointer-events: auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px;
+            transition: transform 0.4s ease;
         }
 
         .logo {
             font-family: 'Orbitron', sans-serif; font-size: 3.5rem; 
-            color: var(--val-red);
-            font-weight: 900; letter-spacing: 8px; 
+            color: var(--val-red); font-weight: 900; letter-spacing: 8px; 
             text-shadow: 0 0 25px rgba(255, 70, 85, 0.6);
-            cursor: pointer; transition: 0.3s;
+            cursor: pointer; transition: all 0.4s ease; opacity: 1; transform: translateY(0);
         }
-        .logo:hover { transform: scale(1.05); text-shadow: 0 0 50px var(--val-red); }
+        
+        .header-container.scrolled {
+            padding: 15px;
+            background: rgba(15, 25, 35, 0.95);
+            border-bottom: 1px solid var(--val-red);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .header-container.scrolled .logo {
+            opacity: 0; transform: translateY(-50px) scale(0.8); height: 0; margin: 0; pointer-events: none;
+        }
+        .header-container.scrolled .social-row { transform: translateY(-10px); }
 
-        .social-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .social-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; transition: all 0.4s ease; }
+        
+        /* SOSYAL MEDYA MENÜLERİ (DROPDOWN) */
+        .social-group { position: relative; display: flex; flex-direction: column; align-items: center; }
+        .sub-menu {
+            display: none; flex-direction: column; gap: 5px; margin-top: 5px;
+            position: absolute; top: 100%; width: 100%; z-index: 1000;
+            animation: slideDown 0.3s ease forwards;
+        }
+        .sub-menu.active { display: flex; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
         .social-btn {
             background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: var(--text-secondary);
             padding: 8px 15px; font-family: 'Rajdhani', sans-serif; font-weight: bold; font-size: 0.9rem;
-            text-decoration: none; display: flex; align-items: center; gap: 8px;
+            text-decoration: none; display: flex; align-items: center; gap: 8px; cursor: pointer;
             clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px); transition: 0.3s;
         }
         .social-btn:hover {
             background: var(--val-white); color: #000; border-color: var(--val-white);
             box-shadow: 0 0 15px rgba(255,255,255,0.3); transform: translateY(-2px);
         }
-
-        /* AUTH */
-        .auth-wrapper {
-            position: fixed; top: 30px; right: 30px; z-index: 101; pointer-events: auto;
-            display: flex; gap: 15px; align-items: center;
-        }
-        .auth-btn { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); 
-            color: var(--val-white); padding: 8px 20px; font-family: 'Orbitron', sans-serif; 
-            font-size: 0.8rem; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); 
-            transition: 0.3s;
-        }
-        .auth-btn:hover { background: var(--val-white); color: #000; }
-        .auth-btn.primary { background: var(--val-red); border-color: var(--val-red); }
-        .auth-btn.primary:hover { background: #fff; color: var(--val-red); }
         
-        #user-profile { display: none; align-items: center; gap: 15px; }
-        .user-name { color: var(--cyber-blue); font-family: 'Orbitron', sans-serif; font-size: 0.9rem; }
-        .logout-icon { cursor: pointer; color: var(--val-red); font-size: 1.1rem; }
-
-        #theme-toggle-btn {
-            background: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary);
-            width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: 0.3s;
+        /* ALT BUTONLAR (SUB MENUS) */
+        .social-btn.sub-btn {
+            font-size: 0.72rem !important; padding: 6px 10px !important;
+            background: rgba(0, 0, 0, 0.9) !important; border-color: var(--val-red) !important;
+            width: 100%; justify-content: center;
         }
-        #theme-toggle-btn:hover { background: var(--val-white); color: #000; }
 
-        /* --- LOBBY --- */
-        .lobby-wrapper { 
-            position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); 
-            display: flex; flex-direction: column; align-items: center; gap: 40px; z-index: 10; 
-            transition: opacity 0.5s; width: 100%;
+        /* --- HERO & LOBBY --- */
+        #hero-section {
+            height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
         }
+
         .lobby-container { 
-            display: flex; gap: 20px; height: 50vh; width: 85vw; max-width: 1400px;
-            justify-content: center; align-items: center; perspective: 1000px; 
+            display: flex; gap: 20px; height: 450px; width: 85vw; max-width: 1400px;
+            justify-content: center; align-items: center; perspective: 1000px; margin-top: 50px;
         }
 
         .lobby-card { 
@@ -191,14 +207,12 @@
             transform: scale(1);
             clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
         }
-
         .lobby-card::after {
             content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%) rotate(45deg); 
             width: 12px; height: 12px;
             background-color: var(--val-red); box-shadow: 0 0 10px var(--val-red), 0 0 5px #fff;
             z-index: 20; pointer-events: none; transition: 0.3s;
         }
-
         .lobby-card:hover { 
             transform: scale(1.15) translateY(-10px); z-index: 50; 
             border-color: var(--val-red); box-shadow: 0 0 50px rgba(255, 70, 85, 0.5); 
@@ -208,7 +222,6 @@
             box-shadow: 0 0 15px var(--val-red), 0 0 10px #fff;
             transform: translateX(-50%) rotate(225deg) scale(1.2);
         }
-
         .card-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: transform 0.5s; z-index: -1; }
         .lobby-card:hover .card-bg { transform: scale(1.1); }
         
@@ -220,8 +233,7 @@
 
         .card-info { 
             background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); 
-            padding: 20px 20px 70px 20px; 
-            text-align: center; width: 100%; pointer-events: none; 
+            padding: 20px 20px 70px 20px; text-align: center; width: 100%; pointer-events: none; 
             transform: translateY(20px); transition: 0.3s; opacity: 0.8;
         }
         .lobby-card:hover .card-info { transform: translateY(0); opacity: 1; }
@@ -235,126 +247,81 @@
         }
         #game-mode-toggle:hover { background: var(--val-red); color: #fff; box-shadow: 0 0 30px var(--val-red); transform: scale(1.05); }
 
-        /* --- DASHBOARD STYLES (YOUTUBE INTEGRATION) --- */
-        .dash-modal-content {
-            width: 95%; max-width: 1200px; height: 90vh;
-            background: var(--modal-bg);
-            border: 2px solid var(--val-red);
-            display: grid; grid-template-rows: auto auto 1fr;
-            overflow-y: auto; position: relative;
-            box-shadow: 0 0 50px rgba(0, 229, 255, 0.1);
-        }
-        /* Dashboard Header */
-        .dash-header {
-            height: 120px;
-            background: linear-gradient(90deg, #111 0%, #0a0a0f 100%);
-            border-bottom: 2px solid var(--val-red);
-            display: flex; align-items: center; padding: 0 40px; gap: 30px;
-            position: relative; overflow: hidden;
-        }
-        .dash-header::before {
-            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
-            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.03) 10px, rgba(255,255,255,0.03) 20px);
-        }
-        .dash-avatar { 
-            width: 80px; height: 80px; border-radius: 50%; 
-            border: 3px solid var(--cyber-blue); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); z-index: 2;
-        }
-        .dash-info { z-index: 2; text-align: left;}
-        .dash-name { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900; letter-spacing: 2px; color: #fff; }
-        .dash-sub { color: var(--val-red); font-family: 'Rajdhani', sans-serif; font-weight: bold; letter-spacing: 4px; font-size: 0.9rem; }
-        .dash-close {
-            position: absolute; top: 20px; right: 20px;
-            background: transparent; border: 1px solid var(--val-red); color: var(--val-red);
-            width: 40px; height: 40px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 1.2rem;
-            transition: 0.2s; z-index: 10;
-        }
-        .dash-close:hover { background: var(--val-red); color: #000; }
+        /* --- CONTENT SECTIONS --- */
+        .content-flow { width: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
         
-        /* Dashboard Stats */
-        .stats-row {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            border-bottom: 1px solid #333;
-        }
-        .stat-box {
-            padding: 20px; text-align: center; border-right: 1px solid #333;
-            background: rgba(255,255,255,0.01);
-        }
-        .stat-val { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: bold; color: #fff; }
-        .stat-lbl { color: #888; font-size: 0.8rem; letter-spacing: 1px; margin-top: 5px; }
-        
-        /* Dashboard Grid */
-        .dash-grid { display: grid; grid-template-columns: 2fr 1fr; padding: 30px; gap: 30px; }
-        .section-head {
-            font-family: 'Orbitron', sans-serif; color: var(--cyber-blue);
-            font-size: 1.1rem; border-left: 4px solid var(--cyber-blue);
-            padding-left: 15px; margin-bottom: 20px; display: flex; align-items: center; text-align: left;
-        }
-        /* Video List */
-        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .video-card-dash { background: #111; border: 1px solid #333; padding: 10px; transition: 0.2s; }
-        .video-card-dash:hover { border-color: var(--cyber-blue); transform: translateY(-3px); }
-        .video-embed-dash { width: 100%; aspect-ratio: 16/9; border: none; margin-bottom: 8px; }
-        .video-title-dash { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; color:#fff; text-align: left;}
-        .video-meta-dash { font-size: 0.75rem; color: #666; display: flex; justify-content: space-between; }
-        
-        /* Analysis Chart */
-        .chart-wrapper { background: rgba(0,0,0,0.3); padding: 20px; border: 1px solid #333; }
-        .bar-item { margin-bottom: 12px; display: flex; align-items: center; gap: 15px; }
-        .bar-label { width: 140px; text-align: right; font-size: 0.8rem; font-weight: bold; color: #ccc; }
-        .bar-track { flex: 1; height: 8px; background: #222; border-radius: 4px; overflow: hidden; }
-        .bar-fill { height: 100%; background: linear-gradient(90deg, var(--val-red), #ff5e00); width: 0%; transition: width 1s ease-out; }
-        .bar-val { width: 60px; font-size: 0.75rem; color: var(--cyber-blue); font-family: 'Orbitron', sans-serif; }
-        
-        /* Comments */
-        .comments-col { display: flex; flex-direction: column; gap: 15px; }
-        .comment-card {
-            background: rgba(255,255,255,0.03); padding: 15px;
-            border-left: 2px solid #444; display: flex; gap: 12px;
-            font-size: 0.9rem; transition: 0.2s; text-align: left;
-        }
-        .comment-card:hover { border-color: var(--cyber-blue); background: rgba(255,255,255,0.05); }
-        .com-avatar { width: 35px; height: 35px; border-radius: 50%; }
-        .com-head { color: var(--cyber-blue); font-weight: bold; font-size: 0.85rem; margin-bottom: 4px; }
-        .com-text { color: #ddd; line-height: 1.4; font-size: 0.85rem; }
-        .com-time { font-size: 0.7rem; color: #555; margin-top: 5px; }
-
-        @media screen and (max-width: 900px) {
-            .dash-grid { grid-template-columns: 1fr; }
-            .video-grid { grid-template-columns: 1fr; }
-            .stats-row { grid-template-columns: 1fr; }
-            .stat-box { border-right: none; border-bottom: 1px solid #333; }
+        .content-section {
+            width: 80%; max-width: 1100px; min-height: 80vh; margin-bottom: 100px;
+            background: var(--section-bg); border: 2px solid var(--val-red); padding: 50px; position: relative;
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+            scroll-margin-top: 150px; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* --- SIDEBARS --- */
-        .sidebar-trigger { 
-            position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 45px; height: 350px; 
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-left: none; 
-            display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 6000; 
-            clip-path: polygon(0 0, 100% 5%, 100% 95%, 0 100%); transition: 0.3s; 
+        .section-header {
+            font-family: 'Orbitron', sans-serif; color: var(--val-red); letter-spacing: 4px; font-size: 2.5rem; 
+            border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; text-align: center;
         }
+
+        .tab-nav { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .tab-btn { background: transparent; border: none; color: #666; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; cursor: pointer; padding: 10px 20px; transition: 0.3s; position: relative; }
+        .tab-btn:hover { color: #fff; }
+        .tab-btn.active { color: var(--val-red); text-shadow: 0 0 10px rgba(255, 70, 85, 0.5); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -16px; left: 0; width: 100%; height: 3px; background: var(--val-red); }
+        .tab-panel { display: none; animation: fadeIn 0.5s ease; }
+        .tab-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .game-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .game-stat-card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 20px; text-align: center; border-radius: 4px; transition: 0.3s; }
+        .game-stat-card:hover { border-color: var(--val-red); transform: translateY(-5px); }
+        .rank-icon { font-size: 2.5rem; color: var(--val-red); margin-bottom: 10px; }
+        .gear-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .gear-category { background: rgba(0,0,0,0.3); border: 1px solid #444; padding: 20px; }
+        .gear-title { color: var(--cyber-blue); font-family: 'Orbitron', sans-serif; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+        .gear-list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        .gear-val { color: #aaa; }
+        .about-grid { display: flex; gap: 30px; }
+        .about-img { width: 250px; height: 350px; object-fit: cover; border: 2px solid var(--val-red); filter: grayscale(0.5); }
+        .about-text-area { flex: 1; text-align: left; }
+        .bio-title { font-size: 1.2rem; color: var(--val-red); margin-bottom: 10px; font-family: 'Orbitron', sans-serif; }
+        .bio-text { line-height: 1.6; color: #ddd; margin-bottom: 20px; font-size: 1.1rem; }
+        .spec-list { display: flex; flex-direction: column; gap: 10px; }
+        .spec-item { background: rgba(0,0,0,0.3); border: 1px solid #444; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .spec-label { color: var(--val-red); font-weight: bold; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
+        .spec-val { color: #fff; font-family: 'Rajdhani', sans-serif; }
+        .schedule-table { width: 100%; border-collapse: collapse; }
+        .schedule-row { border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .schedule-cell { padding: 12px; font-family: 'Rajdhani', sans-serif; }
+        .schedule-day { color: var(--val-red); font-weight: bold; width: 120px; }
+
+        /* --- AUTH & CHAT SIDEBAR --- */
+        .auth-wrapper { position: fixed; top: 30px; right: 30px; z-index: 6000; pointer-events: auto; display: flex; gap: 15px; align-items: center; transition: 0.3s; }
+        body.scrolled-mode .auth-wrapper { top: 15px; }
+        .auth-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--val-white); padding: 8px 20px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); transition: 0.3s; }
+        .auth-btn:hover { background: var(--val-white); color: #000; }
+        .auth-btn.primary { background: var(--val-red); border-color: var(--val-red); }
+        .auth-btn.primary:hover { background: #fff; color: var(--val-red); }
+        #user-profile { display: none; align-items: center; gap: 15px; }
+        .user-name { color: var(--cyber-blue); font-family: 'Orbitron', sans-serif; font-size: 0.9rem; }
+        .logout-icon { cursor: pointer; color: var(--val-red); font-size: 1.1rem; }
+        #theme-toggle-btn { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+
+        .sidebar-trigger { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 45px; height: 350px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-left: none; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 6000; clip-path: polygon(0 0, 100% 5%, 100% 95%, 0 100%); transition: 0.3s; }
         .sidebar-trigger:hover { background: var(--val-red); width: 60px; }
         .sidebar-text { writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'Orbitron', sans-serif; letter-spacing: 5px; color: #fff; font-size: 1.2rem; }
-        
         #chat-sidebar { position: fixed; top: 0; left: -400px; width: 400px; height: 100%; background: rgba(15, 25, 35, 0.98); border-right: 1px solid var(--val-red); z-index: 6001; transition: left 0.4s; display: flex; flex-direction: column; }
         #chat-sidebar.active { left: 0; }
         .chat-header { padding: 20px; background: rgba(255, 70, 85, 0.1); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
         .chat-channels { display: flex; gap: 5px; padding: 10px; overflow-x: auto; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .channel-btn { flex: 1; background: transparent; border: 1px solid #555; color: #aaa; cursor: pointer; padding: 8px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; transition: 0.3s; white-space:nowrap; }
         .channel-btn.active, .channel-btn:hover { background: var(--val-red); color: #fff; border-color: var(--val-red); }
-        .channel-btn.kick-tab { color: #53fc18; border-color: #53fc18; }
-        .channel-btn.kick-tab.active { background: #53fc18; color: #000; }
-
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; color: #ddd; font-size: 0.9rem; display: flex; flex-direction: column; gap: 10px;}
         .msg-line { padding: 8px 12px; background: rgba(255,255,255,0.05); border-left: 2px solid #555; }
-        .msg-line.mine { border-left-color: var(--cyber-blue); background: rgba(0, 255, 255, 0.05); }
-        .msg-user { font-size: 0.75rem; color: var(--val-red); font-weight: bold; margin-bottom: 3px; display:flex; justify-content:space-between;}
         .chat-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
         .chat-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: #fff; outline: none; font-family: 'Rajdhani', sans-serif; }
         .close-sidebar-btn { background: transparent; border: none; color: #fff; cursor: pointer; }
         #kick-chat-container { display:none; flex:1; width:100%; height:100%; background:#0b0e11; position:relative; }
         #kick-chat-container iframe { width:100%; height:100%; border:none; }
-
         .sidebar-trigger.right { left: auto; right: 0; border-left: 1px solid rgba(255,255,255,0.1); border-right: none; clip-path: polygon(100% 0, 0 5%, 0 95%, 100% 100%); }
         .sidebar-trigger.right .sidebar-text { transform: rotate(0deg); writing-mode: vertical-rl; }
         #clips-sidebar { position: fixed; top: 0; right: -400px; width: 400px; height: 100%; background: rgba(15, 25, 35, 0.98); border-left: 1px solid var(--val-red); z-index: 6001; transition: right 0.4s; display: flex; flex-direction: column; }
@@ -364,7 +331,7 @@
         .clip-item iframe { width: 100%; aspect-ratio: 16/9; border: none; }
         .clip-title { font-size: 0.9rem; color: #fff; margin-bottom: 5px; font-weight: bold; font-family: 'Rajdhani', sans-serif; }
 
-        /* --- VIDEO DRAWER --- */
+        /* Video Drawer */
         .video-trigger { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); padding: 12px 60px; background: rgba(0,0,0,0.9); border: 1px solid var(--val-red); border-bottom: none; color: var(--val-white); font-family: 'Orbitron', sans-serif; cursor: pointer; z-index: 9000; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); transition: 0.3s; letter-spacing: 2px; }
         .video-trigger:hover { background: var(--val-red); padding-bottom: 20px; }
         #video-drawer { position: fixed; bottom: -100vh; left: 0; width: 100%; height: 90vh; background: rgba(10, 12, 16, 0.98); z-index: 8500; transition: bottom 0.6s cubic-bezier(0.19, 1, 0.22, 1); display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 2px solid var(--val-red); box-shadow: 0 -20px 50px rgba(0,0,0,0.8); }
@@ -381,7 +348,7 @@
         .nav-btn.left { left: 10%; }
         .nav-btn.right { right: 10%; }
 
-        /* --- OYUN ALANI --- */
+        /* Game Elements */
         #custom-cursor { position: fixed; top: 0; left: 0; pointer-events: none; transform: translate(-50%, -50%); z-index: 10000; display: none; }
         .ch-h, .ch-v { position: absolute; background-color: var(--cross-color); top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 2px rgba(0,0,0,0.8); }
         .ch-h { width: var(--cross-size); height: 2px; }
@@ -391,81 +358,69 @@
         #game-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
         body.focus-mode #game-layer { z-index: 9000; pointer-events: auto; background: rgba(0,0,0,0.85); }
         .aim-target { position: absolute; width: 70px; height: 70px; background: radial-gradient(circle, var(--val-red) 40%, transparent 70%); border: 2px solid var(--val-red); border-radius: 50%; box-shadow: 0 0 15px var(--val-red); pointer-events: auto; opacity: 0.8; display: flex; justify-content: center; align-items: center; }
+        
+        /* GÜNCELLENEN ANIMASYONLAR - SORUNUN ÇÖZÜMÜ BURADA */
+        @keyframes spawnPulse {
+            0% { transform: scale(0); opacity: 0; }
+            20% { transform: scale(1); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        @keyframes hitAnim {
+            0% { transform: scale(1); opacity: 1; border-width: 3px; }
+            100% { transform: scale(2); opacity: 0; border-width: 0px; }
+        }
+        
         .hit-effect { position: absolute; width: 80px; height: 80px; border: 2px solid #fff; border-radius: 50%; animation: hitAnim 0.2s ease-out forwards; pointer-events: none; z-index: 9002; }
-        @keyframes hitAnim { 0% { transform: scale(0.5); opacity: 1; border-width: 5px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
         
-        /* MODALS (YENİ İÇERİK DÜZENİ) */
-        .auth-modal-wrapper, .page-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 7000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .page-modal { pointer-events: none; opacity: 0; transition: 0.4s; }
-        .page-modal.active { opacity: 1; pointer-events: auto; }
+        /* GÜNCELLENEN START SCREEN (TAM ORTA) */
+        #start-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 9600; 
+            display: none; justify-content: center; align-items: center; 
+            pointer-events: auto; 
+        }
         
-        .auth-box, .page-content, .result-box, .start-content { 
-            background: var(--modal-bg); color: var(--modal-text); padding: 50px; 
-            border: 2px solid var(--val-red); position: relative; 
+        #result-screen { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9600; display: none; width: 100%; pointer-events: none; }
+        
+        .start-content, .result-box, .auth-box { 
+            pointer-events: auto; display: flex; flex-direction: column; gap: 15px; 
+            align-items: center; justify-content: center;
+            background: var(--section-bg); padding: 50px; 
+            border: 2px solid var(--val-red); 
             clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); 
-            text-align: center; 
+            width: 100%; max-width: 700px;
         }
         
-        /* İÇERİK ALANLARI CSS */
-        .start-content, .page-content { width: 700px; max-width: 90vw; max-height: 85vh; display: flex; flex-direction: column; }
-        .modal-scroll-area { flex: 1; overflow-y: auto; text-align: left; padding: 10px; margin-top: 20px; }
-        
-        .content-block { margin-bottom: 25px; }
-        .content-text { font-family: 'Rajdhani', sans-serif; font-size: 1rem; color: #ddd; line-height: 1.5; margin-bottom: 10px; }
-        .content-img-placeholder { 
-            width: 100%; height: 200px; background: rgba(0,0,0,0.4); 
-            border: 1px dashed #555; display: flex; justify-content: center; align-items: center; 
-            color: #777; margin-bottom: 15px; font-size: 0.9rem;
+        .big-btn { 
+            font-family: 'Orbitron', sans-serif; font-size: 2.5rem; padding: 25px 80px; 
+            background: var(--val-red); color: #fff; border: none; cursor: pointer; 
+            clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px); 
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 5px; 
         }
-        
-        .spec-list { display: flex; flex-direction: column; gap: 10px; }
-        .spec-item { 
-            background: rgba(0,0,0,0.3); border: 1px solid #444; padding: 10px 15px; 
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .spec-label { color: var(--val-red); font-weight: bold; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
-        .spec-val { color: #fff; font-family: 'Rajdhani', sans-serif; }
-
-        .schedule-table { width: 100%; border-collapse: collapse; }
-        .schedule-row { border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .schedule-cell { padding: 12px; font-family: 'Rajdhani', sans-serif; }
-        .schedule-day { color: var(--val-red); font-weight: bold; width: 120px; }
-
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.2); border: 1px solid #444; color: var(--modal-text); }
-        .auth-submit-btn { width: 100%; padding: 12px; background: var(--val-red); color: #fff; border: none; font-family: 'Orbitron', sans-serif; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
-        .google-btn { width: 100%; padding: 12px; margin-top: 10px; background: #fff; color: #333; border: none; font-family: 'Orbitron', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
-        .auth-close { position: absolute; top: 10px; right: 10px; cursor: pointer; color: #fff; }
-        #start-screen, #result-screen { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9600; display: none; width: 100%; pointer-events: none; }
-        .start-content, .result-box { pointer-events: auto; display: inline-flex; flex-direction: column; gap: 15px; align-items: center; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .big-btn { font-family: 'Orbitron', sans-serif; font-size: 2rem; padding: 20px 60px; background: var(--val-red); color: #fff; border: none; cursor: pointer; clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px); transition: 0.3s; text-transform: uppercase; letter-spacing: 5px; }
         .big-btn:hover { background: #fff; color: var(--val-red); transform: scale(1.05); }
-        #countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 11000; display: none; justify-content: center; align-items: center; font-family: 'Orbitron', sans-serif; font-size: 10rem; color: var(--val-red); text-shadow: 0 0 50px var(--val-red); pointer-events: none; }
+        
+        #countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 11000; display: none; justify-content: center; align-items: center; font-family: 'Orbitron', sans-serif; font-size: 10rem; color: var(--val-red); pointer-events: none; }
         #game-hud { position: fixed; top: 15%; left: 50%; transform: translateX(-50%); display: flex; gap: 60px; z-index: 9500; pointer-events: none; display: none; }
-        .hud-box { background: rgba(0,0,0,0.8); border: 2px solid var(--val-red); padding: 15px 40px; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 2rem; min-width: 200px; text-align: center; clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px); }
-        .settings-row { display: flex; gap: 20px; justify-content: center; margin-top: 10px; padding: 15px; border-top: 1px solid #555; width: 100%; }
-        .setting-item { display: flex; flex-direction: column; gap: 5px; text-align: left; flex:1; }
+        .hud-box { background: rgba(0,0,0,0.8); border: 2px solid var(--val-red); padding: 15px 40px; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 2rem; }
         .game-controls-top { position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 10001; display: none; }
-        .game-ctrl-btn { padding: 12px 25px; background: #333; color: #aaa; font-family: 'Orbitron', sans-serif; cursor: pointer; border: 1px solid #555; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); transition:0.3s; }
-        .game-ctrl-btn:hover { background: #fff; color: #000; }
+        .game-ctrl-btn { padding: 12px 25px; background: #333; color: #aaa; font-family: 'Orbitron', sans-serif; cursor: pointer; border: 1px solid #555; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
+        .auth-modal-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 7000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.2); border: 1px solid #444; color: #fff; }
 
         @media screen and (max-width: 768px) {
             .header-container { padding: 10px; }
             .logo { font-size: 2rem; }
-            .social-row { gap: 5px; }
-            .social-btn { padding: 5px 10px; font-size: 0.7rem; }
-            #music-wrapper { top: auto; bottom: 80px; left: auto; right: 20px; }
-            .lobby-container { flex-direction: column; width: 95%; height: auto; gap: 15px; perspective: none; }
-            .lobby-card { width: 100%; height: 120px; transform: none !important; filter: none !important; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px) !important; }
+            .social-row { display:none; } 
+            .lobby-container { flex-direction: column; width: 95%; height: auto; margin-top: 100px; gap: 15px; }
+            .lobby-card { width: 100%; height: 120px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px) !important; }
             .lobby-card::after { display: none; }
-            .lobby-card:hover { transform: none; filter: none; height: 120px; }
+            .content-section { width: 95%; padding: 20px; }
+            .game-stats-grid, .gear-grid, .about-grid, .stats-row, .video-grid { grid-template-columns: 1fr; }
+            .about-img { width: 100%; height: 250px; }
             #game-mode-toggle { display: none; }
             .sidebar-trigger { display: none; }
-            .mobile-chat-card { display: flex; }
-            .video-trigger { width: 90%; }
-            #video-drawer { height: 100vh; }
-            .carousel-container { transform: scale(0.6); }
-            .auth-wrapper { position: fixed; bottom: 0; top: auto; right: 0; width: 100%; background: #0f1923; padding: 10px; justify-content: center; border-top: 1px solid var(--val-red); }
-            .start-content, .page-content { width: 95%; padding: 20px; }
         }
     </style>
 </head>
@@ -473,7 +428,7 @@
 
     <div id="parallax-bg"></div>
     <div class="cyber-grid"></div>
-    <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/valorant&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false" width="1" height="1" scrolling="no" frameborder="no" allow="autoplay" style="position:fixed; top:-100px; opacity:0;"></iframe>
+    <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/valorant&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false" width="1" height="1" scrolling="no" frameborder="no" allow="autoplay" style="position:fixed; top:-100px; opacity:0;"></iframe>
 
     <div id="music-wrapper">
         <button class="music-btn" onclick="prevTrack()" title="Önceki"><i class="fas fa-step-backward"></i></button>
@@ -500,12 +455,193 @@
             <div class="logo">SHRBRK</div>
             <div class="social-row">
                 <a href="https://kick.com/shrbrk" target="_blank" class="social-btn kick"><i class="fas fa-bolt"></i> KICK</a>
-                <a href="https://instagram.com/shrbrkofficial" target="_blank" class="social-btn insta"><i class="fab fa-instagram"></i> INSTAGRAM</a>
-                <a href="#" target="_blank" class="social-btn tiktok"><i class="fab fa-tiktok"></i> TIKTOK</a>
-                <a href="#" target="_blank" class="social-btn youtube"><i class="fab fa-youtube"></i> YOUTUBE</a>
-                <a href="mailto:contact@shrbrk.com" class="social-btn mail"><i class="fas fa-envelope"></i> MAİL</a>
+                
+                <div class="social-group">
+                    <button class="social-btn insta" onclick="toggleSocial('sub-insta')"><i class="fab fa-instagram"></i> INSTAGRAM</button>
+                    <div id="sub-insta" class="sub-menu">
+                        <a href="https://www.instagram.com/shrbrkofficial/" target="_blank" class="social-btn sub-btn">RESMİ</a>
+                        <a href="https://www.instagram.com/seherozden/" target="_blank" class="social-btn sub-btn">SEHER</a>
+                        <a href="https://www.instagram.com/burakseymenn/" target="_blank" class="social-btn sub-btn">BURAK</a>
+                    </div>
+                </div>
+
+                <a href="https://www.tiktok.com/@shrbrktw" target="_blank" class="social-btn tiktok"><i class="fab fa-tiktok"></i> TIKTOK</a>
+                
+                <div class="social-group">
+                    <button class="social-btn youtube" onclick="toggleSocial('sub-youtube')"><i class="fab fa-youtube"></i> YOUTUBE</button>
+                    <div id="sub-youtube" class="sub-menu">
+                        <a href="https://www.youtube.com/@SHRBRK" target="_blank" class="social-btn sub-btn">ANA KANAL</a>
+                        <a href="https://www.youtube.com/@SHRBRKKesit" target="_blank" class="social-btn sub-btn">KESİTLER</a>
+                    </div>
+                </div>
+
+                <a href="mailto:shrbrk@outlook.com" class="social-btn mail"><i class="fas fa-envelope"></i> MAİL</a>
             </div>
         </div>
+    </div>
+
+    <div id="hero-section">
+        <div class="lobby-container">
+            <div class="lobby-card c1" onclick="scrollToSection('sec-hakkinda')">
+                <div class="card-bg"></div>
+                <div class="card-info"><div class="card-title">HAKKINDA</div><div class="card-subtitle">KİMİZ?</div></div>
+            </div>
+            <div class="lobby-card c2" onclick="scrollToSection('sec-yayin')">
+                <div class="card-bg"></div>
+                <div class="card-info"><div class="card-title">YAYIN PROGRAMI</div><div class="card-subtitle">AKIŞ</div></div>
+            </div>
+            <div class="lobby-card c3" onclick="scrollToSection('sec-oyun')">
+                <div class="card-bg"></div>
+                <div class="card-info"><div class="card-title">OYUN GEÇMİŞİ</div><div class="card-subtitle">STATS</div></div>
+            </div>
+            <div class="lobby-card c4" onclick="scrollToSection('sec-ajan')">
+                <div class="card-bg"></div>
+                <div class="card-info"><div class="card-title">AJAN DOSYASI</div><div class="card-subtitle">PROFİL</div></div>
+            </div>
+            <div class="lobby-card c5" onclick="scrollToSection('sec-ekipman')">
+                <div class="card-bg"></div>
+                <div class="card-info"><div class="card-title">CEPHANELİK</div><div class="card-subtitle">GEAR</div></div>
+            </div>
+        </div>
+        <button id="game-mode-toggle" onclick="toggleGameMode()">ODAK MODU</button>
+    </div>
+
+    <div class="content-flow" id="main-content-flow">
+        
+        <div id="sec-hakkinda" class="content-section">
+            <div class="section-header">HAKKINDA</div>
+            <div class="content-text" style="font-size:1.2rem; line-height:1.8; text-align:center;">
+                <p>Selamlar! Ben SHRBRK. 2020 yılından beri profesyonel arenada içerik üretiyorum.</p>
+                <p>Amacım sadece oyun oynamak değil, izleyicilerime sinematik ve adrenalin dolu bir deneyim yaşatmaktır. FPS tutkunu olmamın yanı sıra, hikaye tabanlı oyunların derin dünyalarında kaybolmayı da severim.</p>
+                <p style="color:var(--val-red); font-weight:bold; margin-top:20px;">"Oyun sadece bir hobi değil, bir yaşam tarzıdır."</p>
+            </div>
+        </div>
+
+        <div id="sec-yayin" class="content-section">
+            <div class="section-header">YAYIN PROGRAMI</div>
+            <div class="content-text" style="text-align:center; margin-bottom:20px;">Haftalık operasyon saatlerimiz aşağıdaki gibidir.</div>
+            <table class="schedule-table">
+                <tr class="schedule-row"><td class="schedule-cell schedule-day">PAZARTESİ</td><td class="schedule-cell">19:00 - VALORANT (RANKED)</td></tr>
+                <tr class="schedule-row"><td class="schedule-cell schedule-day">ÇARŞAMBA</td><td class="schedule-cell">20:00 - SOHBET & ANALİZ</td></tr>
+                <tr class="schedule-row"><td class="schedule-cell schedule-day">CUMA</td><td class="schedule-cell">21:00 - KORKU GECESİ</td></tr>
+                <tr class="schedule-row"><td class="schedule-cell schedule-day">PAZAR</td><td class="schedule-cell">16:00 - İZLEYİCİ MAÇLARI</td></tr>
+            </table>
+        </div>
+
+        <div id="sec-oyun" class="content-section">
+            <div class="section-header">OYUN GEÇMİŞİ</div>
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab(event, 'oyun-fps')">FPS</button>
+                <button class="tab-btn" onclick="switchTab(event, 'oyun-moba')">MOBA</button>
+            </div>
+            
+            <div id="oyun-fps" class="tab-panel active">
+                <div class="game-stats-grid">
+                    <div class="game-stat-card">
+                        <i class="fas fa-crosshairs rank-icon"></i>
+                        <h2>VALORANT</h2>
+                        <div style="font-size:2rem; color:var(--val-red); font-weight:bold;">IMMO 3</div>
+                        <div style="color:#888;">JETT / REYNA</div>
+                    </div>
+                    <div class="game-stat-card">
+                        <i class="fas fa-bomb rank-icon" style="color:#de9b35;"></i>
+                        <h2>CS2</h2>
+                        <div style="font-size:2rem; color:#de9b35; font-weight:bold;">FACEIT 10</div>
+                        <div style="color:#888;">AWPER</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="oyun-moba" class="tab-panel">
+                 <div class="game-stats-grid" style="grid-template-columns: 1fr;">
+                    <div class="game-stat-card">
+                        <i class="fas fa-gem rank-icon" style="color:#00bfff;"></i>
+                        <h2>LEAGUE OF LEGENDS</h2>
+                        <div style="font-size:2rem; color:#00bfff; font-weight:bold;">DIA 1</div>
+                        <div style="color:#888;">MID LANE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sec-ajan" class="content-section">
+            <div class="section-header">AJAN DOSYASI</div>
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab(event, 'ajan-kimlik')">KİMLİK</button>
+                <button class="tab-btn" onclick="switchTab(event, 'ajan-sss')">S.S.S.</button>
+            </div>
+
+            <div id="ajan-kimlik" class="tab-panel active">
+                <div class="about-grid">
+                    <img src="https://images.unsplash.com/photo-1566576912902-6e6ad6631628?auto=format&fit=crop&q=80&w=300" class="about-img" alt="Profile">
+                    <div class="about-text-area">
+                        <div class="spec-list">
+                            <div class="spec-item"><span class="spec-label">KOD ADI</span><span class="spec-val">SHRBRK</span></div>
+                            <div class="spec-item"><span class="spec-label">ROL</span><span class="spec-val">İÇERİK ÜRETİCİSİ</span></div>
+                            <div class="spec-item"><span class="spec-label">LOKASYON</span><span class="spec-val">İSTANBUL, TR</span></div>
+                            <div class="spec-item"><span class="spec-label">DURUM</span><span class="spec-val" style="color:#0f0;">AKTİF</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ajan-sss" class="tab-panel">
+                <div style="margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">
+                    <strong style="color:var(--val-red);">S: Crosshair ayarların nedir?</strong><br>
+                    <span style="color:#aaa;">C: 1-4-2-2 (Cyan), Outlines: Off.</span>
+                </div>
+                <div style="margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">
+                    <strong style="color:var(--val-red);">S: Hangi takımı tutuyorsun?</strong><br>
+                    <span style="color:#aaa;">C: Espor tarafında FUT Esports destekçisiyim.</span>
+                </div>
+                <div style="margin-bottom:20px;">
+                    <strong style="color:var(--val-red);">S: Ekipman sponsorun var mı?</strong><br>
+                    <span style="color:#aaa;">C: Şu an için hayır, tekliflere açığım.</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="sec-ekipman" class="content-section">
+            <div class="section-header">CEPHANELİK</div>
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab(event, 'gear-pc')">SİSTEM</button>
+                <button class="tab-btn" onclick="switchTab(event, 'gear-p')">EKİPMAN</button>
+            </div>
+
+            <div id="gear-pc" class="tab-panel active">
+                <div class="gear-category">
+                    <div class="gear-title">ANA BİLGİSAYAR</div>
+                    <div class="gear-list-item"><span>İŞLEMCİ</span><span class="gear-val">BEYİNİMİZ</span></div>
+                    <div class="gear-list-item"><span>EKRAN KARTI</span><span class="gear-val">KREDİ KARTI</span></div>
+                    <div class="gear-list-item"><span>RAM</span><span class="gear-val">ÇOK PAHALANDI YAV</span></div>
+                    
+                </div>
+            </div>
+
+            <div id="gear-p" class="tab-panel">
+                 <div class="gear-category">
+                    <div class="gear-title">ÇEVRE BİRİMLERİ</div>
+                    <div class="gear-list-item"><span>MOUSE</span><span class="gear-val">BURAK KIRDI</span></div>
+                    <div class="gear-list-item"><span>KLAVYE</span><span class="gear-val">BURAK ONU DA KIRDI</span></div>
+                    <div class="gear-list-item"><span>KULAKLIK</span><span class="gear-val">KULLANMIYORUZ</span></div>
+                    <div class="gear-list-item"><span>KEDİ</span><span class="gear-val">PASCAL</span></div>
+                    <div class="gear-list-item"><span>KUMA</span><span class="gear-val">MEMO</span></div>
+                    <div class="gear-list-item"><span>LAVUK</span><span class="gear-val">l4VuK</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="width:100%; background:#050505; padding:40px; text-align:center; border-top:1px solid var(--val-red);">
+            <div style="font-family:'Orbitron', sans-serif; color:var(--val-red); font-size:1.5rem; margin-bottom:20px;">BİZE ULAŞIN</div>
+            <div style="display:flex; justify-content:center; gap:30px; flex-wrap:wrap; color:#888;">
+               
+                <div><i class="fab fa-discord"></i> Dk4pX4paKT</div>
+                <div><i class="fas fa-envelope"></i> shrbrk@outlook.com</div>
+                <div><i class="fab fa-tiktok"></i> @shrbrktw</div>
+            </div>
+            <div style="margin-top:30px; font-size:0.8rem; color:#444;">@l4VuK</div>
+        </div>
+
     </div>
 
     <div id="custom-cursor"><div class="ch-h"></div><div class="ch-v"></div><div class="ch-dot"></div></div>
@@ -525,10 +661,10 @@
                 <div class="setting-item">
                     <span style="font-size:0.8rem;color:#aaa">HIZ (ZORLUK)</span>
                     <select id="diff-select" class="auth-input" style="margin:0; padding:10px;" onchange="checkDifficultyChange()">
-                        <option value="1500">KOLAY</option>
-                        <option value="1100" selected>ORTA</option>
-                        <option value="800">ZOR</option>
-                        <option value="600">UZMAN</option>
+                        <option value="1125">BRON</option>
+                        <option value="935" selected>YAPARSIN</option>
+                        <option value="680">TRY HARD</option>
+                        <option value="530">LAVUK</option>
                     </select>
                 </div>
                 <div class="setting-item">
@@ -557,10 +693,8 @@
         <button class="game-ctrl-btn" onclick="toggleGameMode()">ÇIKIŞ</button>
         <button class="game-ctrl-btn" onclick="openIngameSettings()"><i class="fas fa-cog"></i> AYARLAR</button>
     </div>
-
-    <div class="sidebar-trigger" id="sidebar-trigger" onclick="toggleSidebar()">
-        <span class="sidebar-text">CHAT</span>
-    </div>
+    
+    <div class="sidebar-trigger" id="sidebar-trigger" onclick="toggleSidebar()"><span class="sidebar-text">CHAT</span></div>
     
     <div id="chat-sidebar">
         <div class="chat-header">
@@ -574,199 +708,36 @@
             <button class="channel-btn kick-tab" onclick="switchChannel('kick', this)"><i class="fas fa-bolt"></i> KICK</button>
             <button class="channel-btn" id="btn-odak" onclick="switchChannel('odak', this)" style="color:var(--cyber-blue); border-color:var(--cyber-blue);">ODAK</button>
         </div>
-        
         <div id="chat-messages" class="chat-messages"><div style="text-align:center; margin-top:50px; color:#666;">Yükleniyor...</div></div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" class="chat-input" placeholder="Mesaj gönder..." autocomplete="off">
-        </div>
-
-        <div id="kick-chat-container">
-            <iframe src="https://kick.com/shrbrk/chatroom" scrolling="no"></iframe>
-        </div>
+        <div class="chat-input-area"><input type="text" id="chat-input" class="chat-input" placeholder="Mesaj gönder..." autocomplete="off"></div>
+        <div id="kick-chat-container"><iframe src="https://kick.com/shrbrk/chatroom" scrolling="no"></iframe></div>
     </div>
 
-    <div class="sidebar-trigger right" id="clips-trigger" onclick="toggleClips()">
-        <span class="sidebar-text">KLİPLER</span>
-    </div>
+    <div class="sidebar-trigger right" id="clips-trigger" onclick="toggleClips()"><span class="sidebar-text">KLİPLER</span></div>
 
     <div id="clips-sidebar">
         <div class="chat-header">
             <span style="font-family: 'Orbitron', sans-serif; color: var(--val-red);">KICK KLİPLERİ</span>
             <button class="close-sidebar-btn" onclick="toggleClips()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="clips-container" id="clips-container-inner">
-            <div class="clip-item">
-                <div class="clip-title">VALORANT HIGHLIGHT #1</div>
-                <iframe src="https://player.kick.com/clip/clip_01HCD4Y75Z7X8Q9W2E" allowfullscreen></iframe>
-            </div>
-            <div class="clip-item">
-                <div class="clip-title">ACE MOMENT</div>
-                <iframe src="https://player.kick.com/clip/clip_01HCD4Y75Z7X8Q9W2E" allowfullscreen></iframe>
-            </div>
-        </div>
+        <div class="clips-container" id="clips-container-inner"></div>
     </div>
 
-    <div class="lobby-wrapper" id="lobby-wrapper" onclick="closeVideoDrawer()">
-        <div class="lobby-container">
-            <div class="lobby-card c1" onclick="openYouTubeDashboard(); event.stopPropagation();">
-                <div class="card-bg"></div>
-                <div class="card-info">
-                    <div class="card-title">YOUTUBE ANALİZ</div>
-                    <div class="card-subtitle">LIVE DASHBOARD</div>
-                </div>
-            </div>
-
-            <div class="lobby-card c2" onclick="openPage('p-oyun'); event.stopPropagation();"><div class="card-bg"></div><div class="card-info"><div class="card-title">OYUNLAR</div><div class="card-subtitle">GEÇMİŞ</div></div></div>
-            <div class="lobby-card c3" onclick="openPage('p-hakkinda'); event.stopPropagation();"><div class="card-bg"></div><div class="card-info"><div class="card-title">HAKKINDA</div><div class="card-subtitle">BİZ KİMİZ?</div></div></div>
-            <div class="lobby-card c4" onclick="openPage('p-ekipman'); event.stopPropagation();"><div class="card-bg"></div><div class="card-info"><div class="card-title">EKİPMAN</div><div class="card-subtitle">SİSTEMLER</div></div></div>
-            <div class="lobby-card c5" onclick="openPage('p-iletisim'); event.stopPropagation();"><div class="card-bg"></div><div class="card-info"><div class="card-title">İLETİŞİM</div><div class="card-subtitle">CONTACT</div></div></div>
-            
-            <div class="lobby-card c-chat mobile-chat-card" style="display:none;" onclick="toggleSidebar(); event.stopPropagation();">
-                <div class="card-bg" style="background:linear-gradient(135deg, #111, #222);"></div>
-                <div class="card-info"><div class="card-title">CHAT</div><div class="card-subtitle">TOPLULUK</div></div>
-            </div>
-        </div>
-        <button id="game-mode-toggle" onclick="toggleGameMode(); event.stopPropagation();">ODAK MODU</button>
-    </div>
-
-    <div class="video-trigger" id="video-trigger" onclick="toggleVideoDrawer()"><i class="fas fa-film"></i> <span id="video-text">MEDYA GALERİSİ</span></div>
+    <div class="video-trigger" id="video-trigger" onclick="toggleVideoDrawer()"><i class="fas fa-film"></i> <span id="video-text">VİDEO GALERİ</span></div>
     <div id="video-drawer">
         <h2 style="font-family: 'Orbitron', sans-serif; color: var(--val-red); letter-spacing: 5px;">HIGHLIGHTS</h2>
         <i class="fas fa-chevron-left nav-btn left" onclick="rotateCarousel(-1)"></i>
         <i class="fas fa-chevron-right nav-btn right" onclick="rotateCarousel(1)"></i>
-
         <div class="carousel-container">
             <div class="carousel" id="carousel">
-                <div class="carousel-item active"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" allowfullscreen></iframe></div>
-                <div class="carousel-item"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/jfKfPfyJRdk?enablejsapi=1" allowfullscreen></iframe></div>
-                <div class="carousel-item"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/5qap5aO4i9A?enablejsapi=1" allowfullscreen></iframe></div>
-                <div class="carousel-item"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/L_jWHffIx5E?enablejsapi=1" allowfullscreen></iframe></div>
+                <div class="carousel-item active"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/videoseries?list=UUsOrnG98Jb_IB7wL3F6f7ZA&enablejsapi=1&rel=0" allowfullscreen></iframe></div>
+                <div class="carousel-item"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/dJePNIhwf9o?enablejsapi=1&rel=0" allowfullscreen></iframe></div>
+                <div class="carousel-item"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed?listType=playlist&list=UUlK9upmQDJxAqcGBw8oh0oA&enablejsapi=1&rel=0" allowfullscreen></iframe></div>
+                <div class="carousel-item" style="background:#000;"><iframe src="https://www.instagram.com/reel/DSH_m6VCK10/embed" allowfullscreen style="object-fit:contain;"></iframe></div>
                 <div class="carousel-item"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/3dYiK6tqE4A?enablejsapi=1" allowfullscreen></iframe></div>
             </div>
         </div>
         <div style="text-align:center; color:white; margin-top:20px; font-size:0.8rem; opacity:0.6;">ÇIKMAK İÇİN YUKARIYA TIKLAYINIZ</div>
-    </div>
-
-    <div id="p-youtube-dashboard" class="page-modal">
-        <div class="dash-modal-content">
-            <button class="dash-close" onclick="closePage()">X</button>
-            
-            <div class="dash-header">
-                <img id="d-avatar" class="dash-avatar" src="" alt="Avatar">
-                <div class="dash-info">
-                    <div id="d-name" class="dash-name">SHRBRK</div>
-                    <div class="dash-sub">RESMİ YOUTUBE İSTATİSTİKLERİ</div>
-                </div>
-            </div>
-
-            <div class="stats-row">
-                <div class="stat-box">
-                    <div id="d-views" class="stat-val">0</div>
-                    <div class="stat-lbl">TOPLAM İZLENME</div>
-                </div>
-                <div class="stat-box">
-                    <div id="d-subs" class="stat-val">0</div>
-                    <div class="stat-lbl">ABONE</div>
-                </div>
-                <div class="stat-box">
-                    <div id="d-videos" class="stat-val">0</div>
-                    <div class="stat-lbl">YÜKLENEN VİDEO</div>
-                </div>
-            </div>
-
-            <div class="dash-grid">
-                <div class="left-col">
-                    <div class="section-head">SON VİDEOLAR</div>
-                    <div id="video-list" class="video-grid">
-                        </div>
-
-                    <div class="section-head">BAŞLIK ANALİZİ (Trend Olan Kelimeler)</div>
-                    <div class="chart-wrapper">
-                        <div id="chart-list">
-                            </div>
-                    </div>
-                </div>
-
-                <div class="right-col">
-                    <div class="section-head">SON TOPLULUK ETKİLEŞİMLERİ</div>
-                    <div id="comment-list" class="comments-col">
-                        </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="p-oyun" class="page-modal">
-        <div class="page-content">
-            <h1 style="color:var(--val-red); font-family:'Orbitron',sans-serif;">OYUN GEÇMİŞİ</h1>
-            <div class="modal-scroll-area">
-                <div class="content-block">
-                    <div class="content-text">Aktif olarak oynadığım ve rank kastığım oyunlar:</div>
-                    <div class="content-img-placeholder">[ GÖRSEL: OYUN KOLAJI ]</div>
-                    <div class="spec-list">
-                        <div class="spec-item"><span class="spec-label">VALORANT</span><span class="spec-val">IMMORTAL 3</span></div>
-                        <div class="spec-item"><span class="spec-label">CS2</span><span class="spec-val">FACEIT LVL 10</span></div>
-                        <div class="spec-item"><span class="spec-label">LOL</span><span class="spec-val">DIAMOND 1</span></div>
-                    </div>
-                </div>
-            </div>
-            <button class="auth-btn" onclick="closePage()" style="margin-top:20px;">GERİ DÖN</button>
-        </div>
-    </div>
-
-    <div id="p-hakkinda" class="page-modal">
-        <div class="page-content">
-            <h1 style="color:var(--val-red); font-family:'Orbitron',sans-serif;">HAKKIMIZDA</h1>
-            <div class="modal-scroll-area">
-                <div class="content-block">
-                    <div class="content-img-placeholder" style="height:150px; width:150px; border-radius:50%; margin:0 auto 20px auto;">[ PROFİL FOTOĞRAFI ]</div>
-                    <div class="content-text">
-                        Selamlar! Ben SHRBRK. 2020 yılından beri profesyonel olarak içerik üretiyorum. 
-                        Amacım sizlere en kaliteli oyun deneyimini ve eğlenceli sohbeti sunmak.
-                    </div>
-                    <div class="content-text">
-                        Yayınlarımda ağırlıklı olarak FPS oyunları oynasam da, yeni çıkan hikayeli oyunları deneyimlemeyi de çok severim.
-                    </div>
-                </div>
-            </div>
-            <button class="auth-btn" onclick="closePage()" style="margin-top:20px;">GERİ DÖN</button>
-        </div>
-    </div>
-
-    <div id="p-ekipman" class="page-modal">
-        <div class="page-content">
-            <h1 style="color:var(--val-red); font-family:'Orbitron',sans-serif;">EKİPMANLAR</h1>
-            <div class="modal-scroll-area">
-                <div class="content-block">
-                    <div class="content-img-placeholder">[ GÖRSEL: SETUP FOTOĞRAFI ]</div>
-                    <div class="spec-list">
-                        <div class="spec-item"><span class="spec-label">İŞLEMCİ</span><span class="spec-val">AMD RYZEN 9 5900X</span></div>
-                        <div class="spec-item"><span class="spec-label">EKRAN KARTI</span><span class="spec-val">NVIDIA RTX 3080</span></div>
-                        <div class="spec-item"><span class="spec-label">RAM</span><span class="spec-val">32GB 3600MHZ</span></div>
-                        <div class="spec-item"><span class="spec-label">MOUSE</span><span class="spec-val">LOGITECH G PRO X</span></div>
-                        <div class="spec-item"><span class="spec-label">KLAVYE</span><span class="spec-val">STEELSERIES APEX PRO</span></div>
-                    </div>
-                </div>
-            </div>
-            <button class="auth-btn" onclick="closePage()" style="margin-top:20px;">GERİ DÖN</button>
-        </div>
-    </div>
-
-    <div id="p-iletisim" class="page-modal">
-        <div class="page-content">
-            <h1 style="color:var(--val-red); font-family:'Orbitron',sans-serif;">İLETİŞİM</h1>
-            <div class="modal-scroll-area">
-                <div class="content-block">
-                    <div class="content-text">İş birlikleri ve sponsorluk görüşmeleri için aşağıdaki kanallardan ulaşabilirsiniz.</div>
-                    <div class="spec-list" style="margin-top:20px;">
-                        <div class="spec-item"><span class="spec-label">E-POSTA</span><span class="spec-val">contact@shrbrk.com</span></div>
-                        <div class="spec-item"><span class="spec-label">DISCORD</span><span class="spec-val">discord.gg/shrbrk</span></div>
-                        <div class="spec-item"><span class="spec-label">TWITTER</span><span class="spec-val">@shrbrk</span></div>
-                    </div>
-                </div>
-            </div>
-            <button class="auth-btn" onclick="closePage()" style="margin-top:20px;">GERİ DÖN</button>
-        </div>
     </div>
 
     <div id="auth-modal-wrapper" class="auth-modal-wrapper">
@@ -825,6 +796,13 @@
                 scWidget.bind(SC.Widget.Events.PLAY, function() { isMusicPlaying = true; updateMusicButton(); });
                 scWidget.bind(SC.Widget.Events.PAUSE, function() { isMusicPlaying = false; updateMusicButton(); });
             });
+            
+            // MÜZİK OTOMATİK BAŞLATMA TRICK (Kullanıcı etkileşimi sonrası)
+            document.body.addEventListener('click', () => {
+                if(!isMusicPlaying) {
+                    scWidget.play();
+                }
+            }, { once: true }); 
 
             const diffSelect = document.getElementById('diff-select');
             const colorInput = document.getElementById('cross-color-input');
@@ -835,105 +813,59 @@
             window.updateCrosshairSettings(); 
             setInterval(autoUpdateTopList, 5 * 60 * 1000);
             
+            // KICK Kliplerini Çek (Public API - Risksiz)
             loadKickClips();
-            
-            // YOUTUBE DASHBOARD BAŞLAT (Otomatik Veri Çekme)
-            initDashboard();
-            setInterval(initDashboard, REFRESH_RATE);
         };
 
-        // --- YOUTUBE DASHBOARD MANTIKLARI ---
-        const API_URL = "https://sbelements.canersavas3d.workers.dev/"; 
-        const REFRESH_RATE = 600000; // 10 Dakika
-
-        function formatNum(num) {
-            if (!num) return "0";
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-            return parseInt(num).toLocaleString('tr-TR');
+        // --- SOSYAL MEDYA MENU TOGGLE ---
+        window.toggleSocial = (id) => {
+            document.querySelectorAll('.sub-menu').forEach(el => {
+                if (el.id !== id) el.classList.remove('active');
+            });
+            const menu = document.getElementById(id);
+            menu.classList.toggle('active');
         }
 
-        async function initDashboard() {
-            try {
-                const res = await fetch(API_URL);
-                const json = await res.json();
-                
-                if(json.ok && json.data) {
-                    renderData(json.data);
-                }
-            } catch (e) { console.error("YouTube Fetch Hatası:", e); }
-        }
-
-        function renderData(data) {
-            // Modal Header
-            document.getElementById('d-name').innerText = data.channel_name;
-            document.getElementById('d-avatar').src = data.avatar;
-            
-            // Stats
-            document.getElementById('d-views').innerText = formatNum(data.total_views);
-            document.getElementById('d-subs').innerText = formatNum(data.subscribers);
-            document.getElementById('d-videos').innerText = data.total_videos;
-
-            // Videolar
-            const vList = document.getElementById('video-list');
-            vList.innerHTML = '';
-            if(data.last_videos_playable) {
-                data.last_videos_playable.forEach(vid => {
-                    const html = `
-                    <div class="video-card-dash">
-                        <iframe class="video-embed-dash" src="https://www.youtube.com/embed/${vid.id}" title="${vid.title}" allowfullscreen></iframe>
-                        <div class="video-title-dash">${vid.title}</div>
-                        <div class="video-meta-dash">
-                            <span>${formatNum(vid.views)} İzlenme</span>
-                        </div>
-                    </div>`;
-                    vList.innerHTML += html;
-                });
+        // Menü dışına tıklanınca kapat
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.social-group')) {
+                document.querySelectorAll('.sub-menu').forEach(el => el.classList.remove('active'));
             }
+        });
 
-            // Grafik
-            const cList = document.getElementById('chart-list');
-            cList.innerHTML = '';
-            if(data.analysis_graph && data.analysis_graph.length > 0) {
-                const maxVal = Math.max(...data.analysis_graph.map(d => d.value));
-                data.analysis_graph.forEach((item) => {
-                    const percent = (item.value / maxVal) * 100;
-                    const html = `
-                    <div class="bar-item">
-                        <div class="bar-label">${item.name}</div>
-                        <div class="bar-track">
-                            <div class="bar-fill" style="width: ${percent}%"></div>
-                        </div>
-                        <div class="bar-val">${formatNum(item.value)}</div>
-                    </div>`;
-                    cList.innerHTML += html;
-                });
+        // 1. Sticky Header Logic
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if(window.scrollY > 50) {
+                header.classList.add('scrolled');
+                document.body.classList.add('scrolled-mode');
+            } else {
+                header.classList.remove('scrolled');
+                document.body.classList.remove('scrolled-mode');
             }
+        });
 
-            // Yorumlar
-            const commList = document.getElementById('comment-list');
-            commList.innerHTML = '';
-            if(data.unique_comments) {
-                data.unique_comments.forEach(com => {
-                    const date = new Date(com.published).toLocaleDateString('tr-TR');
-                    const html = `
-                    <div class="comment-card">
-                        <img src="${com.avatar}" class="com-avatar" onerror="this.src='https://via.placeholder.com/40'">
-                        <div>
-                            <div class="com-head">${com.author}</div>
-                            <div class="com-text">${com.text}</div>
-                            <div class="com-time">${date}</div>
-                        </div>
-                    </div>`;
-                    commList.innerHTML += html;
+        // 2. Scroll Navigation Logic (Lobby Kartlarına Tıklayınca)
+        window.scrollToSection = (id) => {
+            const el = document.getElementById(id);
+            if(el) {
+                window.scrollTo({
+                    top: el.offsetTop - 120, // Header payı
+                    behavior: 'smooth'
                 });
             }
         }
-        
-        window.openYouTubeDashboard = () => {
-            if(isFocusMode) return; 
-            document.getElementById('p-youtube-dashboard').classList.add('active'); 
-            document.getElementById('lobby-wrapper').classList.add('ui-hidden'); 
+
+        // 3. Tab System Logic
+        window.switchTab = (event, tabId) => {
+            const section = event.currentTarget.closest('.content-section');
+            // Panelleri gizle
+            section.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            // Buton aktifliğini kaldır
+            section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            // İlgili paneli aç
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
 
         // KICK KLİP ÇEKME
@@ -943,23 +875,17 @@
             try {
                 const response = await fetch(`https://kick.com/api/v2/channels/${username}/clips`);
                 if (!response.ok) throw new Error("API erişilemedi");
-
                 const data = await response.json();
                 if (data.clips && data.clips.length > 0) {
                     container.innerHTML = ""; 
                     data.clips.slice(0, 5).forEach(clip => {
                         const div = document.createElement('div');
                         div.className = 'clip-item';
-                        div.innerHTML = `
-                            <div class="clip-title">${clip.title}</div>
-                            <iframe src="https://player.kick.com/clip/${clip.id}" allowfullscreen></iframe>
-                        `;
+                        div.innerHTML = `<div class="clip-title">${clip.title}</div><iframe src="https://player.kick.com/clip/${clip.id}" allowfullscreen></iframe>`;
                         container.appendChild(div);
                     });
                 }
-            } catch (error) {
-                console.log("Kick API client-side erişimi kısıtlı olabilir, sabit klipler gösteriliyor.");
-            }
+            } catch (error) { console.log("Kick API client-side erişimi kısıtlı olabilir."); }
         }
 
         window.toggleMusic = function() { scWidget.toggle(); };
@@ -1008,7 +934,7 @@
 
             if(channel === 'kick') {
                 chatMessages.style.display = 'none';
-                chatInputArea.style.display = 'none'; // BURASI INPUT'U GİZLER (MESAJ GÖNDERMEK ENGELLENİR)
+                chatInputArea.style.display = 'none'; 
                 kickContainer.style.display = 'block';
             } else {
                 kickContainer.style.display = 'none';
@@ -1091,8 +1017,7 @@
             document.getElementById('music-wrapper').classList.remove('shifted');
         }
 
-        window.openPage = (id) => { if(isFocusMode) return; document.getElementById(id).classList.add('active'); document.getElementById('lobby-wrapper').classList.add('ui-hidden'); }
-        window.closePage = () => { document.querySelectorAll('.page-modal').forEach(e=>e.classList.remove('active')); if(!isFocusMode) document.getElementById('lobby-wrapper').classList.remove('ui-hidden'); }
+        window.closePage = () => { }
         
         let isFocusMode = false;
         let gameActive = false;
@@ -1121,9 +1046,11 @@
                 customCursor.style.left = e.clientX + 'px';
                 customCursor.style.top = e.clientY + 'px';
             }
-            const x = (e.clientX / window.innerWidth - 0.5) * 20;
-            const y = (e.clientY / window.innerHeight - 0.5) * 20;
-            document.getElementById('parallax-bg').style.transform = `translate(${x}px, ${y}px)`;
+            if(!isFocusMode) {
+                const x = (e.clientX / window.innerWidth - 0.5) * 20;
+                const y = (e.clientY / window.innerHeight - 0.5) * 20;
+                document.getElementById('parallax-bg').style.transform = `translate(${x}px, ${y}px)`;
+            }
         });
 
         window.checkDifficultyChange = () => {
@@ -1150,15 +1077,24 @@
 
         window.toggleGameMode = () => {
             isFocusMode = !isFocusMode;
-            const uiElements = [document.getElementById('main-header'), document.getElementById('lobby-wrapper'), document.getElementById('sidebar-trigger'), document.getElementById('clips-trigger'), document.getElementById('video-trigger'), document.getElementById('auth-buttons-container'), document.getElementById('music-wrapper')];
+            const uiElements = [
+                document.getElementById('main-header'), 
+                document.getElementById('hero-section'),
+                document.getElementById('main-content-flow'), // Yeni scroll alanı
+                document.getElementById('sidebar-trigger'), 
+                document.getElementById('clips-trigger'), 
+                document.getElementById('video-trigger'), 
+                document.getElementById('auth-buttons-container'), 
+                document.getElementById('music-wrapper')
+            ];
             
             if(isFocusMode) {
                 uiElements.forEach(el => el.classList.add('ui-hidden'));
                 topControls.style.display = 'flex';
-                document.body.classList.add('focus-mode');
+                document.body.classList.add('focus-mode'); // Scroll'u kilitle
                 document.body.classList.add('game-cursor-hidden');
                 customCursor.style.display = 'block';
-                startScreen.style.display = 'block';
+                startScreen.style.display = 'flex'; // FLEX İLE TAM ORTALA
                 document.getElementById('start-btn-text').innerText = "BAŞLAT";
                 document.getElementById('resume-btn').style.display = 'none';
                 resultScreen.style.display = 'none';
@@ -1167,7 +1103,7 @@
             } else {
                 uiElements.forEach(el => el.classList.remove('ui-hidden'));
                 topControls.style.display = 'none';
-                document.body.classList.remove('focus-mode');
+                document.body.classList.remove('focus-mode'); // Scroll'u aç
                 document.body.classList.remove('game-cursor-hidden');
                 customCursor.style.display = 'none';
                 startScreen.style.display = 'none';
@@ -1178,12 +1114,12 @@
         }
 
         window.openIngameSettings = () => {
-            if(!gameActive) { startScreen.style.display = 'block'; return; }
+            if(!gameActive) { startScreen.style.display = 'flex'; return; }
             gamePaused = true;
             if(activeTarget) activeTarget.style.animationPlayState = 'paused';
             document.body.classList.remove('game-cursor-hidden');
             customCursor.style.display = 'none';
-            startScreen.style.display = 'block';
+            startScreen.style.display = 'flex';
             document.getElementById('start-btn-text').style.display = 'none';
             document.getElementById('resume-btn').style.display = 'inline-block';
         }
@@ -1313,7 +1249,7 @@
             if(d.classList.contains('active')) {
                 d.classList.remove('active');
                 videoOpen = false;
-                document.getElementById('video-text').innerText = "MEDYA GALERİSİ";
+                document.getElementById('video-text').innerText = "VİDEO GALERİ";
                 stopVideos();
             }
         }
