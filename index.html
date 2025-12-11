@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHRBRK | Time Attack Hub</title>
+    <title>SHRBRK | Command Center</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
     <script src="https://w.soundcloud.com/player/api.js"></script>
 
     <style>
-        /* --- TEMEL DEĞİŞKENLER (DARK DEFAULT) --- */
+        /* --- TEMEL DEĞİŞKENLER --- */
         :root {
             --bg-color: #0f1923; 
             --bg-gradient: radial-gradient(circle at center, #1f2731 0%, #0f1923 100%);
@@ -22,14 +22,13 @@
             --cyber-blue: #00ffff;
             --text-primary: #ece8e1;
             --text-secondary: #8b9bb4;
-            --modal-bg: rgba(15, 25, 35, 0.95);
+            --modal-bg: rgba(15, 25, 35, 0.98);
             --modal-text: #fff;
             
             --cross-color: #00ff00;
             --cross-size: 20px;
         }
 
-        /* --- LIGHT MODE --- */
         [data-theme="light"] {
             --bg-color: #e0e0e0;
             --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #d1d1d1 100%);
@@ -37,8 +36,28 @@
             --text-primary: #222;
             --text-secondary: #444;
             --val-dark: #f5f5f5;
-            --modal-bg: rgba(240, 240, 240, 0.95);
+            --modal-bg: rgba(240, 240, 240, 0.98);
             --modal-text: #111;
+        }
+
+        /* Light Mode Override */
+        [data-theme="light"] .social-btn,
+        [data-theme="light"] #game-mode-toggle,
+        [data-theme="light"] .video-trigger,
+        [data-theme="light"] .spec-item,
+        [data-theme="light"] .schedule-row,
+        [data-theme="light"] .video-card-dash,
+        [data-theme="light"] .comment-card {
+            background-color: #fff !important;
+            color: #000 !important;
+            border-color: #ccc !important;
+        }
+        [data-theme="light"] .cyber-grid {
+            background: 
+                linear-gradient(transparent 0%, #000 2%, transparent 3%),
+                linear-gradient(90deg, transparent 0%, #000 2%, transparent 3%) !important;
+            background-size: 100px 100px !important;
+            opacity: 0.1 !important;
         }
 
         * { box-sizing: border-box; }
@@ -55,10 +74,9 @@
             transition: background 0.5s ease, color 0.5s ease;
         }
 
-        /* --- UI GİZLEME --- */
         .ui-hidden { opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }
 
-        /* --- BACKGROUND STYLING (CYBERPUNK MINIMALIST) --- */
+        /* --- BACKGROUND --- */
         #parallax-bg {
             position: fixed; top: -5%; left: -5%; width: 110%; height: 110%;
             background: url('https://images.unsplash.com/photo-1546443046-ed1ce6ffd1e9?auto=format&fit=crop&w=2070&q=80') center/cover;
@@ -78,372 +96,376 @@
         }
         @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
 
-        .cyber-orb {
-            position: fixed; border-radius: 50%; filter: blur(60px); opacity: 0.15; z-index: 0; pointer-events: none;
-            animation: orbFloat 10s ease-in-out infinite alternate;
+        /* --- MÜZİK KONTROLLERİ --- */
+        #music-wrapper {
+            position: fixed; top: 30px; left: 30px; z-index: 8000;
+            display: flex; align-items: center; gap: 5px;
+            transition: transform 0.4s ease;
         }
-        .orb-1 { top: 20%; left: 20%; width: 300px; height: 300px; background: var(--cyber-blue); }
-        .orb-2 { bottom: 20%; right: 20%; width: 400px; height: 400px; background: var(--val-red); animation-duration: 15s; }
-        @keyframes orbFloat { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, -30px); } }
+        #music-wrapper.shifted { transform: translateX(400px); }
 
-        /* --- CUSTOM CROSSHAIR --- */
-        #custom-cursor {
-            position: fixed; top: 0; left: 0; pointer-events: none; 
-            transform: translate(-50%, -50%); z-index: 10000; display: none; 
+        .music-btn {
+            background: rgba(0,0,0,0.7); border: 1px solid var(--val-red); color: #fff;
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            font-family: 'Orbitron', sans-serif; cursor: pointer;
+            transition: 0.3s; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
         }
-        .ch-h, .ch-v {
-            position: absolute; background-color: var(--cross-color);
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            box-shadow: 0 0 2px rgba(0,0,0,0.8);
-        }
-        .ch-h { width: var(--cross-size); height: 2px; }
-        .ch-v { width: 2px; height: var(--cross-size); }
-        .ch-dot {
-            position: absolute; width: 4px; height: 4px;
-            background: red; border-radius: 50%;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-        }
+        .music-btn:hover { background: var(--val-red); transform: scale(1.1); }
+        .music-btn-main { width: auto; padding: 0 15px; gap: 10px; }
 
-        body.game-cursor-hidden { cursor: none; }
-        body.game-cursor-hidden .aim-target, body.game-cursor-hidden button { cursor: none !important; }
-
-        /* --- OYUN ALANI --- */
-        #game-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
-        body.focus-mode #game-layer { z-index: 9000; pointer-events: auto; background: rgba(0,0,0,0.85); }
-
-        .aim-target {
-            position: absolute; width: 70px; height: 70px;
-            background: radial-gradient(circle, var(--val-red) 40%, transparent 70%);
-            border: 2px solid var(--val-red); border-radius: 50%;
-            box-shadow: 0 0 15px var(--val-red); pointer-events: auto; opacity: 0.8;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        /* PASİF PARTİKÜLLER */
-        .passive-particle {
-            position: absolute; width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(0, 255, 255, 0.2); box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
-            pointer-events: none; z-index: 1; animation: passivePulse 1s ease-out forwards;
-        }
-        @keyframes passivePulse { 0% { transform: scale(0); opacity: 0; } 20% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(0); opacity: 0; } }
-        @keyframes spawnPulse { 0% { transform: scale(0); opacity: 0; } 10% { transform: scale(1); opacity: 1; } 80% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
-
-        .hit-effect { position: absolute; width: 80px; height: 80px; border: 2px solid #fff; border-radius: 50%; animation: hitAnim 0.2s ease-out forwards; pointer-events: none; z-index: 9002; }
-        @keyframes hitAnim { 0% { transform: scale(0.5); opacity: 1; border-width: 5px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
-
-        #countdown-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 11000;
-            display: none; justify-content: center; align-items: center;
-            font-family: 'Orbitron', sans-serif; font-size: 10rem;
-            color: var(--val-red); text-shadow: 0 0 50px var(--val-red);
+        /* --- HEADER & SOSYAL MEDYA --- */
+        .header-container {
+            position: fixed; top: 0; left: 0; width: 100%; padding: 30px; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             pointer-events: none;
         }
-
-        #game-hud {
-            position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 60px; z-index: 9500; pointer-events: none; display: none; 
-        }
-        .hud-box {
-            background: rgba(0,0,0,0.8); border: 2px solid var(--val-red);
-            padding: 15px 40px; color: #fff; font-family: 'Orbitron', sans-serif;
-            font-size: 2rem; text-shadow: 0 0 15px var(--val-red);
-            clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px);
-            min-width: 200px; text-align: center;
-        }
-        .hud-label { font-size: 0.8rem; color: #aaa; display: block; margin-bottom: 5px; }
-
-        #start-screen, #result-screen {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 9600; text-align: center; display: none; width: 100%; pointer-events: none;
-        }
-        .start-content {
-            pointer-events: auto; display: inline-flex; flex-direction: column; gap: 15px;
-            background: var(--modal-bg); padding: 40px; border: 2px solid var(--val-red);
-            align-items: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            color: var(--modal-text); 
-        }
         
-        .big-btn {
-            font-family: 'Orbitron', sans-serif; font-size: 2rem; padding: 20px 60px;
-            background: var(--val-red); color: #fff; border: none; cursor: pointer;
-            clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
-            transition: 0.3s; box-shadow: 0 0 30px rgba(255, 70, 85, 0.4);
-            text-transform: uppercase; letter-spacing: 5px;
+        .header-content {
+            pointer-events: auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px;
         }
-        .big-btn:hover { background: #fff; color: var(--val-red); transform: scale(1.05); }
 
-        .result-box {
-            background: var(--modal-bg); padding: 40px; border: 2px solid var(--val-red);
-            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
-            display: inline-flex; flex-direction: column; gap: 20px; width: 400px;
-            pointer-events: auto; color: var(--modal-text);
+        .logo {
+            font-family: 'Orbitron', sans-serif; font-size: 3.5rem; 
+            color: var(--val-red);
+            font-weight: 900; letter-spacing: 8px; 
+            text-shadow: 0 0 25px rgba(255, 70, 85, 0.6);
+            cursor: pointer; transition: 0.3s;
         }
-        .result-title { font-size: 2rem; font-family: 'Orbitron', sans-serif; color: var(--modal-text); }
-        .result-score { font-size: 4rem; font-family: 'Orbitron', sans-serif; color: var(--val-red); font-weight: bold; }
-        
-        .action-btn {
-            padding: 12px; background: transparent; border: 1px solid var(--modal-text); color: var(--modal-text);
-            cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.3s;
-        }
-        .action-btn:hover { background: var(--val-red); color: #fff; border-color: var(--val-red); }
-        .share-btn { background: var(--cyber-blue); border-color: var(--cyber-blue); color: #000; font-weight: bold; }
-        .share-btn:hover { background: #fff; }
+        .logo:hover { transform: scale(1.05); text-shadow: 0 0 50px var(--val-red); }
 
-        .warning-text {
-            color: #ff4655; font-size: 0.9rem; margin-top: 15px; font-weight: bold; letter-spacing: 1px;
-            animation: pulseText 2s infinite;
+        .social-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .social-btn {
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: var(--text-secondary);
+            padding: 8px 15px; font-family: 'Rajdhani', sans-serif; font-weight: bold; font-size: 0.9rem;
+            text-decoration: none; display: flex; align-items: center; gap: 8px;
+            clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px); transition: 0.3s;
         }
-        @keyframes pulseText { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+        .social-btn:hover {
+            background: var(--val-white); color: #000; border-color: var(--val-white);
+            box-shadow: 0 0 15px rgba(255,255,255,0.3); transform: translateY(-2px);
+        }
 
-        .settings-row {
-            display: flex; gap: 20px; align-items: center; justify-content: center;
-            margin-top: 10px; padding: 15px; border-top: 1px solid #555; width: 100%;
+        /* AUTH */
+        .auth-wrapper {
+            position: fixed; top: 30px; right: 30px; z-index: 101; pointer-events: auto;
+            display: flex; gap: 15px; align-items: center;
         }
-        .setting-item { display: flex; flex-direction: column; gap: 5px; text-align: left; }
-        .setting-label { font-size: 0.8rem; color: var(--text-secondary); font-family: 'Orbitron', sans-serif; }
-        .setting-input { 
-            background: rgba(0,0,0,0.2); color: var(--modal-text); border: 1px solid #555; padding: 5px;
-            font-family: 'Rajdhani', sans-serif;
+        .auth-btn { 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); 
+            color: var(--val-white); padding: 8px 20px; font-family: 'Orbitron', sans-serif; 
+            font-size: 0.8rem; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); 
+            transition: 0.3s;
         }
-        
-        /* HEADER */
-        .header-container { position: fixed; top: 0; left: 0; width: 100%; padding: 20px 40px; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: var(--val-white); font-weight: 900; letter-spacing: 5px; text-shadow: 0 0 15px var(--val-red); cursor: pointer; }
-        .top-menu { display: flex; gap: 20px; align-items: center; }
-        .menu-link { color: var(--text-secondary); text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 2px; transition: 0.3s; }
-        .menu-link:hover { color: var(--val-white); }
-        .auth-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--val-white); padding: 8px 20px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
         .auth-btn:hover { background: var(--val-white); color: #000; }
         .auth-btn.primary { background: var(--val-red); border-color: var(--val-red); }
-        .auth-btn.primary:hover { background: #ff7070; color: #fff; }
+        .auth-btn.primary:hover { background: #fff; color: var(--val-red); }
+        
         #user-profile { display: none; align-items: center; gap: 15px; }
         .user-name { color: var(--cyber-blue); font-family: 'Orbitron', sans-serif; font-size: 0.9rem; }
         .logout-icon { cursor: pointer; color: var(--val-red); font-size: 1.1rem; }
 
-        /* THEME TOGGLE - DESKTOP */
         #theme-toggle-btn {
             background: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary);
-            width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: 0.3s;
         }
         #theme-toggle-btn:hover { background: var(--val-white); color: #000; }
 
-        /* MUSIC CONTROL BUTTON - DESKTOP DEFAULT */
-        #music-ctrl-btn {
-            position: fixed; bottom: 30px; left: 30px; z-index: 8000;
-            background: rgba(0,0,0,0.7); border: 1px solid var(--val-red); color: #fff;
-            padding: 10px 20px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
-            cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-            transition: 0.3s; display: flex; gap: 10px; align-items: center;
+        /* --- LOBBY --- */
+        .lobby-wrapper { 
+            position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); 
+            display: flex; flex-direction: column; align-items: center; gap: 40px; z-index: 10; 
+            transition: opacity 0.5s; width: 100%;
         }
-        #music-ctrl-btn:hover { background: var(--val-red); }
+        .lobby-container { 
+            display: flex; gap: 20px; height: 50vh; width: 85vw; max-width: 1400px;
+            justify-content: center; align-items: center; perspective: 1000px; 
+        }
 
-        /* LOBBY */
-        .lobby-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 30px; z-index: 10; transition: opacity 0.5s; }
-        .lobby-container { display: flex; gap: 15px; height: 50vh; width: 80vw; justify-content: center; align-items: center; perspective: 1000px; pointer-events: none; }
-        .lobby-card { pointer-events: auto; flex: 1; height: 100%; max-width: 250px; position: relative; cursor: pointer; transition: transform 0.4s, filter 0.4s; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); background: var(--val-dark); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
-        .lobby-card:hover { transform: scale(1.1) translateY(-20px); z-index: 20; border-color: var(--val-red); box-shadow: 0 0 30px rgba(255, 70, 85, 0.3); }
-        .lobby-card:not(:hover) { filter: brightness(0.7); }
+        .lobby-card { 
+            pointer-events: auto; flex: 1; height: 100%; position: relative; cursor: pointer; 
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s; 
+            background: var(--val-dark); border: 1px solid rgba(255,255,255,0.05); 
+            overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; 
+            filter: grayscale(0.5) brightness(0.6);
+            transform: scale(1);
+            clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
+        }
+
+        .lobby-card::after {
+            content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%) rotate(45deg); 
+            width: 12px; height: 12px;
+            background-color: var(--val-red); box-shadow: 0 0 10px var(--val-red), 0 0 5px #fff;
+            z-index: 20; pointer-events: none; transition: 0.3s;
+        }
+
+        .lobby-card:hover { 
+            transform: scale(1.15) translateY(-10px); z-index: 50; 
+            border-color: var(--val-red); box-shadow: 0 0 50px rgba(255, 70, 85, 0.5); 
+            filter: grayscale(0) brightness(1.2);
+        }
+        .lobby-card:hover::after {
+            box-shadow: 0 0 15px var(--val-red), 0 0 10px #fff;
+            transform: translateX(-50%) rotate(225deg) scale(1.2);
+        }
+
         .card-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: transform 0.5s; z-index: -1; }
         .lobby-card:hover .card-bg { transform: scale(1.1); }
+        
         .c1 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/e435c3378b7999a3338b408dbb5da8ba63f91150-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c2 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/477284dfe402a85abcf6b07512bcd6f01c8fe60e-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c3 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/14145d7bf9be17afa80c04ee4fbe200076cc1769-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c4 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7cb513c9b3eae3286449776e85753138436d553c-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c5 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/47387e354c34d51b84066bc47af3c5755b92b9c5-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
-        /* Mobile Chat Card BG (Default dark) */
-        .c-chat .card-bg { background: linear-gradient(135deg, #111, #222); }
 
-        .card-info { background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 20px; text-align: center; width: 100%; pointer-events: none; }
-        .card-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #fff; }
-        .card-subtitle { font-size: 0.8rem; color: var(--val-red); margin-top: 5px; font-weight: bold; }
+        .card-info { 
+            background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); 
+            padding: 20px 20px 70px 20px; 
+            text-align: center; width: 100%; pointer-events: none; 
+            transform: translateY(20px); transition: 0.3s; opacity: 0.8;
+        }
+        .lobby-card:hover .card-info { transform: translateY(0); opacity: 1; }
+        .card-title { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; color: #fff; letter-spacing: 2px; }
+        .card-subtitle { font-size: 0.8rem; color: var(--val-red); margin-top: 5px; font-weight: bold; letter-spacing: 1px; }
 
         #game-mode-toggle {
-            padding: 12px 40px; background: rgba(0,0,0,0.6); border: 1px solid var(--val-red); color: var(--val-white);
-            font-family: 'Orbitron', sans-serif; letter-spacing: 2px; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-            transition: 0.3s; pointer-events: auto; margin-top: 20px; z-index: 500;
+            padding: 15px 50px; background: rgba(0,0,0,0.6); border: 1px solid var(--val-red); color: var(--val-white);
+            font-family: 'Orbitron', sans-serif; letter-spacing: 3px; cursor: pointer; clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px);
+            transition: 0.3s; pointer-events: auto; margin-top: 50px; z-index: 500; font-size: 1.1rem;
         }
-        #game-mode-toggle:hover { background: var(--val-red); color: #fff; box-shadow: 0 0 20px var(--val-red); }
+        #game-mode-toggle:hover { background: var(--val-red); color: #fff; box-shadow: 0 0 30px var(--val-red); transform: scale(1.05); }
 
-        /* SIDEBAR */
-        .sidebar-trigger { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 40px; height: 200px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-left: none; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 6000; clip-path: polygon(0 0, 100% 10%, 100% 90%, 0 100%); transition: 0.3s; }
-        .sidebar-trigger:hover { background: var(--val-red); width: 50px; }
-        .sidebar-text { writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'Orbitron', sans-serif; letter-spacing: 3px; color: #fff; }
+        /* --- DASHBOARD STYLES (YOUTUBE INTEGRATION) --- */
+        .dash-modal-content {
+            width: 95%; max-width: 1200px; height: 90vh;
+            background: var(--modal-bg);
+            border: 2px solid var(--val-red);
+            display: grid; grid-template-rows: auto auto 1fr;
+            overflow-y: auto; position: relative;
+            box-shadow: 0 0 50px rgba(0, 229, 255, 0.1);
+        }
+        /* Dashboard Header */
+        .dash-header {
+            height: 120px;
+            background: linear-gradient(90deg, #111 0%, #0a0a0f 100%);
+            border-bottom: 2px solid var(--val-red);
+            display: flex; align-items: center; padding: 0 40px; gap: 30px;
+            position: relative; overflow: hidden;
+        }
+        .dash-header::before {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.03) 10px, rgba(255,255,255,0.03) 20px);
+        }
+        .dash-avatar { 
+            width: 80px; height: 80px; border-radius: 50%; 
+            border: 3px solid var(--cyber-blue); box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); z-index: 2;
+        }
+        .dash-info { z-index: 2; text-align: left;}
+        .dash-name { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900; letter-spacing: 2px; color: #fff; }
+        .dash-sub { color: var(--val-red); font-family: 'Rajdhani', sans-serif; font-weight: bold; letter-spacing: 4px; font-size: 0.9rem; }
+        .dash-close {
+            position: absolute; top: 20px; right: 20px;
+            background: transparent; border: 1px solid var(--val-red); color: var(--val-red);
+            width: 40px; height: 40px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 1.2rem;
+            transition: 0.2s; z-index: 10;
+        }
+        .dash-close:hover { background: var(--val-red); color: #000; }
         
-        #chat-sidebar { position: fixed; top: 0; left: -400px; width: var(--sidebar-width); height: 100%; background: rgba(15, 25, 35, 0.95); border-right: 1px solid var(--val-red); backdrop-filter: blur(20px); z-index: 6001; transition: left 0.4s; display: flex; flex-direction: column; }
+        /* Dashboard Stats */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            border-bottom: 1px solid #333;
+        }
+        .stat-box {
+            padding: 20px; text-align: center; border-right: 1px solid #333;
+            background: rgba(255,255,255,0.01);
+        }
+        .stat-val { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: bold; color: #fff; }
+        .stat-lbl { color: #888; font-size: 0.8rem; letter-spacing: 1px; margin-top: 5px; }
+        
+        /* Dashboard Grid */
+        .dash-grid { display: grid; grid-template-columns: 2fr 1fr; padding: 30px; gap: 30px; }
+        .section-head {
+            font-family: 'Orbitron', sans-serif; color: var(--cyber-blue);
+            font-size: 1.1rem; border-left: 4px solid var(--cyber-blue);
+            padding-left: 15px; margin-bottom: 20px; display: flex; align-items: center; text-align: left;
+        }
+        /* Video List */
+        .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .video-card-dash { background: #111; border: 1px solid #333; padding: 10px; transition: 0.2s; }
+        .video-card-dash:hover { border-color: var(--cyber-blue); transform: translateY(-3px); }
+        .video-embed-dash { width: 100%; aspect-ratio: 16/9; border: none; margin-bottom: 8px; }
+        .video-title-dash { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; color:#fff; text-align: left;}
+        .video-meta-dash { font-size: 0.75rem; color: #666; display: flex; justify-content: space-between; }
+        
+        /* Analysis Chart */
+        .chart-wrapper { background: rgba(0,0,0,0.3); padding: 20px; border: 1px solid #333; }
+        .bar-item { margin-bottom: 12px; display: flex; align-items: center; gap: 15px; }
+        .bar-label { width: 140px; text-align: right; font-size: 0.8rem; font-weight: bold; color: #ccc; }
+        .bar-track { flex: 1; height: 8px; background: #222; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, var(--val-red), #ff5e00); width: 0%; transition: width 1s ease-out; }
+        .bar-val { width: 60px; font-size: 0.75rem; color: var(--cyber-blue); font-family: 'Orbitron', sans-serif; }
+        
+        /* Comments */
+        .comments-col { display: flex; flex-direction: column; gap: 15px; }
+        .comment-card {
+            background: rgba(255,255,255,0.03); padding: 15px;
+            border-left: 2px solid #444; display: flex; gap: 12px;
+            font-size: 0.9rem; transition: 0.2s; text-align: left;
+        }
+        .comment-card:hover { border-color: var(--cyber-blue); background: rgba(255,255,255,0.05); }
+        .com-avatar { width: 35px; height: 35px; border-radius: 50%; }
+        .com-head { color: var(--cyber-blue); font-weight: bold; font-size: 0.85rem; margin-bottom: 4px; }
+        .com-text { color: #ddd; line-height: 1.4; font-size: 0.85rem; }
+        .com-time { font-size: 0.7rem; color: #555; margin-top: 5px; }
+
+        @media screen and (max-width: 900px) {
+            .dash-grid { grid-template-columns: 1fr; }
+            .video-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: 1fr; }
+            .stat-box { border-right: none; border-bottom: 1px solid #333; }
+        }
+
+        /* --- SIDEBARS --- */
+        .sidebar-trigger { 
+            position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 45px; height: 350px; 
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-left: none; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 6000; 
+            clip-path: polygon(0 0, 100% 5%, 100% 95%, 0 100%); transition: 0.3s; 
+        }
+        .sidebar-trigger:hover { background: var(--val-red); width: 60px; }
+        .sidebar-text { writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'Orbitron', sans-serif; letter-spacing: 5px; color: #fff; font-size: 1.2rem; }
+        
+        #chat-sidebar { position: fixed; top: 0; left: -400px; width: 400px; height: 100%; background: rgba(15, 25, 35, 0.98); border-right: 1px solid var(--val-red); z-index: 6001; transition: left 0.4s; display: flex; flex-direction: column; }
         #chat-sidebar.active { left: 0; }
-        
         .chat-header { padding: 20px; background: rgba(255, 70, 85, 0.1); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
         .chat-channels { display: flex; gap: 5px; padding: 10px; overflow-x: auto; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .channel-btn { flex: 1; background: transparent; border: 1px solid #555; color: #aaa; cursor: pointer; padding: 5px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; transition: 0.3s; }
+        .channel-btn { flex: 1; background: transparent; border: 1px solid #555; color: #aaa; cursor: pointer; padding: 8px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; transition: 0.3s; white-space:nowrap; }
         .channel-btn.active, .channel-btn:hover { background: var(--val-red); color: #fff; border-color: var(--val-red); }
+        .channel-btn.kick-tab { color: #53fc18; border-color: #53fc18; }
+        .channel-btn.kick-tab.active { background: #53fc18; color: #000; }
+
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; color: #ddd; font-size: 0.9rem; display: flex; flex-direction: column; gap: 10px;}
         .msg-line { padding: 8px 12px; background: rgba(255,255,255,0.05); border-left: 2px solid #555; }
         .msg-line.mine { border-left-color: var(--cyber-blue); background: rgba(0, 255, 255, 0.05); }
         .msg-user { font-size: 0.75rem; color: var(--val-red); font-weight: bold; margin-bottom: 3px; display:flex; justify-content:space-between;}
-        .chat-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .chat-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
         .chat-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: #fff; outline: none; font-family: 'Rajdhani', sans-serif; }
-        .chat-input:disabled { background: rgba(50,0,0,0.5); cursor: not-allowed; }
+        .close-sidebar-btn { background: transparent; border: none; color: #fff; cursor: pointer; }
+        #kick-chat-container { display:none; flex:1; width:100%; height:100%; background:#0b0e11; position:relative; }
+        #kick-chat-container iframe { width:100%; height:100%; border:none; }
 
-        /* AUTH & MODALS */
-        .auth-modal-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 7000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .auth-box { background: var(--modal-bg); color: var(--modal-text); width: 350px; padding: 40px; border: 1px solid var(--val-red); position: relative; clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); text-align: center; }
+        .sidebar-trigger.right { left: auto; right: 0; border-left: 1px solid rgba(255,255,255,0.1); border-right: none; clip-path: polygon(100% 0, 0 5%, 0 95%, 100% 100%); }
+        .sidebar-trigger.right .sidebar-text { transform: rotate(0deg); writing-mode: vertical-rl; }
+        #clips-sidebar { position: fixed; top: 0; right: -400px; width: 400px; height: 100%; background: rgba(15, 25, 35, 0.98); border-left: 1px solid var(--val-red); z-index: 6001; transition: right 0.4s; display: flex; flex-direction: column; }
+        #clips-sidebar.active { right: 0; }
+        .clips-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        .clip-item { background: rgba(0,0,0,0.3); border: 1px solid #333; padding: 10px; border-radius: 5px; }
+        .clip-item iframe { width: 100%; aspect-ratio: 16/9; border: none; }
+        .clip-title { font-size: 0.9rem; color: #fff; margin-bottom: 5px; font-weight: bold; font-family: 'Rajdhani', sans-serif; }
+
+        /* --- VIDEO DRAWER --- */
+        .video-trigger { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); padding: 12px 60px; background: rgba(0,0,0,0.9); border: 1px solid var(--val-red); border-bottom: none; color: var(--val-white); font-family: 'Orbitron', sans-serif; cursor: pointer; z-index: 9000; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); transition: 0.3s; letter-spacing: 2px; }
+        .video-trigger:hover { background: var(--val-red); padding-bottom: 20px; }
+        #video-drawer { position: fixed; bottom: -100vh; left: 0; width: 100%; height: 90vh; background: rgba(10, 12, 16, 0.98); z-index: 8500; transition: bottom 0.6s cubic-bezier(0.19, 1, 0.22, 1); display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 2px solid var(--val-red); box-shadow: 0 -20px 50px rgba(0,0,0,0.8); }
+        #video-drawer.active { bottom: 0; }
+        .carousel-container { width: 100%; height: 60vh; perspective: 1500px; display: flex; justify-content: center; align-items: center; position: relative; margin-top: 30px; }
+        .carousel { position: relative; width: 800px; height: 450px; transform-style: preserve-3d; transition: transform 0.6s; }
+        .carousel-item { position: absolute; width: 800px; height: 450px; left: 0; top: 0; background: #000; border: 2px solid #333; transition: 0.6s; opacity: 0.3; filter: grayscale(100%); pointer-events: none; }
+        .carousel-item iframe { width: 100%; height: 100%; border: none; }
+        .carousel-item.active { opacity: 1; filter: grayscale(0%); pointer-events: auto; border-color: var(--val-red); box-shadow: 0 0 50px rgba(255, 70, 85, 0.2); z-index: 10; }
+        .video-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; font-size: 4rem; color: #fff; cursor: pointer; z-index: 5; transition: 0.3s; }
+        .carousel-item.playing .video-overlay { opacity: 0; pointer-events: none; }
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); font-size: 3rem; color: var(--val-red); cursor: pointer; z-index: 20; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 5px; transition: 0.3s; }
+        .nav-btn:hover { color: #fff; background: var(--val-red); }
+        .nav-btn.left { left: 10%; }
+        .nav-btn.right { right: 10%; }
+
+        /* --- OYUN ALANI --- */
+        #custom-cursor { position: fixed; top: 0; left: 0; pointer-events: none; transform: translate(-50%, -50%); z-index: 10000; display: none; }
+        .ch-h, .ch-v { position: absolute; background-color: var(--cross-color); top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 2px rgba(0,0,0,0.8); }
+        .ch-h { width: var(--cross-size); height: 2px; }
+        .ch-v { width: 2px; height: var(--cross-size); }
+        .ch-dot { position: absolute; width: 4px; height: 4px; background: red; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        body.game-cursor-hidden { cursor: none; }
+        #game-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+        body.focus-mode #game-layer { z-index: 9000; pointer-events: auto; background: rgba(0,0,0,0.85); }
+        .aim-target { position: absolute; width: 70px; height: 70px; background: radial-gradient(circle, var(--val-red) 40%, transparent 70%); border: 2px solid var(--val-red); border-radius: 50%; box-shadow: 0 0 15px var(--val-red); pointer-events: auto; opacity: 0.8; display: flex; justify-content: center; align-items: center; }
+        .hit-effect { position: absolute; width: 80px; height: 80px; border: 2px solid #fff; border-radius: 50%; animation: hitAnim 0.2s ease-out forwards; pointer-events: none; z-index: 9002; }
+        @keyframes hitAnim { 0% { transform: scale(0.5); opacity: 1; border-width: 5px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
+        
+        /* MODALS (YENİ İÇERİK DÜZENİ) */
+        .auth-modal-wrapper, .page-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 7000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .page-modal { pointer-events: none; opacity: 0; transition: 0.4s; }
+        .page-modal.active { opacity: 1; pointer-events: auto; }
+        
+        .auth-box, .page-content, .result-box, .start-content { 
+            background: var(--modal-bg); color: var(--modal-text); padding: 50px; 
+            border: 2px solid var(--val-red); position: relative; 
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); 
+            text-align: center; 
+        }
+        
+        /* İÇERİK ALANLARI CSS */
+        .start-content, .page-content { width: 700px; max-width: 90vw; max-height: 85vh; display: flex; flex-direction: column; }
+        .modal-scroll-area { flex: 1; overflow-y: auto; text-align: left; padding: 10px; margin-top: 20px; }
+        
+        .content-block { margin-bottom: 25px; }
+        .content-text { font-family: 'Rajdhani', sans-serif; font-size: 1rem; color: #ddd; line-height: 1.5; margin-bottom: 10px; }
+        .content-img-placeholder { 
+            width: 100%; height: 200px; background: rgba(0,0,0,0.4); 
+            border: 1px dashed #555; display: flex; justify-content: center; align-items: center; 
+            color: #777; margin-bottom: 15px; font-size: 0.9rem;
+        }
+        
+        .spec-list { display: flex; flex-direction: column; gap: 10px; }
+        .spec-item { 
+            background: rgba(0,0,0,0.3); border: 1px solid #444; padding: 10px 15px; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .spec-label { color: var(--val-red); font-weight: bold; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
+        .spec-val { color: #fff; font-family: 'Rajdhani', sans-serif; }
+
+        .schedule-table { width: 100%; border-collapse: collapse; }
+        .schedule-row { border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .schedule-cell { padding: 12px; font-family: 'Rajdhani', sans-serif; }
+        .schedule-day { color: var(--val-red); font-weight: bold; width: 120px; }
+
         .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.2); border: 1px solid #444; color: var(--modal-text); }
         .auth-submit-btn { width: 100%; padding: 12px; background: var(--val-red); color: #fff; border: none; font-family: 'Orbitron', sans-serif; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
         .google-btn { width: 100%; padding: 12px; margin-top: 10px; background: #fff; color: #333; border: none; font-family: 'Orbitron', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
-        .close-sidebar-btn, .auth-close { background: transparent; border: none; color: #fff; cursor: pointer; }
-
-        /* VIDEO DRAWER */
-        .video-trigger { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); padding: 10px 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--val-red); border-bottom: none; color: var(--val-white); font-family: 'Orbitron', sans-serif; cursor: pointer; z-index: 3000; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); transition: 0.3s;}
-        #video-drawer { position: fixed; bottom: -100vh; left: 0; width: 100%; height: 90vh; background: rgba(10, 12, 16, 0.98); z-index: 3000; transition: bottom 0.6s; display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 2px solid var(--val-red); }
-        #video-drawer.active { bottom: 0; }
-        
-        .carousel-container { width: 100%; height: 60vh; perspective: 1500px; display: flex; justify-content: center; align-items: center; position: relative; }
-        .carousel { position: relative; width: 600px; height: 350px; transform-style: preserve-3d; transition: transform 0.6s; }
-        
-        .carousel-item { 
-            position: absolute; width: 600px; height: 350px; left: 0; top: 0; 
-            background: #000; border: 2px solid #333; transition: 0.6s; 
-            opacity: 0.3; filter: grayscale(100%); pointer-events: none; 
-        }
-        .carousel-item.active { 
-            opacity: 1; filter: grayscale(0%); pointer-events: auto; 
-            border-color: var(--val-red); box-shadow: 0 0 50px rgba(255, 70, 85, 0.2); 
-        }
-        
-        .video-overlay { 
-            position: absolute; top:0; left:0; width:100%; height:100%; 
-            background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; 
-            font-size: 3rem; color: #fff; cursor: pointer; z-index: 5; transition: 0.3s; 
-        }
-        .carousel-item.playing .video-overlay { opacity: 0; pointer-events: none; }
-
-        .nav-btn {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            font-size: 3rem; color: var(--val-red); cursor: pointer; z-index: 10;
-            background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px;
-            transition: 0.3s;
-        }
-        .nav-btn:hover { color: #fff; background: var(--val-red); }
-        .nav-btn.left { left: 5%; }
-        .nav-btn.right { right: 5%; }
-
-        .page-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.4s; }
-        .page-modal.active { opacity: 1; pointer-events: auto; }
-        .page-content { background: var(--modal-bg); color: var(--modal-text); padding: 40px; border: 1px solid var(--val-red); text-align: center; width: 80%; max-width: 800px; clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); }
-
-        .game-controls-top { position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 10000; display: none; }
-        .game-ctrl-btn { padding: 10px 20px; background: #333; color: #aaa; font-family: 'Orbitron', sans-serif; cursor: pointer; border: 1px solid #555; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); transition: 0.3s; }
+        .auth-close { position: absolute; top: 10px; right: 10px; cursor: pointer; color: #fff; }
+        #start-screen, #result-screen { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9600; display: none; width: 100%; pointer-events: none; }
+        .start-content, .result-box { pointer-events: auto; display: inline-flex; flex-direction: column; gap: 15px; align-items: center; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .big-btn { font-family: 'Orbitron', sans-serif; font-size: 2rem; padding: 20px 60px; background: var(--val-red); color: #fff; border: none; cursor: pointer; clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px); transition: 0.3s; text-transform: uppercase; letter-spacing: 5px; }
+        .big-btn:hover { background: #fff; color: var(--val-red); transform: scale(1.05); }
+        #countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 11000; display: none; justify-content: center; align-items: center; font-family: 'Orbitron', sans-serif; font-size: 10rem; color: var(--val-red); text-shadow: 0 0 50px var(--val-red); pointer-events: none; }
+        #game-hud { position: fixed; top: 15%; left: 50%; transform: translateX(-50%); display: flex; gap: 60px; z-index: 9500; pointer-events: none; display: none; }
+        .hud-box { background: rgba(0,0,0,0.8); border: 2px solid var(--val-red); padding: 15px 40px; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 2rem; min-width: 200px; text-align: center; clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px); }
+        .settings-row { display: flex; gap: 20px; justify-content: center; margin-top: 10px; padding: 15px; border-top: 1px solid #555; width: 100%; }
+        .setting-item { display: flex; flex-direction: column; gap: 5px; text-align: left; flex:1; }
+        .game-controls-top { position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 10001; display: none; }
+        .game-ctrl-btn { padding: 12px 25px; background: #333; color: #aaa; font-family: 'Orbitron', sans-serif; cursor: pointer; border: 1px solid #555; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); transition:0.3s; }
         .game-ctrl-btn:hover { background: #fff; color: #000; }
-        .game-ctrl-btn.settings-btn { border-color: var(--cyber-blue); }
-        .game-ctrl-btn.settings-btn:hover { background: var(--cyber-blue); }
 
-        /* MOBİL İÇİN GİZLİ KART (Chat Card) - Default Gizli */
-        .mobile-chat-card { display: none; }
-
-        /* ----------------------------------------------------- */
-        /* --- MOBİL OPTİMİZASYON (PHONE ONLY max-width 768px) --- */
-        /* ----------------------------------------------------- */
         @media screen and (max-width: 768px) {
-            
-            /* Header */
-            .header-container {
-                justify-content: center; padding: 10px; background: rgba(0,0,0,0.5); flex-wrap: wrap;
-            }
-            .logo { font-size: 2rem; text-align: center; width: 100%; margin-bottom: 5px; }
-            
-            /* Alt Bar (Giriş & Profil) */
-            .top-menu {
-                position: fixed; bottom: 0; left: 0; width: 100%; height: auto;
-                background: rgba(15, 25, 35, 0.98); border-top: 1px solid var(--val-red);
-                padding: 10px 5px; justify-content: space-around; z-index: 9000; flex-wrap: wrap; display: flex !important;
-            }
-            .menu-link { display: none; } /* Linkleri gizle */
-            #auth-buttons, #user-profile { width: 100%; justify-content: center; margin: 0; }
-
-            /* Theme Toggle Konumu */
-            #theme-toggle-btn {
-                position: absolute; top: 15px; right: 15px;
-                width: 35px; height: 35px; /* Küçültüldü */
-                font-size: 0.8rem;
-            }
-
-            /* Lobi Düzeni - Yatay Şeritler */
-            .lobby-wrapper {
-                width: 100%; height: 100%; top: 0; left: 0; transform: none;
-                padding-top: 80px; padding-bottom: 140px; overflow-y: auto; justify-content: flex-start;
-            }
-            .lobby-container {
-                flex-direction: column; width: 95%; height: auto; gap: 15px; perspective: none;
-                justify-content: flex-start; /* İçerikleri yukarıdan başlat */
-            }
-            
-            /* Kart Yapısı ve "İtme" Efekti */
-            .lobby-card {
-                width: 100%; max-width: none;
-                height: 120px; /* Arttırılmış yükseklik */
-                flex: none; flex-direction: row; align-items: center; padding: 0 20px;
-                clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-                transform: none !important;
-                transition: height 0.3s ease; /* Yükseklik animasyonu */
-            }
-            /* Basılı tutunca veya üstüne gelince SADECE AŞAĞI İTER */
-            .lobby-card:active, .lobby-card:hover {
-                height: 180px; /* Genişleyen yükseklik */
-            }
-
-            .card-bg { opacity: 0.4; }
-            .card-info { background: transparent; padding: 0; text-align: left; display: flex; align-items: center; justify-content: space-between; width: 100%; pointer-events: none;}
-            .card-title { font-size: 1.1rem; margin: 0; }
-            .card-subtitle { margin: 0; font-size: 0.7rem; }
-
-            /* Mobilde Chat Kartını Göster */
-            .mobile-chat-card { display: flex; border-color: var(--cyber-blue); }
-            .sidebar-trigger { display: none; } /* Eski triggerı gizle */
-
-            /* Odak Oyununu Gizle */
-            #game-mode-toggle { display: none !important; }
-
-            /* Video Butonu */
-            .video-trigger {
-                bottom: 65px; width: 90%; left: 50%; transform: translateX(-50%);
-                clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-                border: 1px solid var(--val-red); border-radius: 5px;
-                font-size: 0.9rem; padding: 10px; background: rgba(0,0,0,0.9);
-                text-align: center; justify-content: center;
-            }
-
-            /* Müzik Butonu - Pause İkonu Gibi */
-            #music-ctrl-btn {
-                bottom: 115px; left: auto; right: 20px; /* Sağ altta konumlandır */
-                width: 35px; height: 35px; padding: 0;
-                border-radius: 50%; /* Yuvarlak */
-                justify-content: center; transform: none;
-                border-color: var(--text-primary);
-                background: rgba(0,0,0,0.6);
-            }
-            #music-text { display: none; } /* Yazıyı gizle */
-
-            /* Video Galeri Boyutu */
-            #video-drawer { z-index: 9999; }
-            .carousel-container { transform: scale(0.55); height: 40vh; }
-            #video-drawer h2 { font-size: 1.2rem; margin-top: 20px; }
-
-            /* Chat Sidebar Tam Ekran */
-            #chat-sidebar {
-                width: 100%; left: -100%; transition: left 0.3s;
-                border-right: none;
-            }
-            #chat-sidebar.active { left: 0; }
-        }
-
-        /* Landscape Modu İçin Yükseklik Düzeltmesi */
-        @media screen and (max-width: 900px) and (orientation: landscape) {
-            .lobby-card { height: 70px; }
-            .lobby-card:active, .lobby-card:hover { height: 70px; } /* Landscape'de genişleme */
-            .lobby-wrapper { padding-top: 60px; padding-bottom: 20px; }
-            .video-trigger { display: none; } /* Yer kalmazsa gizle */
+            .header-container { padding: 10px; }
+            .logo { font-size: 2rem; }
+            .social-row { gap: 5px; }
+            .social-btn { padding: 5px 10px; font-size: 0.7rem; }
+            #music-wrapper { top: auto; bottom: 80px; left: auto; right: 20px; }
+            .lobby-container { flex-direction: column; width: 95%; height: auto; gap: 15px; perspective: none; }
+            .lobby-card { width: 100%; height: 120px; transform: none !important; filter: none !important; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px) !important; }
+            .lobby-card::after { display: none; }
+            .lobby-card:hover { transform: none; filter: none; height: 120px; }
+            #game-mode-toggle { display: none; }
+            .sidebar-trigger { display: none; }
+            .mobile-chat-card { display: flex; }
+            .video-trigger { width: 90%; }
+            #video-drawer { height: 100vh; }
+            .carousel-container { transform: scale(0.6); }
+            .auth-wrapper { position: fixed; bottom: 0; top: auto; right: 0; width: 100%; background: #0f1923; padding: 10px; justify-content: center; border-top: 1px solid var(--val-red); }
+            .start-content, .page-content { width: 95%; padding: 20px; }
         }
     </style>
 </head>
@@ -451,113 +473,93 @@
 
     <div id="parallax-bg"></div>
     <div class="cyber-grid"></div>
-    <div class="cyber-orb orb-1"></div>
-    <div class="cyber-orb orb-2"></div>
-    
     <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/valorant&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false" width="1" height="1" scrolling="no" frameborder="no" allow="autoplay" style="position:fixed; top:-100px; opacity:0;"></iframe>
 
-    <button id="music-ctrl-btn" onclick="toggleMusic()">
-        <i class="fas fa-play" id="music-icon"></i> <span id="music-text">MÜZİĞİ OYNAT</span>
-    </button>
-
-    <div id="custom-cursor">
-        <div class="ch-h"></div>
-        <div class="ch-v"></div>
-        <div class="ch-dot"></div>
+    <div id="music-wrapper">
+        <button class="music-btn" onclick="prevTrack()" title="Önceki"><i class="fas fa-step-backward"></i></button>
+        <button class="music-btn music-btn-main" onclick="toggleMusic()">
+            <i class="fas fa-play" id="music-icon"></i>
+        </button>
+        <button class="music-btn" onclick="nextTrack()" title="Sonraki"><i class="fas fa-step-forward"></i></button>
     </div>
 
-    <div id="countdown-overlay">3</div>
+    <div class="auth-wrapper" id="auth-buttons-container">
+        <button id="theme-toggle-btn" onclick="toggleTheme()" title="Mod Değiştir"><i class="fas fa-adjust"></i></button>
+        <div id="auth-buttons" style="display:flex; gap:10px;">
+            <button class="auth-btn" onclick="openAuth('login')">GİRİŞ YAP</button>
+            <button class="auth-btn primary" onclick="openAuth('register')">KAYIT OL</button>
+        </div>
+        <div id="user-profile">
+            <span class="user-name" id="display-name">KULLANICI</span>
+            <i class="fas fa-sign-out-alt logout-icon" onclick="logoutUser()" title="Çıkış Yap"></i>
+        </div>
+    </div>
 
+    <div class="header-container" id="main-header" onclick="closeVideoDrawer()">
+        <div class="header-content">
+            <div class="logo">SHRBRK</div>
+            <div class="social-row">
+                <a href="https://kick.com/shrbrk" target="_blank" class="social-btn kick"><i class="fas fa-bolt"></i> KICK</a>
+                <a href="https://instagram.com/shrbrkofficial" target="_blank" class="social-btn insta"><i class="fab fa-instagram"></i> INSTAGRAM</a>
+                <a href="#" target="_blank" class="social-btn tiktok"><i class="fab fa-tiktok"></i> TIKTOK</a>
+                <a href="#" target="_blank" class="social-btn youtube"><i class="fab fa-youtube"></i> YOUTUBE</a>
+                <a href="mailto:contact@shrbrk.com" class="social-btn mail"><i class="fas fa-envelope"></i> MAİL</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-cursor"><div class="ch-h"></div><div class="ch-v"></div><div class="ch-dot"></div></div>
+    <div id="countdown-overlay">3</div>
     <div id="game-layer"></div>
-    
     <div id="game-hud">
-        <div class="hud-box"><span class="hud-label">KALAN HEDEF</span><span id="target-count-val">30</span></div>
-        <div class="hud-box"><span class="hud-label">VURULAN</span><span id="score-val">0</span></div>
+        <div class="hud-box"><span style="display:block;font-size:0.8rem;color:#aaa">KALAN</span><span id="target-count-val">30</span></div>
+        <div class="hud-box"><span style="display:block;font-size:0.8rem;color:#aaa">VURULAN</span><span id="score-val">0</span></div>
     </div>
 
     <div id="start-screen">
         <div class="start-content">
-            <h2 style="margin:0; font-family:'Orbitron', sans-serif; color:var(--val-red); letter-spacing:3px;">ODAK MODU AYARLARI</h2>
+            <h2 style="margin:0; margin-bottom:20px; font-family:'Orbitron', sans-serif; color:var(--val-red); letter-spacing:3px;">ODAK MODU AYARLARI</h2>
             <button class="big-btn" id="start-btn-text" onclick="initiateGame()">BAŞLAT</button>
-            <button class="action-btn" id="resume-btn" onclick="resumeGame()" style="display:none; margin-top:10px;">DEVAM ET</button>
+            <button class="big-btn" id="resume-btn" onclick="resumeGame()" style="display:none; font-size:1.5rem;">DEVAM ET</button>
             <div class="settings-row">
                 <div class="setting-item">
-                    <span class="setting-label">ZORLUK (HIZ)</span>
-                    <select id="diff-select" class="setting-input" onchange="checkDifficultyChange()">
-                        <option value="1500">KOLAY (1.5s)</option>
-                        <option value="1100" selected>ORTA (1.1s)</option>
-                        <option value="800">ZOR (0.8s)</option>
-                        <option value="600">UZMAN (0.6s)</option>
-                        <option value="450">LAVUK (0.45s)</option>
+                    <span style="font-size:0.8rem;color:#aaa">HIZ (ZORLUK)</span>
+                    <select id="diff-select" class="auth-input" style="margin:0; padding:10px;" onchange="checkDifficultyChange()">
+                        <option value="1500">KOLAY</option>
+                        <option value="1100" selected>ORTA</option>
+                        <option value="800">ZOR</option>
+                        <option value="600">UZMAN</option>
                     </select>
                 </div>
                 <div class="setting-item">
-                    <span class="setting-label">CROSS RENGİ</span>
-                    <input type="color" id="cross-color-input" class="setting-input" value="#00ff00" oninput="updateCrosshairSettings()">
+                    <span style="font-size:0.8rem;color:#aaa">RENK</span>
+                    <input type="color" id="cross-color-input" style="background:transparent; border:none; height:40px; width:100%; cursor:pointer;" value="#00ff00" oninput="updateCrosshairSettings()">
                 </div>
                 <div class="setting-item">
-                    <span class="setting-label">BOYUT</span>
-                    <input type="range" id="cross-size-input" min="10" max="60" value="20" oninput="updateCrosshairSettings()">
+                    <span style="font-size:0.8rem;color:#aaa">BOYUT</span>
+                    <input type="range" id="cross-size-input" min="10" max="60" value="20" style="width:100%; margin-top:10px;" oninput="updateCrosshairSettings()">
                 </div>
             </div>
-            <div style="font-size:0.7rem; color:#666; margin-top:5px;">Zorluk değişirse skor sıfırlanır.</div>
-            <div class="warning-text">Giriş Yapmazsanız Skorunuzu Paylaşamazsınız!</div>
         </div>
     </div>
 
     <div id="result-screen">
         <div class="result-box">
-            <div class="result-title">GÖREV TAMAMLANDI</div>
-            <div class="result-score" id="final-score">0 / 30</div>
-            <button class="action-btn share-btn" onclick="shareScore()">SKORU PAYLAŞ</button>
-            <button class="action-btn" onclick="resetAndStart()">TEKRAR OYNA</button>
-            <button class="action-btn" onclick="toggleGameMode()">ÇIKIŞ</button>
+            <div style="font-size:2rem; font-family:'Orbitron', sans-serif;">GÖREV SONUCU</div>
+            <div style="font-size:4rem; color:var(--val-red); font-weight:bold;" id="final-score">0 / 30</div>
+            <button class="auth-btn" style="background:var(--cyber-blue); color:#000;" onclick="shareScore()">SKORU PAYLAŞ</button>
+            <button class="auth-btn" onclick="resetAndStart()">TEKRAR</button>
+            <button class="auth-btn" onclick="toggleGameMode()">ÇIKIŞ</button>
         </div>
     </div>
 
     <div class="game-controls-top" id="game-controls-top">
-        <button class="game-ctrl-btn" onclick="toggleGameMode()">ARAYÜZE DÖN</button>
-        <button class="game-ctrl-btn settings-btn" onclick="openIngameSettings()"><i class="fas fa-cog"></i> AYARLAR</button>
-    </div>
-
-    <div class="header-container" id="main-header">
-        <div class="logo">SHRBRK</div>
-        <div class="top-menu">
-            <a href="https://kick.com/shrbrk" class="menu-link">KICK</a>
-            <a href="https://instagram.com/shrbrkofficial" class="menu-link">INSTAGRAM</a>
-            <button id="theme-toggle-btn" onclick="toggleTheme()" title="Mod Değiştir"><i class="fas fa-adjust"></i></button>
-            <div id="auth-buttons" style="display:flex; gap:10px;">
-                <button class="auth-btn" onclick="openAuth('login')">GİRİŞ YAP</button>
-                <button class="auth-btn primary" onclick="openAuth('register')">KAYIT OL</button>
-            </div>
-            <div id="user-profile">
-                <span class="user-name" id="display-name">KULLANICI</span>
-                <i class="fas fa-sign-out-alt logout-icon" onclick="logoutUser()" title="Çıkış Yap"></i>
-            </div>
-        </div>
-    </div>
-
-    <div id="auth-modal-wrapper" class="auth-modal-wrapper">
-        <div id="box-login" class="auth-box" style="display:none;">
-            <i class="fas fa-times auth-close" onclick="closeAuth()"></i>
-            <div class="auth-title">SİSTEME GİRİŞ</div>
-            <input type="email" id="login-email" class="auth-input" placeholder="E-Posta">
-            <input type="password" id="login-pass" class="auth-input" placeholder="Şifre">
-            <button class="auth-submit-btn" onclick="handleLoginEmail()">GİRİŞ YAP</button>
-            <button class="google-btn" onclick="handleLoginGoogle()"><i class="fab fa-google"></i> GOOGLE</button>
-        </div>
-        <div id="box-register" class="auth-box" style="display:none;">
-            <i class="fas fa-times auth-close" onclick="closeAuth()"></i>
-            <div class="auth-title">YENİ AJAN KAYDI</div>
-            <input type="text" id="reg-name" class="auth-input" placeholder="Kullanıcı Adı">
-            <input type="email" id="reg-email" class="auth-input" placeholder="E-Posta">
-            <input type="password" id="reg-pass" class="auth-input" placeholder="Şifre">
-            <button class="auth-submit-btn" onclick="handleRegisterEmail()">KAYIT OL</button>
-        </div>
+        <button class="game-ctrl-btn" onclick="toggleGameMode()">ÇIKIŞ</button>
+        <button class="game-ctrl-btn" onclick="openIngameSettings()"><i class="fas fa-cog"></i> AYARLAR</button>
     </div>
 
     <div class="sidebar-trigger" id="sidebar-trigger" onclick="toggleSidebar()">
-        <span class="sidebar-text">TOPLULUK SOHBETİ</span>
+        <span class="sidebar-text">CHAT</span>
     </div>
     
     <div id="chat-sidebar">
@@ -569,36 +571,65 @@
             <button class="channel-btn active" id="btn-genel" onclick="switchChannel('genel', this)">GENEL</button>
             <button class="channel-btn" onclick="switchChannel('oyun', this)">OYUN</button>
             <button class="channel-btn" onclick="switchChannel('ekip', this)">EKİP</button>
+            <button class="channel-btn kick-tab" onclick="switchChannel('kick', this)"><i class="fas fa-bolt"></i> KICK</button>
             <button class="channel-btn" id="btn-odak" onclick="switchChannel('odak', this)" style="color:var(--cyber-blue); border-color:var(--cyber-blue);">ODAK</button>
         </div>
-        <div id="chat-messages" class="chat-messages">
-            <div style="text-align:center; margin-top:50px; color:#666;">Yükleniyor...</div>
-        </div>
+        
+        <div id="chat-messages" class="chat-messages"><div style="text-align:center; margin-top:50px; color:#666;">Yükleniyor...</div></div>
         <div class="chat-input-area">
             <input type="text" id="chat-input" class="chat-input" placeholder="Mesaj gönder..." autocomplete="off">
         </div>
+
+        <div id="kick-chat-container">
+            <iframe src="https://kick.com/shrbrk/chatroom" scrolling="no"></iframe>
+        </div>
     </div>
 
-    <div class="lobby-wrapper" id="lobby-wrapper">
-        <div class="lobby-container">
-            <div class="lobby-card c1" onclick="openPage('p-yayin')"><div class="card-bg"></div><div class="card-info"><div class="card-title">YAYINLAR</div><div class="card-subtitle">PROGRAM</div></div></div>
-            <div class="lobby-card c2" onclick="openPage('p-oyun')"><div class="card-bg"></div><div class="card-info"><div class="card-title">OYUNLAR</div><div class="card-subtitle">GEÇMİŞ</div></div></div>
-            <div class="lobby-card c3" onclick="openPage('p-hakkinda')"><div class="card-bg"></div><div class="card-info"><div class="card-title">HAKKINDA</div><div class="card-subtitle">BİZ KİMİZ?</div></div></div>
-            <div class="lobby-card c4" onclick="openPage('p-ekipman')"><div class="card-bg"></div><div class="card-info"><div class="card-title">EKİPMAN</div><div class="card-subtitle">SİSTEMLER</div></div></div>
-            <div class="lobby-card c5" onclick="openPage('p-iletisim')"><div class="card-bg"></div><div class="card-info"><div class="card-title">İLETİŞİM</div><div class="card-subtitle">CONTACT</div></div></div>
-            
-            <div class="lobby-card c-chat mobile-chat-card" onclick="toggleSidebar()">
-                <div class="card-bg"></div>
-                <div class="card-info">
-                    <div class="card-title">TOPLULUK SOHBETİ</div>
-                    <div class="card-subtitle">FORUM</div>
-                </div>
+    <div class="sidebar-trigger right" id="clips-trigger" onclick="toggleClips()">
+        <span class="sidebar-text">KLİPLER</span>
+    </div>
+
+    <div id="clips-sidebar">
+        <div class="chat-header">
+            <span style="font-family: 'Orbitron', sans-serif; color: var(--val-red);">KICK KLİPLERİ</span>
+            <button class="close-sidebar-btn" onclick="toggleClips()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="clips-container" id="clips-container-inner">
+            <div class="clip-item">
+                <div class="clip-title">VALORANT HIGHLIGHT #1</div>
+                <iframe src="https://player.kick.com/clip/clip_01HCD4Y75Z7X8Q9W2E" allowfullscreen></iframe>
+            </div>
+            <div class="clip-item">
+                <div class="clip-title">ACE MOMENT</div>
+                <iframe src="https://player.kick.com/clip/clip_01HCD4Y75Z7X8Q9W2E" allowfullscreen></iframe>
             </div>
         </div>
-        <button id="game-mode-toggle" onclick="toggleGameMode()">ODAK MODU</button>
     </div>
 
-    <div class="video-trigger" id="video-trigger" onclick="toggleVideoDrawer()"><i class="fas fa-film"></i> MEDYA GALERİSİ</div>
+    <div class="lobby-wrapper" id="lobby-wrapper" onclick="closeVideoDrawer()">
+        <div class="lobby-container">
+            <div class="lobby-card c1" onclick="openYouTubeDashboard(); event.stopPropagation();">
+                <div class="card-bg"></div>
+                <div class="card-info">
+                    <div class="card-title">YOUTUBE ANALİZ</div>
+                    <div class="card-subtitle">LIVE DASHBOARD</div>
+                </div>
+            </div>
+
+            <div class="lobby-card c2" onclick="openPage('p-oyun'); event.stopPropagation();"><div class="card-bg"></div><div class="card-info"><div class="card-title">OYUNLAR</div><div class="card-subtitle">GEÇMİŞ</div></div></div>
+            <div class="lobby-card c3" onclick="openPage('p-hakkinda'); event.stopPropagation();"><div class="card-bg"></div><div class="card-info"><div class="card-title">HAKKINDA</div><div class="card-subtitle">BİZ KİMİZ?</div></div></div>
+            <div class="lobby-card c4" onclick="openPage('p-ekipman'); event.stopPropagation();"><div class="card-bg"></div><div class="card-info"><div class="card-title">EKİPMAN</div><div class="card-subtitle">SİSTEMLER</div></div></div>
+            <div class="lobby-card c5" onclick="openPage('p-iletisim'); event.stopPropagation();"><div class="card-bg"></div><div class="card-info"><div class="card-title">İLETİŞİM</div><div class="card-subtitle">CONTACT</div></div></div>
+            
+            <div class="lobby-card c-chat mobile-chat-card" style="display:none;" onclick="toggleSidebar(); event.stopPropagation();">
+                <div class="card-bg" style="background:linear-gradient(135deg, #111, #222);"></div>
+                <div class="card-info"><div class="card-title">CHAT</div><div class="card-subtitle">TOPLULUK</div></div>
+            </div>
+        </div>
+        <button id="game-mode-toggle" onclick="toggleGameMode(); event.stopPropagation();">ODAK MODU</button>
+    </div>
+
+    <div class="video-trigger" id="video-trigger" onclick="toggleVideoDrawer()"><i class="fas fa-film"></i> <span id="video-text">MEDYA GALERİSİ</span></div>
     <div id="video-drawer">
         <h2 style="font-family: 'Orbitron', sans-serif; color: var(--val-red); letter-spacing: 5px;">HIGHLIGHTS</h2>
         <i class="fas fa-chevron-left nav-btn left" onclick="rotateCarousel(-1)"></i>
@@ -613,14 +644,149 @@
                 <div class="carousel-item"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/3dYiK6tqE4A?enablejsapi=1" allowfullscreen></iframe></div>
             </div>
         </div>
-        <div class="drawer-info" style="text-align:center; color:white; margin-top:20px;">VİDEOLAR ARASINDA GEZMEK İÇİN OKLARI KULLANIN<br>[ SPACE İLE KAPAT ]</div>
+        <div style="text-align:center; color:white; margin-top:20px; font-size:0.8rem; opacity:0.6;">ÇIKMAK İÇİN YUKARIYA TIKLAYINIZ</div>
     </div>
 
-    <div id="p-yayin" class="page-modal"><div class="page-content"><h1>YAYIN PROGRAMI</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
-    <div id="p-oyun" class="page-modal"><div class="page-content"><h1>OYUN GEÇMİŞİ</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
-    <div id="p-hakkinda" class="page-modal"><div class="page-content"><h1>HAKKIMIZDA</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
-    <div id="p-ekipman" class="page-modal"><div class="page-content"><h1>EKİPMANLAR</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
-    <div id="p-iletisim" class="page-modal"><div class="page-content"><h1>İLETİŞİM</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
+    <div id="p-youtube-dashboard" class="page-modal">
+        <div class="dash-modal-content">
+            <button class="dash-close" onclick="closePage()">X</button>
+            
+            <div class="dash-header">
+                <img id="d-avatar" class="dash-avatar" src="" alt="Avatar">
+                <div class="dash-info">
+                    <div id="d-name" class="dash-name">SHRBRK</div>
+                    <div class="dash-sub">RESMİ YOUTUBE İSTATİSTİKLERİ</div>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div id="d-views" class="stat-val">0</div>
+                    <div class="stat-lbl">TOPLAM İZLENME</div>
+                </div>
+                <div class="stat-box">
+                    <div id="d-subs" class="stat-val">0</div>
+                    <div class="stat-lbl">ABONE</div>
+                </div>
+                <div class="stat-box">
+                    <div id="d-videos" class="stat-val">0</div>
+                    <div class="stat-lbl">YÜKLENEN VİDEO</div>
+                </div>
+            </div>
+
+            <div class="dash-grid">
+                <div class="left-col">
+                    <div class="section-head">SON VİDEOLAR</div>
+                    <div id="video-list" class="video-grid">
+                        </div>
+
+                    <div class="section-head">BAŞLIK ANALİZİ (Trend Olan Kelimeler)</div>
+                    <div class="chart-wrapper">
+                        <div id="chart-list">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="right-col">
+                    <div class="section-head">SON TOPLULUK ETKİLEŞİMLERİ</div>
+                    <div id="comment-list" class="comments-col">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="p-oyun" class="page-modal">
+        <div class="page-content">
+            <h1 style="color:var(--val-red); font-family:'Orbitron',sans-serif;">OYUN GEÇMİŞİ</h1>
+            <div class="modal-scroll-area">
+                <div class="content-block">
+                    <div class="content-text">Aktif olarak oynadığım ve rank kastığım oyunlar:</div>
+                    <div class="content-img-placeholder">[ GÖRSEL: OYUN KOLAJI ]</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">VALORANT</span><span class="spec-val">IMMORTAL 3</span></div>
+                        <div class="spec-item"><span class="spec-label">CS2</span><span class="spec-val">FACEIT LVL 10</span></div>
+                        <div class="spec-item"><span class="spec-label">LOL</span><span class="spec-val">DIAMOND 1</span></div>
+                    </div>
+                </div>
+            </div>
+            <button class="auth-btn" onclick="closePage()" style="margin-top:20px;">GERİ DÖN</button>
+        </div>
+    </div>
+
+    <div id="p-hakkinda" class="page-modal">
+        <div class="page-content">
+            <h1 style="color:var(--val-red); font-family:'Orbitron',sans-serif;">HAKKIMIZDA</h1>
+            <div class="modal-scroll-area">
+                <div class="content-block">
+                    <div class="content-img-placeholder" style="height:150px; width:150px; border-radius:50%; margin:0 auto 20px auto;">[ PROFİL FOTOĞRAFI ]</div>
+                    <div class="content-text">
+                        Selamlar! Ben SHRBRK. 2020 yılından beri profesyonel olarak içerik üretiyorum. 
+                        Amacım sizlere en kaliteli oyun deneyimini ve eğlenceli sohbeti sunmak.
+                    </div>
+                    <div class="content-text">
+                        Yayınlarımda ağırlıklı olarak FPS oyunları oynasam da, yeni çıkan hikayeli oyunları deneyimlemeyi de çok severim.
+                    </div>
+                </div>
+            </div>
+            <button class="auth-btn" onclick="closePage()" style="margin-top:20px;">GERİ DÖN</button>
+        </div>
+    </div>
+
+    <div id="p-ekipman" class="page-modal">
+        <div class="page-content">
+            <h1 style="color:var(--val-red); font-family:'Orbitron',sans-serif;">EKİPMANLAR</h1>
+            <div class="modal-scroll-area">
+                <div class="content-block">
+                    <div class="content-img-placeholder">[ GÖRSEL: SETUP FOTOĞRAFI ]</div>
+                    <div class="spec-list">
+                        <div class="spec-item"><span class="spec-label">İŞLEMCİ</span><span class="spec-val">AMD RYZEN 9 5900X</span></div>
+                        <div class="spec-item"><span class="spec-label">EKRAN KARTI</span><span class="spec-val">NVIDIA RTX 3080</span></div>
+                        <div class="spec-item"><span class="spec-label">RAM</span><span class="spec-val">32GB 3600MHZ</span></div>
+                        <div class="spec-item"><span class="spec-label">MOUSE</span><span class="spec-val">LOGITECH G PRO X</span></div>
+                        <div class="spec-item"><span class="spec-label">KLAVYE</span><span class="spec-val">STEELSERIES APEX PRO</span></div>
+                    </div>
+                </div>
+            </div>
+            <button class="auth-btn" onclick="closePage()" style="margin-top:20px;">GERİ DÖN</button>
+        </div>
+    </div>
+
+    <div id="p-iletisim" class="page-modal">
+        <div class="page-content">
+            <h1 style="color:var(--val-red); font-family:'Orbitron',sans-serif;">İLETİŞİM</h1>
+            <div class="modal-scroll-area">
+                <div class="content-block">
+                    <div class="content-text">İş birlikleri ve sponsorluk görüşmeleri için aşağıdaki kanallardan ulaşabilirsiniz.</div>
+                    <div class="spec-list" style="margin-top:20px;">
+                        <div class="spec-item"><span class="spec-label">E-POSTA</span><span class="spec-val">contact@shrbrk.com</span></div>
+                        <div class="spec-item"><span class="spec-label">DISCORD</span><span class="spec-val">discord.gg/shrbrk</span></div>
+                        <div class="spec-item"><span class="spec-label">TWITTER</span><span class="spec-val">@shrbrk</span></div>
+                    </div>
+                </div>
+            </div>
+            <button class="auth-btn" onclick="closePage()" style="margin-top:20px;">GERİ DÖN</button>
+        </div>
+    </div>
+
+    <div id="auth-modal-wrapper" class="auth-modal-wrapper">
+        <div id="box-login" class="auth-box" style="display:none;">
+            <i class="fas fa-times auth-close" onclick="closeAuth()"></i>
+            <div style="margin-bottom:20px; font-weight:bold;">SİSTEME GİRİŞ</div>
+            <input type="email" id="login-email" class="auth-input" placeholder="E-Posta">
+            <input type="password" id="login-pass" class="auth-input" placeholder="Şifre">
+            <button class="auth-submit-btn" onclick="handleLoginEmail()">GİRİŞ YAP</button>
+            <button class="google-btn" onclick="handleLoginGoogle()"><i class="fab fa-google"></i> GOOGLE</button>
+        </div>
+        <div id="box-register" class="auth-box" style="display:none;">
+            <i class="fas fa-times auth-close" onclick="closeAuth()"></i>
+            <div style="margin-bottom:20px; font-weight:bold;">YENİ AJAN KAYDI</div>
+            <input type="text" id="reg-name" class="auth-input" placeholder="Kullanıcı Adı">
+            <input type="email" id="reg-email" class="auth-input" placeholder="E-Posta">
+            <input type="password" id="reg-pass" class="auth-input" placeholder="Şifre">
+            <button class="auth-submit-btn" onclick="handleRegisterEmail()">KAYIT OL</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -646,7 +812,6 @@
         let currentUser = null;
         let currentChannel = 'genel';
 
-        // --- SOUNDCLOUD LOGIC ---
         let scWidget;
         let isMusicPlaying = false;
         const VALORANT_URL = "https://soundcloud.com/valorant";
@@ -655,72 +820,162 @@
         window.onload = function() {
             const iframeElement = document.getElementById('sc-widget');
             scWidget = SC.Widget(iframeElement);
-            
             scWidget.bind(SC.Widget.Events.READY, function() {
-                playRandomTrack();
-                scWidget.bind(SC.Widget.Events.FINISH, function() {
-                    playRandomTrack(); 
-                });
-                scWidget.bind(SC.Widget.Events.PLAY, function() {
-                    isMusicPlaying = true;
-                    updateMusicButton();
-                });
-                scWidget.bind(SC.Widget.Events.PAUSE, function() {
-                    isMusicPlaying = false;
-                    updateMusicButton();
-                });
+                scWidget.bind(SC.Widget.Events.FINISH, function() { scWidget.next(); });
+                scWidget.bind(SC.Widget.Events.PLAY, function() { isMusicPlaying = true; updateMusicButton(); });
+                scWidget.bind(SC.Widget.Events.PAUSE, function() { isMusicPlaying = false; updateMusicButton(); });
             });
 
-            document.body.addEventListener('click', function() {
-                if(!isMusicPlaying) scWidget.play();
-            }, { once: true });
-            
-            if(localStorage.getItem('shr_diff')) {
-                diffSelect.value = localStorage.getItem('shr_diff');
-                previousDiff = diffSelect.value;
-            }
+            const diffSelect = document.getElementById('diff-select');
+            const colorInput = document.getElementById('cross-color-input');
+            const sizeInput = document.getElementById('cross-size-input');
+            if(localStorage.getItem('shr_diff')) { diffSelect.value = localStorage.getItem('shr_diff'); previousDiff = diffSelect.value; }
             if(localStorage.getItem('shr_color')) colorInput.value = localStorage.getItem('shr_color');
             if(localStorage.getItem('shr_size')) sizeInput.value = localStorage.getItem('shr_size');
             window.updateCrosshairSettings(); 
-            startPassiveParticles();
-
             setInterval(autoUpdateTopList, 5 * 60 * 1000);
+            
+            loadKickClips();
+            
+            // YOUTUBE DASHBOARD BAŞLAT (Otomatik Veri Çekme)
+            initDashboard();
+            setInterval(initDashboard, REFRESH_RATE);
         };
 
-        window.toggleMusic = function() {
-            scWidget.toggle();
-        };
+        // --- YOUTUBE DASHBOARD MANTIKLARI ---
+        const API_URL = "https://sbelements.canersavas3d.workers.dev/"; 
+        const REFRESH_RATE = 600000; // 10 Dakika
 
-        function updateMusicButton() {
-            const btnIcon = document.getElementById('music-icon');
-            if(isMusicPlaying) {
-                btnIcon.className = "fas fa-pause";
-            } else {
-                btnIcon.className = "fas fa-play";
+        function formatNum(num) {
+            if (!num) return "0";
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return parseInt(num).toLocaleString('tr-TR');
+        }
+
+        async function initDashboard() {
+            try {
+                const res = await fetch(API_URL);
+                const json = await res.json();
+                
+                if(json.ok && json.data) {
+                    renderData(json.data);
+                }
+            } catch (e) { console.error("YouTube Fetch Hatası:", e); }
+        }
+
+        function renderData(data) {
+            // Modal Header
+            document.getElementById('d-name').innerText = data.channel_name;
+            document.getElementById('d-avatar').src = data.avatar;
+            
+            // Stats
+            document.getElementById('d-views').innerText = formatNum(data.total_views);
+            document.getElementById('d-subs').innerText = formatNum(data.subscribers);
+            document.getElementById('d-videos').innerText = data.total_videos;
+
+            // Videolar
+            const vList = document.getElementById('video-list');
+            vList.innerHTML = '';
+            if(data.last_videos_playable) {
+                data.last_videos_playable.forEach(vid => {
+                    const html = `
+                    <div class="video-card-dash">
+                        <iframe class="video-embed-dash" src="https://www.youtube.com/embed/${vid.id}" title="${vid.title}" allowfullscreen></iframe>
+                        <div class="video-title-dash">${vid.title}</div>
+                        <div class="video-meta-dash">
+                            <span>${formatNum(vid.views)} İzlenme</span>
+                        </div>
+                    </div>`;
+                    vList.innerHTML += html;
+                });
+            }
+
+            // Grafik
+            const cList = document.getElementById('chart-list');
+            cList.innerHTML = '';
+            if(data.analysis_graph && data.analysis_graph.length > 0) {
+                const maxVal = Math.max(...data.analysis_graph.map(d => d.value));
+                data.analysis_graph.forEach((item) => {
+                    const percent = (item.value / maxVal) * 100;
+                    const html = `
+                    <div class="bar-item">
+                        <div class="bar-label">${item.name}</div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: ${percent}%"></div>
+                        </div>
+                        <div class="bar-val">${formatNum(item.value)}</div>
+                    </div>`;
+                    cList.innerHTML += html;
+                });
+            }
+
+            // Yorumlar
+            const commList = document.getElementById('comment-list');
+            commList.innerHTML = '';
+            if(data.unique_comments) {
+                data.unique_comments.forEach(com => {
+                    const date = new Date(com.published).toLocaleDateString('tr-TR');
+                    const html = `
+                    <div class="comment-card">
+                        <img src="${com.avatar}" class="com-avatar" onerror="this.src='https://via.placeholder.com/40'">
+                        <div>
+                            <div class="com-head">${com.author}</div>
+                            <div class="com-text">${com.text}</div>
+                            <div class="com-time">${date}</div>
+                        </div>
+                    </div>`;
+                    commList.innerHTML += html;
+                });
+            }
+        }
+        
+        window.openYouTubeDashboard = () => {
+            if(isFocusMode) return; 
+            document.getElementById('p-youtube-dashboard').classList.add('active'); 
+            document.getElementById('lobby-wrapper').classList.add('ui-hidden'); 
+        }
+
+        // KICK KLİP ÇEKME
+        async function loadKickClips() {
+            const username = "shrbrk";
+            const container = document.getElementById('clips-container-inner');
+            try {
+                const response = await fetch(`https://kick.com/api/v2/channels/${username}/clips`);
+                if (!response.ok) throw new Error("API erişilemedi");
+
+                const data = await response.json();
+                if (data.clips && data.clips.length > 0) {
+                    container.innerHTML = ""; 
+                    data.clips.slice(0, 5).forEach(clip => {
+                        const div = document.createElement('div');
+                        div.className = 'clip-item';
+                        div.innerHTML = `
+                            <div class="clip-title">${clip.title}</div>
+                            <iframe src="https://player.kick.com/clip/${clip.id}" allowfullscreen></iframe>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            } catch (error) {
+                console.log("Kick API client-side erişimi kısıtlı olabilir, sabit klipler gösteriliyor.");
             }
         }
 
-        function playRandomTrack() {
-            scWidget.getSounds(function(sounds) {
-                if(sounds.length > 0) {
-                    const rand = Math.floor(Math.random() * sounds.length);
-                    scWidget.skip(rand);
-                    scWidget.play();
-                }
-            });
-        }
+        window.toggleMusic = function() { scWidget.toggle(); };
+        window.nextTrack = function() { scWidget.next(); };
+        window.prevTrack = function() { scWidget.prev(); };
 
+        function updateMusicButton() {
+            const btnIcon = document.getElementById('music-icon');
+            if(isMusicPlaying) btnIcon.className = "fas fa-pause";
+            else btnIcon.className = "fas fa-play";
+        }
         function loadMusic(theme) {
             const url = (theme === 'light') ? GENSHIN_URL : VALORANT_URL;
-            scWidget.load(url, {
-                auto_play: true,
-                callback: function() {
-                    playRandomTrack();
-                }
-            });
+            scWidget.load(url, { auto_play: true });
         }
 
-        // AUTH
         window.openAuth = (type) => { document.getElementById('auth-modal-wrapper').style.display = 'flex'; document.getElementById('box-login').style.display = (type=='login'?'block':'none'); document.getElementById('box-register').style.display = (type=='register'?'block':'none'); }
         window.closeAuth = () => { document.getElementById('auth-modal-wrapper').style.display = 'none'; }
         window.handleLoginGoogle = () => { signInWithPopup(auth, googleProvider).then(()=>window.closeAuth()).catch(e => alert("Hata: " + e.message)); }
@@ -738,27 +993,41 @@
                 document.getElementById('auth-buttons').style.display = 'flex';
                 document.getElementById('user-profile').style.display = 'none';
             }
-            loadMessages();
+            if(currentChannel !== 'kick') loadMessages();
         });
 
-        // CHAT LOGIC
         window.switchChannel = (channel, btn) => {
             document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentChannel = channel;
             
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInputArea = document.querySelector('.chat-input-area');
+            const kickContainer = document.getElementById('kick-chat-container');
             const chatInput = document.getElementById('chat-input');
-            if(currentChannel === 'odak') {
-                chatInput.disabled = true;
-                chatInput.placeholder = "Sadece sistem mesajları.";
+
+            if(channel === 'kick') {
+                chatMessages.style.display = 'none';
+                chatInputArea.style.display = 'none'; // BURASI INPUT'U GİZLER (MESAJ GÖNDERMEK ENGELLENİR)
+                kickContainer.style.display = 'block';
             } else {
-                chatInput.disabled = false;
-                chatInput.placeholder = "Mesaj gönder...";
+                kickContainer.style.display = 'none';
+                chatMessages.style.display = 'flex';
+                chatInputArea.style.display = 'block';
+                
+                if(currentChannel === 'odak') {
+                    chatInput.disabled = true;
+                    chatInput.placeholder = "Sadece sistem mesajları.";
+                } else {
+                    chatInput.disabled = false;
+                    chatInput.placeholder = "Mesaj gönder...";
+                }
+                loadMessages();
             }
-            loadMessages();
         }
 
         function loadMessages() {
+            if(currentChannel === 'kick') return;
             const area = document.getElementById('chat-messages');
             area.innerHTML = '<div style="text-align:center;margin-top:20px;color:#555;">...</div>';
             onValue(query(ref(db, 'forumlar/' + currentChannel), limitToLast(20)), (snap) => {
@@ -769,7 +1038,19 @@
                     const d = document.createElement('div');
                     d.className = isMine ? 'msg-line mine' : 'msg-line';
                     if(currentChannel === 'odak') d.style.borderLeftColor = "#ff4655";
-                    d.innerHTML = `<div class="msg-user"><span>${m.kullanici}</span></div><div class="msg-text">${m.mesaj}</div>`;
+                    
+                    const userSpan = document.createElement('span');
+                    userSpan.textContent = m.kullanici;
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = "msg-text";
+                    msgDiv.textContent = m.mesaj;
+                    
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = "msg-user";
+                    headerDiv.appendChild(userSpan);
+                    
+                    d.appendChild(headerDiv);
+                    d.appendChild(msgDiv);
                     area.appendChild(d);
                 });
                 area.scrollTop = area.scrollHeight;
@@ -778,33 +1059,41 @@
 
         document.getElementById('chat-input').addEventListener('keypress', (e) => {
             if(e.key === 'Enter' && currentUser && e.target.value.trim() !== "") {
-                if(currentChannel === 'odak') return;
+                if(currentChannel === 'odak' || currentChannel === 'kick') return;
                 push(ref(db, 'forumlar/' + currentChannel), { uid: currentUser.uid, kullanici: currentUser.displayName, mesaj: e.target.value });
                 e.target.value = "";
             } else if(e.key === 'Enter' && !currentUser) alert("Giriş yapmalısın!");
         });
 
-        // THEME
         window.toggleTheme = () => {
             const h = document.documentElement;
             if(h.getAttribute('data-theme') === 'light') {
                 h.removeAttribute('data-theme');
-                loadMusic('dark'); // Valorant
+                loadMusic('dark');
             } else {
                 h.setAttribute('data-theme', 'light');
-                loadMusic('light'); // Genshin
+                loadMusic('light');
             }
         }
 
-        // UI HELPERS
         window.toggleSidebar = () => { 
-            // Mobilde chat açılırken odak modu engeli yok çünkü odak modu mobilde yok
-            document.getElementById('chat-sidebar').classList.toggle('active'); 
+            const sb = document.getElementById('chat-sidebar');
+            const mw = document.getElementById('music-wrapper');
+            sb.classList.toggle('active');
+            mw.classList.toggle('shifted'); 
+            document.getElementById('clips-sidebar').classList.remove('active');
         };
+
+        window.toggleClips = () => {
+            const cs = document.getElementById('clips-sidebar');
+            cs.classList.toggle('active');
+            document.getElementById('chat-sidebar').classList.remove('active');
+            document.getElementById('music-wrapper').classList.remove('shifted');
+        }
+
         window.openPage = (id) => { if(isFocusMode) return; document.getElementById(id).classList.add('active'); document.getElementById('lobby-wrapper').classList.add('ui-hidden'); }
         window.closePage = () => { document.querySelectorAll('.page-modal').forEach(e=>e.classList.remove('active')); if(!isFocusMode) document.getElementById('lobby-wrapper').classList.remove('ui-hidden'); }
         
-        // --- GAME MODE ---
         let isFocusMode = false;
         let gameActive = false;
         let gamePaused = false;
@@ -812,7 +1101,6 @@
         let targetsSpawned = 0;
         const targetLimit = 30;
         let activeTarget = null;
-        let passiveInterval;
         let currentDiffTime = 1100; 
         
         const gameLayer = document.getElementById('game-layer');
@@ -825,11 +1113,7 @@
         const customCursor = document.getElementById('custom-cursor');
         const topControls = document.getElementById('game-controls-top');
         const countdownOverlay = document.getElementById('countdown-overlay');
-        
         const diffSelect = document.getElementById('diff-select');
-        const colorInput = document.getElementById('cross-color-input');
-        const sizeInput = document.getElementById('cross-size-input');
-
         let previousDiff = "1100";
 
         document.addEventListener('mousemove', (e) => {
@@ -844,16 +1128,13 @@
 
         window.checkDifficultyChange = () => {
             const newDiff = diffSelect.value;
-            if (newDiff !== previousDiff) {
-                window.resetGameVars();
-                previousDiff = newDiff;
-            }
+            if (newDiff !== previousDiff) { window.resetGameVars(); previousDiff = newDiff; }
             window.saveSettings();
         }
 
         window.updateCrosshairSettings = () => {
-            const color = colorInput.value;
-            const size = sizeInput.value;
+            const color = document.getElementById('cross-color-input').value;
+            const size = document.getElementById('cross-size-input').value;
             currentDiffTime = parseInt(diffSelect.value);
             document.documentElement.style.setProperty('--cross-color', color);
             document.documentElement.style.setProperty('--cross-size', size + 'px');
@@ -862,31 +1143,14 @@
 
         window.saveSettings = () => {
             localStorage.setItem('shr_diff', diffSelect.value);
-            localStorage.setItem('shr_color', colorInput.value);
-            localStorage.setItem('shr_size', sizeInput.value);
+            localStorage.setItem('shr_color', document.getElementById('cross-color-input').value);
+            localStorage.setItem('shr_size', document.getElementById('cross-size-input').value);
             currentDiffTime = parseInt(diffSelect.value);
-        }
-
-        function startPassiveParticles() {
-            if(passiveInterval) clearInterval(passiveInterval);
-            passiveInterval = setInterval(() => {
-                if(!isFocusMode) spawnPassive();
-            }, 1000);
-        }
-        function spawnPassive() {
-            const p = document.createElement('div');
-            p.className = 'passive-particle';
-            const side = Math.random() > 0.5 ? 'left' : 'right';
-            let x; if(side === 'left') x = Math.random() * 20; else x = 80 + Math.random() * 20;
-            const y = Math.random() * 90;
-            p.style.left = x + '%'; p.style.top = y + '%';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 1000);
         }
 
         window.toggleGameMode = () => {
             isFocusMode = !isFocusMode;
-            const uiElements = [document.getElementById('main-header'), document.getElementById('lobby-wrapper'), document.getElementById('sidebar-trigger'), document.getElementById('video-trigger')];
+            const uiElements = [document.getElementById('main-header'), document.getElementById('lobby-wrapper'), document.getElementById('sidebar-trigger'), document.getElementById('clips-trigger'), document.getElementById('video-trigger'), document.getElementById('auth-buttons-container'), document.getElementById('music-wrapper')];
             
             if(isFocusMode) {
                 uiElements.forEach(el => el.classList.add('ui-hidden'));
@@ -894,7 +1158,6 @@
                 document.body.classList.add('focus-mode');
                 document.body.classList.add('game-cursor-hidden');
                 customCursor.style.display = 'block';
-                if(passiveInterval) clearInterval(passiveInterval);
                 startScreen.style.display = 'block';
                 document.getElementById('start-btn-text').innerText = "BAŞLAT";
                 document.getElementById('resume-btn').style.display = 'none';
@@ -911,7 +1174,6 @@
                 resultScreen.style.display = 'none';
                 hud.style.display = 'none';
                 stopGame();
-                startPassiveParticles();
             }
         }
 
@@ -937,11 +1199,8 @@
         }
 
         window.resetGameVars = () => {
-            score = 0;
-            targetsSpawned = 0;
-            gamePaused = false;
-            targetCountVal.innerText = targetLimit;
-            scoreVal.innerText = "0";
+            score = 0; targetsSpawned = 0; gamePaused = false;
+            targetCountVal.innerText = targetLimit; scoreVal.innerText = "0";
             if(activeTarget) { activeTarget.remove(); activeTarget = null; }
         }
 
@@ -954,20 +1213,12 @@
             startScreen.style.display = 'none';
             resultScreen.style.display = 'none';
             
-            // Countdown Başlat
             countdownOverlay.style.display = 'flex';
-            let count = 3;
-            countdownOverlay.innerText = count;
-            
+            let count = 3; countdownOverlay.innerText = count;
             const int = setInterval(() => {
                 count--;
-                if(count > 0) {
-                    countdownOverlay.innerText = count;
-                } else {
-                    clearInterval(int);
-                    countdownOverlay.style.display = 'none';
-                    startGame(); 
-                }
+                if(count > 0) countdownOverlay.innerText = count;
+                else { clearInterval(int); countdownOverlay.style.display = 'none'; startGame(); }
             }, 1000);
         }
 
@@ -995,15 +1246,14 @@
             const leaderboardRef = ref(db, 'leaderboard/' + diffKey);
             await push(leaderboardRef, { uid: currentUser.uid, user: currentUser.displayName, score: score, timestamp: Date.now() });
             await postTopListToChat(diffKey, diffName);
-            alert("Skorun ve liderlik tablosu ODAK kanalına gönderildi!");
+            alert("Skorun ODAK kanalına gönderildi!");
             toggleGameMode();
-            setTimeout(() => { document.getElementById('chat-sidebar').classList.add('active'); const odakBtn = document.getElementById('btn-odak'); switchChannel('odak', odakBtn); }, 500);
+            setTimeout(() => { document.getElementById('chat-sidebar').classList.add('active'); switchChannel('odak', document.getElementById('btn-odak')); }, 500);
         }
 
         async function autoUpdateTopList() {
              const diffName = diffSelect.options[diffSelect.selectedIndex].text;
              const diffKey = "diff_" + diffSelect.value;
-             // Opsiyonel: Her 5 dakikada bir güncelle
         }
 
         async function postTopListToChat(diffKey, diffName) {
@@ -1013,9 +1263,9 @@
             let leaders = [];
             if(snapshot.exists()) { snapshot.forEach(child => leaders.push(child.val())); }
             leaders.reverse();
-            let msg = `🎯 SKOR BİLGİSİ (${diffName})<br><br>🏆 <strong>TOP 3 LİSTESİ</strong>:<br>`;
+            let msg = `🎯 SKOR (${diffName})<br><br>🏆 <strong>TOP 3</strong>:<br>`;
             leaders.forEach((l, index) => { msg += `${index+1}. ${l.user} - ${l.score}<br>`; });
-            push(ref(db, 'forumlar/odak'), { uid: "SYSTEM", kullanici: "SHRBRK SYSTEM", mesaj: msg });
+            push(ref(db, 'forumlar/odak'), { uid: "SYSTEM", kullanici: "SYSTEM", mesaj: msg });
         }
 
         function scheduleNextTarget() {
@@ -1037,9 +1287,7 @@
             target.addEventListener('animationend', () => { if(target.parentNode) removeTarget(); });
             gameLayer.appendChild(target);
         }
-        function removeTarget() {
-            if(activeTarget) { activeTarget.remove(); activeTarget = null; scheduleNextTarget(); }
-        }
+        function removeTarget() { if(activeTarget) { activeTarget.remove(); activeTarget = null; scheduleNextTarget(); } }
         function createHitEffect(x, y) {
             const hit = document.createElement('div'); hit.className = 'hit-effect';
             hit.style.left = (x - 40) + 'px'; hit.style.top = (y - 40) + 'px';
@@ -1048,24 +1296,43 @@
 
         let videoOpen = false; const items = document.querySelectorAll('.carousel-item'); let idx = 0;
         window.toggleVideoDrawer = () => {
-            if(isFocusMode) return; const d = document.getElementById('video-drawer');
-            if(videoOpen) { d.classList.remove('active'); videoOpen = false; stopVideos(); }
-            else { d.classList.add('active'); videoOpen = true; updateCar(); }
+            if(isFocusMode) return; 
+            const d = document.getElementById('video-drawer');
+            const txt = document.getElementById('video-text');
+            if(videoOpen) { 
+                closeVideoDrawer();
+            } else { 
+                d.classList.add('active'); 
+                videoOpen = true; 
+                txt.innerText = "KAPAT"; 
+                updateCar(); 
+            }
         }
-        window.rotateCarousel = (dir) => {
-            idx += dir; updateCar(); stopVideos();
+        window.closeVideoDrawer = () => {
+            const d = document.getElementById('video-drawer');
+            if(d.classList.contains('active')) {
+                d.classList.remove('active');
+                videoOpen = false;
+                document.getElementById('video-text').innerText = "MEDYA GALERİSİ";
+                stopVideos();
+            }
         }
+
+        window.rotateCarousel = (dir) => { idx += dir; updateCar(); stopVideos(); }
         function updateCar() {
-            const theta = 360 / items.length; document.getElementById('carousel').style.transform = `translateZ(-600px) rotateY(${theta * idx * -1}deg)`;
+            const theta = 360 / items.length; document.getElementById('carousel').style.transform = `translateZ(-800px) rotateY(${theta * idx * -1}deg)`;
             items.forEach((it, i) => {
                 it.classList.remove('active'); it.classList.remove('playing');
                 let dist = Math.abs(i - (idx % items.length + items.length) % items.length);
                 if(dist > items.length/2) dist = items.length - dist; if(dist === 0) it.classList.add('active');
-                it.style.transform = `rotateY(${theta*i}deg) translateZ(600px) scale(${dist===0?1:0.8})`;
+                it.style.transform = `rotateY(${theta*i}deg) translateZ(800px) scale(${dist===0?1:0.8})`;
             });
         }
         function stopVideos() { items.forEach(i=>{ let f=i.querySelector('iframe'); if(f) f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}','*'); i.classList.remove('playing'); }); }
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') { if(isFocusMode) window.toggleGameMode(); } if(e.code==='Space' && videoOpen && document.activeElement !== document.getElementById('chat-input')) { e.preventDefault(); window.toggleVideoDrawer(); } });
+        document.addEventListener('keydown', e => { 
+            if (e.key === 'Escape') { if(isFocusMode) window.toggleGameMode(); } 
+            if(e.code==='Space' && videoOpen && document.activeElement !== document.getElementById('chat-input')) { e.preventDefault(); window.closeVideoDrawer(); } 
+        });
         window.playVideo = (o) => { o.parentElement.classList.add('playing'); o.nextElementSibling.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}','*'); }
     </script>
 </body>
