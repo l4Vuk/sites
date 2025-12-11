@@ -50,7 +50,10 @@
         [data-theme="light"] .schedule-row,
         [data-theme="light"] .gear-category,
         [data-theme="light"] .game-stat-card,
-        [data-theme="light"] .content-section {
+        [data-theme="light"] .content-section,
+        [data-theme="light"] .yt-card,
+        [data-theme="light"] .mini-video-card,
+        [data-theme="light"] .yt-comment {
             background-color: #fff !important;
             color: #000 !important;
             border-color: #ccc !important;
@@ -62,6 +65,9 @@
         }
         [data-theme="light"] .tab-btn { color: #555; }
         [data-theme="light"] .tab-btn:hover { color: #000; }
+        [data-theme="light"] .yt-val { color: #000 !important; }
+        [data-theme="light"] .mini-title { color: #000 !important; }
+        [data-theme="light"] .yt-c-text { color: #333 !important; }
 
         * { box-sizing: border-box; }
 
@@ -271,6 +277,52 @@
         .tab-panel.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- YOUTUBE DASHBOARD STYLES (NEW) --- */
+        .yt-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        
+        .yt-card { 
+            background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 20px; 
+            text-align: center; border-radius: 4px; transition: 0.3s; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .yt-card:hover { border-color: var(--val-red); transform: translateY(-5px); background: rgba(255, 70, 85, 0.05); }
+        .yt-card::before { content:''; position: absolute; top:0; left:0; width:3px; height:100%; background: var(--val-red); opacity:0.5; }
+        
+        .yt-val { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: bold; color: #fff; margin: 10px 0; }
+        .yt-label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .yt-trend { font-size: 0.75rem; color: var(--cyber-blue); margin-top: 5px; }
+
+        .yt-content-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+        @media (max-width: 900px) { .yt-content-layout { grid-template-columns: 1fr; } }
+
+        .yt-section-header { 
+            font-family: 'Orbitron', sans-serif; color: var(--val-white); 
+            border-left: 3px solid var(--val-red); padding-left: 15px; margin-bottom: 20px; font-size: 1.1rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .top-video-wrapper { background: rgba(0,0,0,0.4); border: 1px solid #444; padding: 15px; margin-bottom: 25px; }
+        .top-video-embed { width: 100%; aspect-ratio: 16/9; border: none; margin-bottom: 15px; }
+        .top-video-meta { display: flex; justify-content: space-between; font-size: 0.9rem; color: #ccc; }
+        .tv-stat { background: rgba(255, 70, 85, 0.1); padding: 5px 10px; color: var(--val-red); font-weight: bold; }
+
+        .yt-video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .mini-video-card { background: rgba(0,0,0,0.3); border: 1px solid #333; transition: 0.3s; }
+        .mini-video-card:hover { border-color: var(--cyber-blue); }
+        .mini-embed { width: 100%; aspect-ratio: 16/9; border: none; }
+        .mini-info { padding: 10px; font-size: 0.8rem; }
+        .mini-title { color: #fff; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .yt-comment-list { display: flex; flex-direction: column; gap: 10px; }
+        .yt-comment { background: rgba(255,255,255,0.05); padding: 10px; display: flex; gap: 10px; font-size: 0.85rem; border-left: 2px solid #555; }
+        .yt-comment img { width: 30px; height: 30px; border-radius: 50%; }
+        .yt-c-author { color: var(--val-red); font-weight: bold; font-size: 0.8rem; margin-bottom: 3px; }
+        .yt-c-text { color: #ddd; line-height: 1.3; }
+
+        .yt-metric-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
+        .yt-metric-val { color: var(--cyber-blue); font-family: 'Orbitron', sans-serif; }
+        /* ------------------------------------- */
+
         .game-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .game-stat-card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 20px; text-align: center; border-radius: 4px; transition: 0.3s; }
         .game-stat-card:hover { border-color: var(--val-red); transform: translateY(-5px); }
@@ -359,7 +411,6 @@
         body.focus-mode #game-layer { z-index: 9000; pointer-events: auto; background: rgba(0,0,0,0.85); }
         .aim-target { position: absolute; width: 70px; height: 70px; background: radial-gradient(circle, var(--val-red) 40%, transparent 70%); border: 2px solid var(--val-red); border-radius: 50%; box-shadow: 0 0 15px var(--val-red); pointer-events: auto; opacity: 0.8; display: flex; justify-content: center; align-items: center; }
         
-        /* GÜNCELLENEN ANIMASYONLAR - SORUNUN ÇÖZÜMÜ BURADA */
         @keyframes spawnPulse {
             0% { transform: scale(0); opacity: 0; }
             20% { transform: scale(1); opacity: 1; }
@@ -374,7 +425,6 @@
         
         .hit-effect { position: absolute; width: 80px; height: 80px; border: 2px solid #fff; border-radius: 50%; animation: hitAnim 0.2s ease-out forwards; pointer-events: none; z-index: 9002; }
         
-        /* GÜNCELLENEN START SCREEN (TAM ORTA) */
         #start-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.85); z-index: 9600; 
@@ -492,7 +542,7 @@
             </div>
             <div class="lobby-card c3" onclick="scrollToSection('sec-oyun')">
                 <div class="card-bg"></div>
-                <div class="card-info"><div class="card-title">OYUN GEÇMİŞİ</div><div class="card-subtitle">STATS</div></div>
+                <div class="card-info"><div class="card-title">YOUTUBE DASHBOARD</div><div class="card-subtitle">ANALİZ</div></div>
             </div>
             <div class="lobby-card c4" onclick="scrollToSection('sec-ajan')">
                 <div class="card-bg"></div>
@@ -529,38 +579,74 @@
         </div>
 
         <div id="sec-oyun" class="content-section">
-            <div class="section-header">OYUN GEÇMİŞİ</div>
-            <div class="tab-nav">
-                <button class="tab-btn active" onclick="switchTab(event, 'oyun-fps')">FPS</button>
-                <button class="tab-btn" onclick="switchTab(event, 'oyun-moba')">MOBA</button>
-            </div>
+            <div class="section-header">YOUTUBE DASHBOARD</div>
             
-            <div id="oyun-fps" class="tab-panel active">
-                <div class="game-stats-grid">
-                    <div class="game-stat-card">
-                        <i class="fas fa-crosshairs rank-icon"></i>
-                        <h2>VALORANT</h2>
-                        <div style="font-size:2rem; color:var(--val-red); font-weight:bold;">IMMO 3</div>
-                        <div style="color:#888;">JETT / REYNA</div>
+            <div id="oyun-youtube" class="tab-panel active" style="display:block;">
+                
+                <div class="yt-stats-grid">
+                    <div class="yt-card">
+                        <i class="fas fa-eye" style="color:var(--val-red);"></i>
+                        <div class="yt-val" id="yt-total-views">---</div>
+                        <div class="yt-label">TOPLAM İZLENME</div>
+                        <div class="yt-trend" id="yt-views-trend">...</div>
                     </div>
-                    <div class="game-stat-card">
-                        <i class="fas fa-bomb rank-icon" style="color:#de9b35;"></i>
-                        <h2>CS2</h2>
-                        <div style="font-size:2rem; color:#de9b35; font-weight:bold;">FACEIT 10</div>
-                        <div style="color:#888;">AWPER</div>
+                    <div class="yt-card">
+                        <i class="fas fa-users" style="color:var(--val-red);"></i>
+                        <div class="yt-val" id="yt-subs">---</div>
+                        <div class="yt-label">ABONE</div>
+                        <div class="yt-trend" id="yt-subs-trend">...</div>
+                    </div>
+                    <div class="yt-card">
+                        <i class="fas fa-video" style="color:var(--val-red);"></i>
+                        <div class="yt-val" id="yt-videos">---</div>
+                        <div class="yt-label">VİDEO SAYISI</div>
+                        <div class="yt-trend">Aktif İçerik</div>
+                    </div>
+                    <div class="yt-card">
+                        <i class="fas fa-chart-line" style="color:var(--val-red);"></i>
+                        <div class="yt-val" id="yt-30day-views">---</div>
+                        <div class="yt-label">SON 1 AY İZLENME</div>
+                        <div class="yt-trend">Yükseliş</div>
                     </div>
                 </div>
-            </div>
 
-            <div id="oyun-moba" class="tab-panel">
-                 <div class="game-stats-grid" style="grid-template-columns: 1fr;">
-                    <div class="game-stat-card">
-                        <i class="fas fa-gem rank-icon" style="color:#00bfff;"></i>
-                        <h2>LEAGUE OF LEGENDS</h2>
-                        <div style="font-size:2rem; color:#00bfff; font-weight:bold;">DIA 1</div>
-                        <div style="color:#888;">MID LANE</div>
+                <div class="yt-content-layout">
+                    <div class="yt-left">
+                        
+                        <div class="yt-section-header">
+                            <span>EN POPÜLER (SON 4)</span>
+                            <span class="tv-stat" id="yt-top-views-badge">0 İZLENME</span>
+                        </div>
+                        <div id="yt-top-video-container" class="top-video-wrapper">
+                            <div style="text-align:center; padding:20px;">Veri yükleniyor...</div>
+                        </div>
+
+                        <div class="yt-section-header">SON YÜKLENENLER</div>
+                        <div id="yt-video-list" class="yt-video-grid">
+                            </div>
+                    </div>
+
+                    <div class="yt-right">
+                        
+                        <div class="gear-category" style="margin-bottom:20px;">
+                            <div class="gear-title">KANAL ETKİLEŞİMİ</div>
+                            <div class="yt-metric-row"><span>1 Aylık Video</span><span class="yt-metric-val" id="yt-month-vid">--</span></div>
+                            <div class="yt-metric-row"><span>Etkileşim Oranı</span><span class="yt-metric-val" id="yt-engagement">--%</span></div>
+                            <div class="yt-metric-row"><span>Ort. İzlenme</span><span class="yt-metric-val" id="yt-avg-view">--</span></div>
+                        </div>
+
+                        <div class="yt-section-header">SON YORUMLAR</div>
+                        <div id="yt-comments" class="yt-comment-list">
+                            </div>
+
+                        <div class="gear-category" style="margin-top:20px;">
+                            <div class="gear-title">POPÜLER ETİKETLER</div>
+                            <div id="yt-tags" style="display:flex; flex-wrap:wrap; gap:5px;"></div>
+                        </div>
+
                     </div>
                 </div>
+                <div style="text-align:right; font-size:0.7rem; color:#555; margin-top:10px;">Veriler YouTube API üzerinden anlık çekilmektedir.</div>
             </div>
         </div>
 
@@ -797,7 +883,6 @@
                 scWidget.bind(SC.Widget.Events.PAUSE, function() { isMusicPlaying = false; updateMusicButton(); });
             });
             
-            // MÜZİK OTOMATİK BAŞLATMA TRICK (Kullanıcı etkileşimi sonrası)
             document.body.addEventListener('click', () => {
                 if(!isMusicPlaying) {
                     scWidget.play();
@@ -813,9 +898,133 @@
             window.updateCrosshairSettings(); 
             setInterval(autoUpdateTopList, 5 * 60 * 1000);
             
-            // KICK Kliplerini Çek (Public API - Risksiz)
             loadKickClips();
+            loadYoutubeStats(); // Youtube verilerini çek
         };
+
+        // --- YOUTUBE DASHBOARD LOGIC ---
+        const YT_API_URL = "https://sbelements.canersavas3d.workers.dev/";
+
+        function formatNum(num) {
+            if (!num && num !== 0) return "---";
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return parseInt(num).toLocaleString('tr-TR');
+        }
+
+        function getTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+            if (diffDays === 0) return "Bugün";
+            if (diffDays === 1) return "Dün";
+            return `${diffDays} gün önce`;
+        }
+
+        async function loadYoutubeStats() {
+            try {
+                const res = await fetch(`${YT_API_URL}?t=${new Date().getTime()}`);
+                const json = await res.json();
+                
+                if (json.ok && json.data) {
+                    renderYoutubeData(json.data);
+                }
+            } catch (e) {
+                console.error("Youtube API Hatası:", e);
+                document.getElementById('yt-total-views').innerText = "HATA";
+            }
+        }
+
+        function renderYoutubeData(data) {
+            // 1. Ana İstatistikler
+            document.getElementById('yt-total-views').innerText = formatNum(data.total_views);
+            document.getElementById('yt-views-trend').innerText = "+" + formatNum(data.monthly_compare?.last_1_month?.views || 0) + " (30 Gün)";
+            
+            document.getElementById('yt-subs').innerText = formatNum(data.subscribers);
+            document.getElementById('yt-subs-trend').innerText = "Takipte";
+            
+            document.getElementById('yt-videos').innerText = data.total_videos;
+            document.getElementById('yt-30day-views').innerText = formatNum(data.monthly_compare?.last_1_month?.views);
+
+            // 2. Performans Metrikleri
+            const monthViews = data.monthly_compare?.last_1_month?.views || 0;
+            const monthVids = data.monthly_compare?.last_1_month?.count || 1;
+            const subs = parseInt(data.subscribers) || 1;
+            
+            document.getElementById('yt-month-vid').innerText = monthVids;
+            document.getElementById('yt-avg-view').innerText = formatNum(Math.round(monthViews / (monthVids > 0 ? monthVids : 1)));
+            document.getElementById('yt-engagement').innerText = ((monthViews / subs) * 100).toFixed(1) + "%";
+
+            // 3. En Popüler Video (Listeden en yüksek izlenmeye sahip olanı seç)
+            let topVideo = null;
+            if(data.last_videos_playable && data.last_videos_playable.length > 0) {
+                 topVideo = data.last_videos_playable.reduce((prev, current) => {
+                    return (parseInt(prev.views) > parseInt(current.views)) ? prev : current;
+                });
+            }
+
+            if(topVideo) {
+                document.getElementById('yt-top-views-badge').innerText = formatNum(topVideo.views) + " İZLENME";
+                document.getElementById('yt-top-video-container').innerHTML = `
+                    <iframe class="top-video-embed" src="https://www.youtube.com/embed/${topVideo.id}" allowfullscreen></iframe>
+                    <div class="top-video-meta">
+                        <strong style="color:#fff; font-size:1rem;">${topVideo.title}</strong>
+                        <span>${getTimeAgo(topVideo.published)}</span>
+                    </div>
+                `;
+            }
+
+            // 4. Son Videolar Listesi (4 Adet)
+            const videoList = document.getElementById('yt-video-list');
+            videoList.innerHTML = "";
+            if (data.last_videos_playable) {
+                data.last_videos_playable.slice(0, 4).forEach(v => {
+                    const div = document.createElement('div');
+                    div.className = 'mini-video-card';
+                    div.innerHTML = `
+                        <iframe class="mini-embed" src="https://www.youtube.com/embed/${v.id}" allowfullscreen></iframe>
+                        <div class="mini-info">
+                            <div class="mini-title" title="${v.title}">${v.title}</div>
+                            <div style="color:#888; display:flex; justify-content:space-between;">
+                                <span>${formatNum(v.views)} izlenme</span>
+                                <span>${getTimeAgo(v.published)}</span>
+                            </div>
+                        </div>
+                    `;
+                    videoList.appendChild(div);
+                });
+            }
+
+            // 5. Yorumlar
+            const commentList = document.getElementById('yt-comments');
+            commentList.innerHTML = "";
+            if (data.unique_comments) {
+                data.unique_comments.slice(0, 4).forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'yt-comment';
+                    div.innerHTML = `
+                        <img src="${c.avatar || 'https://via.placeholder.com/30'}" onerror="this.src='https://via.placeholder.com/30'">
+                        <div style="flex:1;">
+                            <div class="yt-c-author">${c.author} <span style="color:#666; font-weight:normal; float:right; font-size:0.7rem;">${getTimeAgo(c.published)}</span></div>
+                            <div class="yt-c-text">${c.text}</div>
+                        </div>
+                    `;
+                    commentList.appendChild(div);
+                });
+            }
+
+            // 6. Etiketler
+            const tagContainer = document.getElementById('yt-tags');
+            tagContainer.innerHTML = "";
+            if(data.top5_tags) {
+                data.top5_tags.forEach(t => {
+                    const sp = document.createElement('span');
+                    sp.style.cssText = "background:rgba(255,255,255,0.1); padding:4px 8px; font-size:0.7rem; border-radius:3px; color:#aaa;";
+                    sp.innerText = "#" + t.tag;
+                    tagContainer.appendChild(sp);
+                });
+            }
+        }
 
         // --- SOSYAL MEDYA MENU TOGGLE ---
         window.toggleSocial = (id) => {
@@ -826,14 +1035,12 @@
             menu.classList.toggle('active');
         }
 
-        // Menü dışına tıklanınca kapat
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.social-group')) {
                 document.querySelectorAll('.sub-menu').forEach(el => el.classList.remove('active'));
             }
         });
 
-        // 1. Sticky Header Logic
         window.addEventListener('scroll', () => {
             const header = document.getElementById('main-header');
             if(window.scrollY > 50) {
@@ -845,7 +1052,6 @@
             }
         });
 
-        // 2. Scroll Navigation Logic (Lobby Kartlarına Tıklayınca)
         window.scrollToSection = (id) => {
             const el = document.getElementById(id);
             if(el) {
@@ -856,19 +1062,14 @@
             }
         }
 
-        // 3. Tab System Logic
         window.switchTab = (event, tabId) => {
             const section = event.currentTarget.closest('.content-section');
-            // Panelleri gizle
             section.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-            // Buton aktifliğini kaldır
             section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            // İlgili paneli aç
             document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
-        // KICK KLİP ÇEKME
         async function loadKickClips() {
             const username = "shrbrk";
             const container = document.getElementById('clips-container-inner');
