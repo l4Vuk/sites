@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- TEMEL DEĞİŞKENLER --- */
+        /* --- TEMEL DEĞİŞKENLER (DARK DEFAULT) --- */
         :root {
             --bg-color: #0f1923; 
             --bg-gradient: radial-gradient(circle at center, #1f2731 0%, #0f1923 100%);
@@ -21,22 +21,24 @@
             --cyber-blue: #00ffff;
             --text-primary: #ece8e1;
             --text-secondary: #8b9bb4;
-            --font-head: 'Orbitron', sans-serif;
-            --font-body: 'Rajdhani', sans-serif;
-            --sidebar-width: 350px;
+            --modal-bg: rgba(15, 25, 35, 0.95);
+            --modal-text: #fff;
             
-            /* Varsayılan Crosshair Değerleri */
             --cross-color: #00ff00;
             --cross-size: 20px;
         }
 
+        /* --- LIGHT MODE --- */
         [data-theme="light"] {
             --bg-color: #e0e0e0;
             --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #d1d1d1 100%);
             --val-white: #111;
             --text-primary: #222;
-            --text-secondary: #555;
+            --text-secondary: #444;
             --val-dark: #f5f5f5;
+            /* Modal renklerini tersine çeviriyoruz */
+            --modal-bg: rgba(240, 240, 240, 0.95);
+            --modal-text: #111;
         }
 
         * { box-sizing: border-box; }
@@ -46,21 +48,17 @@
             background-color: var(--bg-color);
             background-image: var(--bg-gradient);
             color: var(--text-primary);
-            font-family: var(--font-body);
+            font-family: 'Rajdhani', sans-serif;
             overflow: hidden; 
             height: 100vh;
             user-select: none;
-            transition: background 0.5s ease;
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
-        /* --- UI GİZLEME SINIFI --- */
-        .ui-hidden {
-            opacity: 0 !important;
-            pointer-events: none !important;
-            visibility: hidden !important;
-        }
+        /* --- UI GİZLEME --- */
+        .ui-hidden { opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }
 
-        /* --- ARKA PLAN --- */
+        /* --- PARALLAX --- */
         #parallax-bg {
             position: fixed; top: -5%; left: -5%; width: 110%; height: 110%;
             background: url('https://images.unsplash.com/photo-1546443046-ed1ce6ffd1e9?auto=format&fit=crop&w=2070&q=80') center/cover;
@@ -70,18 +68,12 @@
 
         /* --- CUSTOM CROSSHAIR --- */
         #custom-cursor {
-            position: fixed;
-            top: 0; left: 0;
-            pointer-events: none; /* Tıklamayı engelleme, arkaya geçir */
-            transform: translate(-50%, -50%);
-            z-index: 10000;
-            display: none; /* Başlangıçta gizli */
+            position: fixed; top: 0; left: 0; pointer-events: none; 
+            transform: translate(-50%, -50%); z-index: 10000; display: none; 
         }
         .ch-h, .ch-v {
-            position: absolute;
-            background-color: var(--cross-color);
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+            position: absolute; background-color: var(--cross-color);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
             box-shadow: 0 0 2px rgba(0,0,0,0.8);
         }
         .ch-h { width: var(--cross-size); height: 2px; }
@@ -92,77 +84,60 @@
             top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
 
-        /* Oyun Modunda Gerçek Mouse'u Gizle */
-        body.game-cursor-hidden {
-            cursor: none;
-        }
-        body.game-cursor-hidden .aim-target, 
-        body.game-cursor-hidden button {
-            cursor: none !important;
-        }
+        body.game-cursor-hidden { cursor: none; }
+        body.game-cursor-hidden .aim-target, body.game-cursor-hidden button { cursor: none !important; }
 
         /* --- OYUN ALANI --- */
-        #game-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 5; pointer-events: none;
-        }
-
-        /* ODAK MODU AKTİFKEN */
-        body.focus-mode #game-layer {
-            z-index: 9000;
-            pointer-events: auto;
-            background: rgba(0,0,0,0.85); /* Daha koyu odaklanma */
-        }
+        #game-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+        body.focus-mode #game-layer { z-index: 9000; pointer-events: auto; background: rgba(0,0,0,0.85); }
 
         .aim-target {
             position: absolute; width: 70px; height: 70px;
             background: radial-gradient(circle, var(--val-red) 40%, transparent 70%);
             border: 2px solid var(--val-red); border-radius: 50%;
-            box-shadow: 0 0 15px var(--val-red); 
-            pointer-events: auto;
-            opacity: 0.8;
-            /* Animation JS tarafından set edilecek (zorluğa göre) */
+            box-shadow: 0 0 15px var(--val-red); pointer-events: auto; opacity: 0.8;
             display: flex; justify-content: center; align-items: center;
         }
-        
-        @keyframes spawnPulse { 
-            0% { transform: scale(0); opacity: 0; } 
-            10% { transform: scale(1); opacity: 1; } 
-            80% { transform: scale(1); opacity: 1; } 
-            100% { transform: scale(0); opacity: 0; } 
+
+        /* PASİF PARTİKÜLLER */
+        .passive-particle {
+            position: absolute; width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(0, 255, 255, 0.2); box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+            pointer-events: none; z-index: 1; animation: passivePulse 1s ease-out forwards;
         }
+        @keyframes passivePulse { 0% { transform: scale(0); opacity: 0; } 20% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(0); opacity: 0; } }
+        @keyframes spawnPulse { 0% { transform: scale(0); opacity: 0; } 10% { transform: scale(1); opacity: 1; } 80% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
 
         .hit-effect { position: absolute; width: 80px; height: 80px; border: 2px solid #fff; border-radius: 50%; animation: hitAnim 0.2s ease-out forwards; pointer-events: none; z-index: 9002; }
         @keyframes hitAnim { 0% { transform: scale(0.5); opacity: 1; border-width: 5px; } 100% { transform: scale(1.5); opacity: 0; border-width: 0px; } }
 
-        /* --- OYUN HUD & EKRANLARI --- */
+        /* --- OYUN HUD --- */
         #game-hud {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 40px; z-index: 9500; pointer-events: none;
-            display: none; 
+            position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 60px; z-index: 9500; pointer-events: none; display: none; 
         }
         .hud-box {
-            background: rgba(0,0,0,0.6); border: 1px solid var(--val-red);
-            padding: 10px 30px; color: #fff; font-family: var(--font-head);
-            font-size: 1.5rem; text-shadow: 0 0 10px var(--val-red);
-            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+            background: rgba(0,0,0,0.8); border: 2px solid var(--val-red);
+            padding: 15px 40px; color: #fff; font-family: 'Orbitron', sans-serif;
+            font-size: 2rem; text-shadow: 0 0 15px var(--val-red);
+            clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%, 0 15px);
+            min-width: 200px; text-align: center;
         }
+        .hud-label { font-size: 0.8rem; color: #aaa; display: block; margin-bottom: 5px; }
 
         #start-screen, #result-screen {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             z-index: 9600; text-align: center; display: none; width: 100%; pointer-events: none;
         }
-        /* start-screen içindeki etkileşimli alan */
         .start-content {
-            pointer-events: auto;
-            display: inline-flex; flex-direction: column; gap: 15px;
-            background: rgba(15, 25, 35, 0.95); padding: 40px;
-            border: 1px solid var(--val-red);
-            align-items: center;
+            pointer-events: auto; display: inline-flex; flex-direction: column; gap: 15px;
+            background: var(--modal-bg); padding: 40px; border: 2px solid var(--val-red);
+            align-items: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            color: var(--modal-text); /* Aydınlık modda yazı rengi değişir */
         }
         
         .big-btn {
-            font-family: var(--font-head); font-size: 2rem; padding: 20px 60px;
+            font-family: 'Orbitron', sans-serif; font-size: 2rem; padding: 20px 60px;
             background: var(--val-red); color: #fff; border: none; cursor: pointer;
             clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
             transition: 0.3s; box-shadow: 0 0 30px rgba(255, 70, 85, 0.4);
@@ -171,56 +146,58 @@
         .big-btn:hover { background: #fff; color: var(--val-red); transform: scale(1.05); }
 
         .result-box {
-            background: rgba(15, 25, 35, 0.95); padding: 40px; border: 2px solid var(--val-red);
+            background: var(--modal-bg); padding: 40px; border: 2px solid var(--val-red);
             clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
             display: inline-flex; flex-direction: column; gap: 20px; width: 400px;
-            pointer-events: auto;
+            pointer-events: auto; color: var(--modal-text);
         }
-        .result-title { font-size: 2rem; font-family: var(--font-head); color: var(--val-white); }
-        .result-score { font-size: 4rem; font-family: var(--font-head); color: var(--val-red); font-weight: bold; }
+        .result-title { font-size: 2rem; font-family: 'Orbitron', sans-serif; color: var(--modal-text); }
+        .result-score { font-size: 4rem; font-family: 'Orbitron', sans-serif; color: var(--val-red); font-weight: bold; }
         
         .action-btn {
-            padding: 12px; background: transparent; border: 1px solid #fff; color: #fff;
-            cursor: pointer; font-family: var(--font-head); transition: 0.3s;
+            padding: 12px; background: transparent; border: 1px solid var(--modal-text); color: var(--modal-text);
+            cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.3s;
         }
-        .action-btn:hover { background: #fff; color: #000; }
+        .action-btn:hover { background: var(--val-red); color: #fff; border-color: var(--val-red); }
         .share-btn { background: var(--cyber-blue); border-color: var(--cyber-blue); color: #000; font-weight: bold; }
         .share-btn:hover { background: #fff; }
 
         /* SETTINGS UI */
         .settings-row {
             display: flex; gap: 20px; align-items: center; justify-content: center;
-            margin-top: 10px; padding: 15px; border-top: 1px solid #444; width: 100%;
+            margin-top: 10px; padding: 15px; border-top: 1px solid #555; width: 100%;
         }
         .setting-item { display: flex; flex-direction: column; gap: 5px; text-align: left; }
-        .setting-label { font-size: 0.8rem; color: #aaa; font-family: var(--font-head); }
+        .setting-label { font-size: 0.8rem; color: var(--text-secondary); font-family: 'Orbitron', sans-serif; }
         .setting-input { 
-            background: #222; color: white; border: 1px solid #555; padding: 5px;
-            font-family: var(--font-body);
+            background: rgba(0,0,0,0.2); color: var(--modal-text); border: 1px solid #555; padding: 5px;
+            font-family: 'Rajdhani', sans-serif;
         }
-        input[type="range"] { accent-color: var(--val-red); }
-
-
-        /* --- HEADER --- */
-        .header-container { position: fixed; top: 0; left: 0; width: 100%; padding: 20px 40px; z-index: 100; display: flex; justify-content: space-between; align-items: center; transition: opacity 0.5s; }
-        .logo { font-family: var(--font-head); font-size: 2.5rem; color: var(--val-white); font-weight: 900; letter-spacing: 5px; text-shadow: 0 0 15px var(--val-red); cursor: pointer; }
+        
+        /* HEADER */
+        .header-container { position: fixed; top: 0; left: 0; width: 100%; padding: 20px 40px; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: var(--val-white); font-weight: 900; letter-spacing: 5px; text-shadow: 0 0 15px var(--val-red); cursor: pointer; }
         .top-menu { display: flex; gap: 20px; align-items: center; }
-        .menu-link { color: var(--text-secondary); text-decoration: none; font-family: var(--font-head); font-size: 0.8rem; letter-spacing: 2px; transition: 0.3s; }
+        .menu-link { color: var(--text-secondary); text-decoration: none; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 2px; transition: 0.3s; }
         .menu-link:hover { color: var(--val-white); }
-        .auth-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--val-white); padding: 8px 20px; font-family: var(--font-head); font-size: 0.8rem; cursor: pointer; transition: 0.3s; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
+        .auth-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--val-white); padding: 8px 20px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
         .auth-btn:hover { background: var(--val-white); color: #000; }
         .auth-btn.primary { background: var(--val-red); border-color: var(--val-red); }
         .auth-btn.primary:hover { background: #ff7070; color: #fff; }
         #user-profile { display: none; align-items: center; gap: 15px; }
-        .user-name { color: var(--cyber-blue); font-family: var(--font-head); font-size: 0.9rem; }
-        .logout-icon { cursor: pointer; color: var(--val-red); font-size: 1.1rem; transition: 0.3s; }
+        .user-name { color: var(--cyber-blue); font-family: 'Orbitron', sans-serif; font-size: 0.9rem; }
+        .logout-icon { cursor: pointer; color: var(--val-red); font-size: 1.1rem; }
 
-        /* --- LOBBY --- */
-        .lobby-wrapper {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            display: flex; flex-direction: column; align-items: center; gap: 30px;
-            z-index: 10; transition: opacity 0.5s;
+        /* THEME TOGGLE */
+        #theme-toggle-btn {
+            background: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary);
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
         }
+        #theme-toggle-btn:hover { background: var(--val-white); color: #000; }
+
+        /* LOBBY */
+        .lobby-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 30px; z-index: 10; transition: opacity 0.5s; }
         .lobby-container { display: flex; gap: 15px; height: 50vh; width: 80vw; justify-content: center; align-items: center; perspective: 1000px; pointer-events: none; }
         .lobby-card { pointer-events: auto; flex: 1; height: 100%; max-width: 250px; position: relative; cursor: pointer; transition: transform 0.4s, filter 0.4s; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); background: var(--val-dark); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
         .lobby-card:hover { transform: scale(1.1) translateY(-20px); z-index: 20; border-color: var(--val-red); box-shadow: 0 0 30px rgba(255, 70, 85, 0.3); }
@@ -233,60 +210,43 @@
         .c4 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7cb513c9b3eae3286449776e85753138436d553c-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c5 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/47387e354c34d51b84066bc47af3c5755b92b9c5-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .card-info { background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 20px; text-align: center; width: 100%; }
-        .card-title { font-family: var(--font-head); font-size: 1.2rem; color: var(--val-white); }
+        .card-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: #fff; }
         .card-subtitle { font-size: 0.8rem; color: var(--val-red); margin-top: 5px; font-weight: bold; }
 
-        /* ODAK MODU BUTONU */
         #game-mode-toggle {
-            padding: 12px 40px; background: rgba(0,0,0,0.6);
-            border: 1px solid var(--val-red); color: var(--val-white);
-            font-family: var(--font-head); letter-spacing: 2px;
-            cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+            padding: 12px 40px; background: rgba(0,0,0,0.6); border: 1px solid var(--val-red); color: var(--val-white);
+            font-family: 'Orbitron', sans-serif; letter-spacing: 2px; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
             transition: 0.3s; pointer-events: auto; margin-top: 20px; z-index: 500;
         }
         #game-mode-toggle:hover { background: var(--val-red); color: #fff; box-shadow: 0 0 20px var(--val-red); }
 
-        /* --- SOHBET ÇEKMECESİ --- */
-        .sidebar-trigger { 
-            position: fixed; left: 0; top: 50%; transform: translateY(-50%); 
-            width: 40px; height: 200px; 
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-left: none; 
-            display: flex; align-items: center; justify-content: center; cursor: pointer; 
-            z-index: 6000; transition: 0.3s; 
-            clip-path: polygon(0 0, 100% 10%, 100% 90%, 0 100%);
-        }
+        /* SIDEBAR */
+        .sidebar-trigger { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 40px; height: 200px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-left: none; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 6000; clip-path: polygon(0 0, 100% 10%, 100% 90%, 0 100%); transition: 0.3s; }
         .sidebar-trigger:hover { background: var(--val-red); width: 50px; }
-        .sidebar-text { writing-mode: vertical-rl; transform: rotate(180deg); font-family: var(--font-head); letter-spacing: 3px; color: #fff; }
-
-        #chat-sidebar { 
-            position: fixed; top: 0; left: -400px; width: var(--sidebar-width); height: 100%; 
-            background: rgba(15, 25, 35, 0.95); border-right: 1px solid var(--val-red); backdrop-filter: blur(20px); 
-            z-index: 6001; transition: left 0.4s; display: flex; flex-direction: column; 
-        }
+        .sidebar-text { writing-mode: vertical-rl; transform: rotate(180deg); font-family: 'Orbitron', sans-serif; letter-spacing: 3px; color: #fff; }
+        #chat-sidebar { position: fixed; top: 0; left: -400px; width: var(--sidebar-width); height: 100%; background: rgba(15, 25, 35, 0.95); border-right: 1px solid var(--val-red); backdrop-filter: blur(20px); z-index: 6001; transition: left 0.4s; display: flex; flex-direction: column; }
         #chat-sidebar.active { left: 0; }
-        
         .chat-header { padding: 20px; background: rgba(255, 70, 85, 0.1); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
         .chat-channels { display: flex; gap: 5px; padding: 10px; overflow-x: auto; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .channel-btn { flex: 1; background: transparent; border: 1px solid #555; color: #aaa; cursor: pointer; padding: 5px; font-family: var(--font-head); font-size: 0.7rem; transition: 0.3s; }
+        .channel-btn { flex: 1; background: transparent; border: 1px solid #555; color: #aaa; cursor: pointer; padding: 5px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; transition: 0.3s; }
         .channel-btn.active, .channel-btn:hover { background: var(--val-red); color: #fff; border-color: var(--val-red); }
-
         .chat-messages { flex: 1; padding: 20px; overflow-y: auto; color: #ddd; font-size: 0.9rem; display: flex; flex-direction: column; gap: 10px;}
         .msg-line { padding: 8px 12px; background: rgba(255,255,255,0.05); border-left: 2px solid #555; }
         .msg-line.mine { border-left-color: var(--cyber-blue); background: rgba(0, 255, 255, 0.05); }
         .msg-user { font-size: 0.75rem; color: var(--val-red); font-weight: bold; margin-bottom: 3px; display:flex; justify-content:space-between;}
         .chat-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); position: relative; }
-        .chat-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: #fff; outline: none; font-family: var(--font-body); }
+        .chat-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #555; color: #fff; outline: none; font-family: 'Rajdhani', sans-serif; }
+        .chat-input:disabled { background: rgba(50,0,0,0.5); cursor: not-allowed; }
 
-        /* AUTH BOX */
+        /* AUTH & MODALS */
         .auth-modal-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 7000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .auth-box { background: rgba(20, 25, 35, 0.95); width: 350px; padding: 40px; border: 1px solid var(--val-red); position: relative; clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); text-align: center; }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.5); border: 1px solid #444; color: #fff; }
-        .auth-submit-btn { width: 100%; padding: 12px; background: var(--val-red); color: #fff; border: none; font-family: var(--font-head); cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
-        .google-btn { width: 100%; padding: 12px; margin-top: 10px; background: #fff; color: #333; border: none; font-family: var(--font-head); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
+        .auth-box { background: var(--modal-bg); color: var(--modal-text); width: 350px; padding: 40px; border: 1px solid var(--val-red); position: relative; clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); text-align: center; }
+        .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.2); border: 1px solid #444; color: var(--modal-text); }
+        .auth-submit-btn { width: 100%; padding: 12px; background: var(--val-red); color: #fff; border: none; font-family: 'Orbitron', sans-serif; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
+        .google-btn { width: 100%; padding: 12px; margin-top: 10px; background: #fff; color: #333; border: none; font-family: 'Orbitron', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
         .close-sidebar-btn, .auth-close { background: transparent; border: none; color: #fff; cursor: pointer; }
 
-        /* VIDEO DRAWER */
-        .video-trigger { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); padding: 10px 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--val-red); border-bottom: none; color: var(--val-white); font-family: var(--font-head); cursor: pointer; z-index: 3000; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); transition: 0.3s;}
+        .video-trigger { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); padding: 10px 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--val-red); border-bottom: none; color: var(--val-white); font-family: 'Orbitron', sans-serif; cursor: pointer; z-index: 3000; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); transition: 0.3s;}
         #video-drawer { position: fixed; bottom: -100vh; left: 0; width: 100%; height: 90vh; background: rgba(10, 12, 16, 0.98); z-index: 3000; transition: bottom 0.6s; display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 2px solid var(--val-red); }
         #video-drawer.active { bottom: 0; }
         .carousel-container { width: 100%; height: 60vh; perspective: 1500px; display: flex; justify-content: center; align-items: center; }
@@ -294,20 +254,16 @@
         .carousel-item { position: absolute; width: 600px; height: 350px; left: 0; top: 0; background: #000; border: 2px solid #333; transition: 0.6s; opacity: 0.3; filter: grayscale(100%); pointer-events: none; }
         .carousel-item.active { opacity: 1; filter: grayscale(0%); pointer-events: auto; border-color: var(--val-red); box-shadow: 0 0 50px rgba(255, 70, 85, 0.2); }
         .video-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; font-size: 3rem; color: #fff; cursor: pointer; z-index: 5; transition: 0.3s; }
-        .page-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,15,0.95); z-index: 4000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+
+        .page-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.4s; }
         .page-modal.active { opacity: 1; pointer-events: auto; }
-        .blur-bg { filter: blur(8px); transition: 0.3s; }
+        .page-content { background: var(--modal-bg); color: var(--modal-text); padding: 40px; border: 1px solid var(--val-red); text-align: center; width: 80%; max-width: 800px; clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); }
 
-        /* Oyun Modu Çıkış Butonu */
-        #exit-game-mode {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            padding: 10px 30px; background: #333; color: #aaa;
-            font-family: var(--font-head); cursor: pointer; border: 1px solid #555;
-            clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-            z-index: 10000; display: none;
-        }
-        #exit-game-mode:hover { background: #fff; color: #000; }
-
+        .game-controls-top { position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 10000; display: none; }
+        .game-ctrl-btn { padding: 10px 20px; background: #333; color: #aaa; font-family: 'Orbitron', sans-serif; cursor: pointer; border: 1px solid #555; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); transition: 0.3s; }
+        .game-ctrl-btn:hover { background: #fff; color: #000; }
+        .game-ctrl-btn.settings-btn { border-color: var(--cyber-blue); }
+        .game-ctrl-btn.settings-btn:hover { background: var(--cyber-blue); }
     </style>
 </head>
 <body>
@@ -323,25 +279,26 @@
     <div id="game-layer"></div>
     
     <div id="game-hud">
-        <div class="hud-box">SÜRE: <span id="time-val">30</span></div>
-        <div class="hud-box">SKOR: <span id="score-val">0</span></div>
+        <div class="hud-box"><span class="hud-label">KALAN HEDEF</span><span id="target-count-val">30</span></div>
+        <div class="hud-box"><span class="hud-label">VURULAN</span><span id="score-val">0</span></div>
     </div>
 
     <div id="start-screen">
         <div class="start-content">
-            <h2 style="margin:0; font-family:var(--font-head); color:var(--val-white); letter-spacing:3px;">ODAK MODU</h2>
+            <h2 style="margin:0; font-family:'Orbitron', sans-serif; color:var(--val-red); letter-spacing:3px;">ODAK MODU AYARLARI</h2>
             
-            <button class="big-btn" onclick="startGame()">BAŞLAT</button>
+            <button class="big-btn" id="start-btn-text" onclick="startGame()">BAŞLAT</button>
+            <button class="action-btn" id="resume-btn" onclick="resumeGame()" style="display:none; margin-top:10px;">DEVAM ET</button>
             
             <div class="settings-row">
                 <div class="setting-item">
-                    <span class="setting-label">ZORLUK</span>
-                    <select id="diff-select" class="setting-input" onchange="saveSettings()">
-                        <option value="1200">KOLAY</option>
-                        <option value="985" selected>ORTA</option>
-                        <option value="875">ZOR</option>
-                        <option value="725">UZMAN</option>
-                        <option value="625">LAVUK</option>
+                    <span class="setting-label">ZORLUK (HIZ)</span>
+                    <select id="diff-select" class="setting-input" onchange="checkDifficultyChange()">
+                        <option value="1500">KOLAY (1.5s)</option>
+                        <option value="1100" selected>ORTA (1.1s)</option>
+                        <option value="800">ZOR (0.8s)</option>
+                        <option value="600">UZMAN (0.6s)</option>
+                        <option value="450">LAVUK (0.45s)</option>
                     </select>
                 </div>
                 <div class="setting-item">
@@ -353,27 +310,31 @@
                     <input type="range" id="cross-size-input" min="10" max="60" value="20" oninput="updateCrosshairSettings()">
                 </div>
             </div>
-            <div style="font-size:0.7rem; color:#666;">Ayarların otomatik kaydedilir.</div>
+            <div style="font-size:0.7rem; color:#666;">Zorluk değişirse skor sıfırlanır.</div>
         </div>
     </div>
 
     <div id="result-screen">
         <div class="result-box">
-            <div class="result-title">SÜRE BİTTİ</div>
-            <div class="result-score" id="final-score">0</div>
+            <div class="result-title">GÖREV TAMAMLANDI</div>
+            <div class="result-score" id="final-score">0 / 30</div>
             <button class="action-btn share-btn" onclick="shareScore()">SKORU PAYLAŞ</button>
-            <button class="action-btn" onclick="startGame()">TEKRAR OYNA</button>
+            <button class="action-btn" onclick="resetAndStart()">TEKRAR OYNA</button>
             <button class="action-btn" onclick="toggleGameMode()">ÇIKIŞ</button>
         </div>
     </div>
 
-    <button id="exit-game-mode" onclick="toggleGameMode()">ARAYÜZÜ GÖSTER</button>
+    <div class="game-controls-top" id="game-controls-top">
+        <button class="game-ctrl-btn" onclick="toggleGameMode()">ARAYÜZE DÖN</button>
+        <button class="game-ctrl-btn settings-btn" onclick="openIngameSettings()"><i class="fas fa-cog"></i> AYARLAR</button>
+    </div>
 
     <div class="header-container" id="main-header">
         <div class="logo">SHRBRK</div>
         <div class="top-menu">
             <a href="https://kick.com/shrbrk" class="menu-link">KICK</a>
             <a href="https://instagram.com/shrbrkofficial" class="menu-link">INSTAGRAM</a>
+            <button id="theme-toggle-btn" onclick="toggleTheme()" title="Mod Değiştir"><i class="fas fa-adjust"></i></button>
             <div id="auth-buttons" style="display:flex; gap:10px;">
                 <button class="auth-btn" onclick="openAuth('login')">GİRİŞ YAP</button>
                 <button class="auth-btn primary" onclick="openAuth('register')">KAYIT OL</button>
@@ -410,7 +371,7 @@
     
     <div id="chat-sidebar">
         <div class="chat-header">
-            <span style="font-family: var(--font-head); color: var(--val-red);">SHRBRK FORUM</span>
+            <span style="font-family: 'Orbitron', sans-serif; color: var(--val-red);">SHRBRK FORUM</span>
             <button class="close-sidebar-btn" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
         </div>
         <div class="chat-channels">
@@ -440,7 +401,7 @@
 
     <div class="video-trigger" id="video-trigger" onclick="toggleVideoDrawer()"><i class="fas fa-film"></i> MEDYA GALERİSİ</div>
     <div id="video-drawer">
-        <h2 style="font-family: var(--font-head); color: var(--val-red); letter-spacing: 5px;">HIGHLIGHTS</h2>
+        <h2 style="font-family: 'Orbitron', sans-serif; color: var(--val-red); letter-spacing: 5px;">HIGHLIGHTS</h2>
         <div class="carousel-container">
             <div class="carousel" id="carousel">
                 <div class="carousel-item active"><div class="video-overlay" onclick="playVideo(this)"><i class="fas fa-play"></i></div><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" allowfullscreen></iframe></div>
@@ -453,15 +414,15 @@
         <div class="drawer-info" style="text-align:center; color:white; margin-top:20px;">VİDEOLAR ARASINDA GEZMEK İÇİN SCROLL YAPIN<br>[ SPACE İLE KAPAT ]</div>
     </div>
 
-    <div id="p-yayin" class="page-modal"><div class="page-content" style="color:white; text-align:center;"><h1>YAYIN PROGRAMI</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
-    <div id="p-oyun" class="page-modal"><div class="page-content" style="color:white; text-align:center;"><h1>OYUN GEÇMİŞİ</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
-    <div id="p-hakkinda" class="page-modal"><div class="page-content" style="color:white; text-align:center;"><h1>HAKKIMIZDA</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
-    <div id="p-ekipman" class="page-modal"><div class="page-content" style="color:white; text-align:center;"><h1>EKİPMANLAR</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
-    <div id="p-iletisim" class="page-modal"><div class="page-content" style="color:white; text-align:center;"><h1>İLETİŞİM</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
+    <div id="p-yayin" class="page-modal"><div class="page-content"><h1>YAYIN PROGRAMI</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
+    <div id="p-oyun" class="page-modal"><div class="page-content"><h1>OYUN GEÇMİŞİ</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
+    <div id="p-hakkinda" class="page-modal"><div class="page-content"><h1>HAKKIMIZDA</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
+    <div id="p-ekipman" class="page-modal"><div class="page-content"><h1>EKİPMANLAR</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
+    <div id="p-iletisim" class="page-modal"><div class="page-content"><h1>İLETİŞİM</h1><button class="auth-btn" onclick="closePage()">GERİ DÖN</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getDatabase, ref, push, onValue, query, limitToLast } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+        import { getDatabase, ref, push, set, get, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
         const firebaseConfig = {
@@ -486,7 +447,7 @@
         // AUTH
         window.openAuth = (type) => { document.getElementById('auth-modal-wrapper').style.display = 'flex'; document.getElementById('box-login').style.display = (type=='login'?'block':'none'); document.getElementById('box-register').style.display = (type=='register'?'block':'none'); }
         window.closeAuth = () => { document.getElementById('auth-modal-wrapper').style.display = 'none'; }
-        window.handleLoginGoogle = () => { signInWithPopup(auth, googleProvider).then(()=>window.closeAuth()).catch(e => alert("Domain Hatası: Firebase Console'dan Domain ekleyiniz. " + e.message)); }
+        window.handleLoginGoogle = () => { signInWithPopup(auth, googleProvider).then(()=>window.closeAuth()).catch(e => alert("Hata: " + e.message)); }
         window.handleLoginEmail = async () => { try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-pass').value); window.closeAuth(); } catch(e){alert(e.message);} }
         window.handleRegisterEmail = async () => { try { const r = await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-pass').value); await updateProfile(r.user, {displayName: document.getElementById('reg-name').value}); window.closeAuth(); } catch(e){alert(e.message);} }
         window.logoutUser = () => signOut(auth);
@@ -509,6 +470,15 @@
             document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentChannel = channel;
+            
+            const chatInput = document.getElementById('chat-input');
+            if(currentChannel === 'odak') {
+                chatInput.disabled = true;
+                chatInput.placeholder = "Sadece sistem mesajları.";
+            } else {
+                chatInput.disabled = false;
+                chatInput.placeholder = "Mesaj gönder...";
+            }
             loadMessages();
         }
 
@@ -522,6 +492,8 @@
                     const isMine = currentUser && m.uid === currentUser.uid;
                     const d = document.createElement('div');
                     d.className = isMine ? 'msg-line mine' : 'msg-line';
+                    // Odak modunda özel mesaj stili
+                    if(currentChannel === 'odak') d.style.borderLeftColor = "#ff4655";
                     d.innerHTML = `<div class="msg-user"><span>${m.kullanici}</span></div><div class="msg-text">${m.mesaj}</div>`;
                     area.appendChild(d);
                 });
@@ -531,68 +503,87 @@
 
         document.getElementById('chat-input').addEventListener('keypress', (e) => {
             if(e.key === 'Enter' && currentUser && e.target.value.trim() !== "") {
+                if(currentChannel === 'odak') return;
                 push(ref(db, 'forumlar/' + currentChannel), { uid: currentUser.uid, kullanici: currentUser.displayName, mesaj: e.target.value });
                 e.target.value = "";
-            } else if(e.key === 'Enter' && !currentUser) alert("Mesaj yazmak için giriş yapmalısın!");
+            } else if(e.key === 'Enter' && !currentUser) alert("Giriş yapmalısın!");
         });
 
+        // THEME
+        window.toggleTheme = () => {
+            const h = document.documentElement;
+            if(h.getAttribute('data-theme') === 'light') h.removeAttribute('data-theme');
+            else h.setAttribute('data-theme', 'light');
+        }
+
         // UI HELPERS
-        window.toggleSidebar = () => { 
-            if(isFocusMode) return; 
-            document.getElementById('chat-sidebar').classList.toggle('active'); 
-        };
-        window.openPage = (id) => { 
-            if(isFocusMode) return;
-            document.getElementById(id).classList.add('active'); 
-            document.getElementById('lobby-wrapper').classList.add('ui-hidden'); 
-        }
-        window.closePage = () => { 
-            document.querySelectorAll('.page-modal').forEach(e=>e.classList.remove('active')); 
-            if(!isFocusMode) document.getElementById('lobby-wrapper').classList.remove('ui-hidden'); 
-        }
+        window.toggleSidebar = () => { if(isFocusMode) return; document.getElementById('chat-sidebar').classList.toggle('active'); };
+        window.openPage = (id) => { if(isFocusMode) return; document.getElementById(id).classList.add('active'); document.getElementById('lobby-wrapper').classList.add('ui-hidden'); }
+        window.closePage = () => { document.querySelectorAll('.page-modal').forEach(e=>e.classList.remove('active')); if(!isFocusMode) document.getElementById('lobby-wrapper').classList.remove('ui-hidden'); }
         
         // --- GAME MODE (ODAK MODU) ---
         let isFocusMode = false;
         let gameActive = false;
+        let gamePaused = false;
         let score = 0;
-        let timeLeft = 30;
-        let gameTimerInterval;
+        let targetsSpawned = 0;
+        const targetLimit = 30;
         let activeTarget = null;
-        let currentDiffTime = 1450; // default orta
+        let passiveInterval;
+        let currentDiffTime = 1100; 
         
         const gameLayer = document.getElementById('game-layer');
         const hud = document.getElementById('game-hud');
         const startScreen = document.getElementById('start-screen');
         const resultScreen = document.getElementById('result-screen');
-        const timeVal = document.getElementById('time-val');
+        const targetCountVal = document.getElementById('target-count-val');
         const scoreVal = document.getElementById('score-val');
         const finalScoreDisplay = document.getElementById('final-score');
         const customCursor = document.getElementById('custom-cursor');
+        const topControls = document.getElementById('game-controls-top');
         
-        // SETTINGS ELEMENTS
         const diffSelect = document.getElementById('diff-select');
         const colorInput = document.getElementById('cross-color-input');
         const sizeInput = document.getElementById('cross-size-input');
 
-        // Yükleme sırasında kayıtlı ayarları al
+        let previousDiff = "1100"; // Değişikliği takip etmek için
+
         window.addEventListener('load', () => {
-            if(localStorage.getItem('shr_diff')) diffSelect.value = localStorage.getItem('shr_diff');
+            if(localStorage.getItem('shr_diff')) {
+                diffSelect.value = localStorage.getItem('shr_diff');
+                previousDiff = diffSelect.value;
+            }
             if(localStorage.getItem('shr_color')) colorInput.value = localStorage.getItem('shr_color');
             if(localStorage.getItem('shr_size')) sizeInput.value = localStorage.getItem('shr_size');
-            window.updateCrosshairSettings(); // Apply initial settings
+            window.updateCrosshairSettings(); 
+            startPassiveParticles();
         });
 
-        // Crosshair Takibi
         document.addEventListener('mousemove', (e) => {
-            if(isFocusMode) {
+            if(isFocusMode && !gamePaused) {
                 customCursor.style.left = e.clientX + 'px';
                 customCursor.style.top = e.clientY + 'px';
             }
-            // Parallax
             const x = (e.clientX / window.innerWidth - 0.5) * 20;
             const y = (e.clientY / window.innerHeight - 0.5) * 20;
             document.getElementById('parallax-bg').style.transform = `translate(${x}px, ${y}px)`;
         });
+
+        window.checkDifficultyChange = () => {
+            const newDiff = diffSelect.value;
+            if (newDiff !== previousDiff) {
+                // Zorluk değiştiyse oyunu sıfırla
+                window.resetGameVars();
+                previousDiff = newDiff;
+                
+                // Oyuncu oyun içindeyse bilgi ver (opsiyonel) veya direkt yansıtır
+                if(gameActive) {
+                    // Ayarlar menüsünde olduğu için oyun zaten duraklatılmış, 
+                    // ama arka plandaki skor sıfırlandı.
+                }
+            }
+            window.saveSettings();
+        }
 
         window.updateCrosshairSettings = () => {
             const color = colorInput.value;
@@ -601,7 +592,6 @@
 
             document.documentElement.style.setProperty('--cross-color', color);
             document.documentElement.style.setProperty('--cross-size', size + 'px');
-            
             window.saveSettings();
         }
 
@@ -612,205 +602,209 @@
             currentDiffTime = parseInt(diffSelect.value);
         }
 
+        // --- PASİF PARTİKÜL ---
+        function startPassiveParticles() {
+            if(passiveInterval) clearInterval(passiveInterval);
+            passiveInterval = setInterval(() => {
+                if(!isFocusMode) spawnPassive();
+            }, 1000);
+        }
+        function spawnPassive() {
+            const p = document.createElement('div');
+            p.className = 'passive-particle';
+            const side = Math.random() > 0.5 ? 'left' : 'right';
+            let x; if(side === 'left') x = Math.random() * 20; else x = 80 + Math.random() * 20;
+            const y = Math.random() * 90;
+            p.style.left = x + '%'; p.style.top = y + '%';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 1000);
+        }
+
+        // --- OYUN AKIŞI ---
         window.toggleGameMode = () => {
             isFocusMode = !isFocusMode;
-            
-            const uiElements = [
-                document.getElementById('main-header'),
-                document.getElementById('lobby-wrapper'),
-                document.getElementById('sidebar-trigger'),
-                document.getElementById('video-trigger')
-            ];
-            const exitBtn = document.getElementById('exit-game-mode');
+            const uiElements = [document.getElementById('main-header'), document.getElementById('lobby-wrapper'), document.getElementById('sidebar-trigger'), document.getElementById('video-trigger')];
             
             if(isFocusMode) {
-                // Odak Modu AÇILDI
                 uiElements.forEach(el => el.classList.add('ui-hidden'));
-                exitBtn.style.display = 'block';
+                topControls.style.display = 'flex';
                 document.body.classList.add('focus-mode');
-                document.body.classList.add('game-cursor-hidden'); // Gerçek mouse gizle
-                customCursor.style.display = 'block'; // Özel crosshair göster
-                
-                // Oyunu Hazırla (Ama Başlatma)
+                document.body.classList.add('game-cursor-hidden');
+                customCursor.style.display = 'block';
+                if(passiveInterval) clearInterval(passiveInterval);
                 startScreen.style.display = 'block';
+                document.getElementById('start-btn-text').innerText = "BAŞLAT";
+                document.getElementById('resume-btn').style.display = 'none';
                 resultScreen.style.display = 'none';
                 hud.style.display = 'none';
                 resetGameVars();
-                
             } else {
-                // Odak Modu KAPANDI
                 uiElements.forEach(el => el.classList.remove('ui-hidden'));
-                exitBtn.style.display = 'none';
+                topControls.style.display = 'none';
                 document.body.classList.remove('focus-mode');
-                document.body.classList.remove('game-cursor-hidden'); // Gerçek mouse geri getir
-                customCursor.style.display = 'none'; // Crosshair gizle
-                
-                // Her şeyi temizle
+                document.body.classList.remove('game-cursor-hidden');
+                customCursor.style.display = 'none';
                 startScreen.style.display = 'none';
                 resultScreen.style.display = 'none';
                 hud.style.display = 'none';
                 stopGame();
+                startPassiveParticles();
             }
         }
 
-        function resetGameVars() {
+        window.openIngameSettings = () => {
+            if(!gameActive) { startScreen.style.display = 'block'; return; }
+            gamePaused = true;
+            if(activeTarget) activeTarget.style.animationPlayState = 'paused';
+            document.body.classList.remove('game-cursor-hidden');
+            customCursor.style.display = 'none';
+            startScreen.style.display = 'block';
+            document.getElementById('start-btn-text').style.display = 'none';
+            document.getElementById('resume-btn').style.display = 'inline-block';
+        }
+
+        window.resumeGame = () => {
+            startScreen.style.display = 'none';
+            document.getElementById('start-btn-text').style.display = 'inline-block';
+            document.getElementById('resume-btn').style.display = 'none';
+            gamePaused = false;
+            document.body.classList.add('game-cursor-hidden');
+            customCursor.style.display = 'block';
+            if(activeTarget) activeTarget.style.animationPlayState = 'running'; else scheduleNextTarget();
+        }
+
+        window.resetGameVars = () => {
             score = 0;
-            timeLeft = 30;
-            timeVal.innerText = "30";
+            targetsSpawned = 0;
+            gamePaused = false;
+            targetCountVal.innerText = targetLimit;
             scoreVal.innerText = "0";
             if(activeTarget) { activeTarget.remove(); activeTarget = null; }
         }
 
-        function stopGame() {
-            gameActive = false;
-            clearInterval(gameTimerInterval);
-            if(activeTarget) activeTarget.remove();
-        }
+        window.resetAndStart = () => { resetGameVars(); startGame(); }
+        function stopGame() { gameActive = false; if(activeTarget) activeTarget.remove(); }
 
         window.startGame = () => {
-            window.saveSettings(); // Başlamadan emin ol
+            window.saveSettings();
             resetGameVars();
             startScreen.style.display = 'none';
             resultScreen.style.display = 'none';
             hud.style.display = 'flex';
             gameActive = true;
-            
-            // İlk hedef
+            gamePaused = false;
             spawnTarget();
-            
-            // Sayaç Başlat
-            gameTimerInterval = setInterval(() => {
-                timeLeft--;
-                timeVal.innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    endGame();
-                }
-            }, 1000);
         }
 
         function endGame() {
             gameActive = false;
-            clearInterval(gameTimerInterval);
             if(activeTarget) activeTarget.remove();
-            
             hud.style.display = 'none';
             resultScreen.style.display = 'block';
-            finalScoreDisplay.innerText = score;
+            document.body.classList.remove('game-cursor-hidden');
+            customCursor.style.display = 'none';
+            finalScoreDisplay.innerText = `${score} / ${targetLimit}`;
         }
 
-        window.shareScore = () => {
-            if(!currentUser) {
-                alert("Skor paylaşmak için giriş yapmalısın!");
-                return;
-            }
+        // --- SKOR PAYLAŞIM VE TOP LIST (LİDERLİK) ---
+        window.shareScore = async () => {
+            if(!currentUser) { alert("Giriş yapmalısın!"); return; }
             const diffName = diffSelect.options[diffSelect.selectedIndex].text;
-            
-            // Veritabanına gönder
-            push(ref(db, 'forumlar/odak'), {
+            const diffKey = "diff_" + diffSelect.value; // Örn: diff_1100
+
+            // 1. Skoru Liderlik Tablosuna Kaydet (Sadece en yüksek skorunu tutmak istersen mantık değişebilir, şu an her denemeyi atıyoruz)
+            // Basitlik için her skoru kaydediyoruz, sonra sıralıyoruz.
+            const leaderboardRef = ref(db, 'leaderboard/' + diffKey);
+            await push(leaderboardRef, {
                 uid: currentUser.uid,
-                kullanici: currentUser.displayName,
-                mesaj: `🎯 ODAK SKORU: [ ${score} ] | Zorluk: ${diffName}`,
-                zaman: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                user: currentUser.displayName,
+                score: score,
+                timestamp: Date.now()
+            });
+
+            // 2. Top 3'ü Çek
+            const topQuery = query(leaderboardRef, orderByChild('score'), limitToLast(3));
+            const snapshot = await get(topQuery);
+            
+            let leaders = [];
+            if(snapshot.exists()) {
+                snapshot.forEach(child => leaders.push(child.val()));
+            }
+            // Firebase artan sıralama yapar, ters çevirip en yüksekleri al
+            leaders.reverse();
+
+            // 3. Mesajı Oluştur
+            let msg = `🎯 SKOR: ${score}/${targetLimit} (${diffName})<br><br>🏆 <strong>TOP 3 (${diffName})</strong>:<br>`;
+            leaders.forEach((l, index) => {
+                msg += `${index+1}. ${l.user} - ${l.score}<br>`;
+            });
+
+            // 4. Odak Kanalına Gönder
+            push(ref(db, 'forumlar/odak'), {
+                uid: "SYSTEM", // Sistem mesajı gibi görünsün
+                kullanici: "SHRBRK SYSTEM",
+                mesaj: msg
             });
             
-            alert("Skorun ODAK kanalında paylaşıldı!");
-            
-            // Odak modundan çıkıp chati açalım ki görsün
+            alert("Skorun ve liderlik tablosu ODAK kanalına gönderildi!");
             toggleGameMode();
             setTimeout(() => {
                 document.getElementById('chat-sidebar').classList.add('active');
-                switchChannel('odak', document.getElementById('btn-odak'));
+                const odakBtn = document.getElementById('btn-odak');
+                switchChannel('odak', odakBtn);
             }, 500);
         }
 
-        // --- HEDEF SİSTEMİ ---
+        // --- HEDEF SPAWN ---
         function scheduleNextTarget() {
-            if(!gameActive) return;
-            // Zorluğa göre bekleme süresi biraz değişebilir ama sabit hızlı olsun
+            if(!gameActive || gamePaused) return;
+            if(targetsSpawned >= targetLimit) { endGame(); return; }
             setTimeout(spawnTarget, 200);
         }
-
         function spawnTarget() {
-            if(!gameActive || activeTarget) return;
-
+            if(!gameActive || gamePaused || activeTarget) return;
+            targetsSpawned++;
+            targetCountVal.innerText = (targetLimit - targetsSpawned);
             const target = document.createElement('div');
             target.className = 'aim-target';
             activeTarget = target;
-            
-            // Animasyon süresini JS ile ver (Zorluğa göre)
-            // CSS'deki animasyonu override ediyoruz
             target.style.animation = `spawnPulse ${currentDiffTime/1000}s ease-in-out forwards`;
-
-            // Ekranın herhangi bir yeri (%5-%95)
-            let x = 5 + Math.random() * 90;
-            let y = 5 + Math.random() * 90;
-
+            let x = 5 + Math.random() * 90; let y = 5 + Math.random() * 90;
             target.style.left = x + '%'; target.style.top = y + '%';
-
             target.addEventListener('mousedown', (e) => {
-                e.stopPropagation(); 
-                createHitEffect(e.clientX, e.clientY); 
-                
-                score++;
-                scoreVal.innerText = score;
-                
-                removeTarget(); // Vurulduğunda sil ve yenisini getir
+                e.stopPropagation(); createHitEffect(e.clientX, e.clientY);
+                score++; scoreVal.innerText = score;
+                removeTarget(); 
             });
-
-            // Süre bitince kendiliğinden silinme (ıskalama)
-            target.addEventListener('animationend', () => {
-               if(target.parentNode) {
-                   // Iskalama mantığı (isteğe bağlı skor düşülebilir)
-                   removeTarget(); 
-               }
-            });
-
+            target.addEventListener('animationend', () => { if(target.parentNode) removeTarget(); });
             gameLayer.appendChild(target);
         }
-
         function removeTarget() {
-            if(activeTarget) {
-                activeTarget.remove();
-                activeTarget = null;
-                scheduleNextTarget();
-            }
+            if(activeTarget) { activeTarget.remove(); activeTarget = null; scheduleNextTarget(); }
         }
-
         function createHitEffect(x, y) {
             const hit = document.createElement('div'); hit.className = 'hit-effect';
             hit.style.left = (x - 40) + 'px'; hit.style.top = (y - 40) + 'px';
             document.body.appendChild(hit); setTimeout(() => hit.remove(), 300);
         }
 
-        // --- VIDEO DRAWER LOGIC ---
-        let videoOpen = false;
-        const items = document.querySelectorAll('.carousel-item');
-        let idx = 0;
+        // --- VIDEO DRAWER ---
+        let videoOpen = false; const items = document.querySelectorAll('.carousel-item'); let idx = 0;
         window.toggleVideoDrawer = () => {
-            if(isFocusMode) return;
-            const d = document.getElementById('video-drawer');
+            if(isFocusMode) return; const d = document.getElementById('video-drawer');
             if(videoOpen) { d.classList.remove('active'); videoOpen = false; stopVideos(); }
             else { d.classList.add('active'); videoOpen = true; updateCar(); }
         }
         function updateCar() {
-            const theta = 360 / items.length;
-            document.getElementById('carousel').style.transform = `translateZ(-600px) rotateY(${theta * idx * -1}deg)`;
+            const theta = 360 / items.length; document.getElementById('carousel').style.transform = `translateZ(-600px) rotateY(${theta * idx * -1}deg)`;
             items.forEach((it, i) => {
-                it.classList.remove('active');
-                let dist = Math.abs(i - (idx % items.length + items.length) % items.length);
-                if(dist > items.length/2) dist = items.length - dist;
-                if(dist === 0) it.classList.add('active');
+                it.classList.remove('active'); let dist = Math.abs(i - (idx % items.length + items.length) % items.length);
+                if(dist > items.length/2) dist = items.length - dist; if(dist === 0) it.classList.add('active');
                 it.style.transform = `rotateY(${theta*i}deg) translateZ(600px) scale(${dist===0?1:0.8})`;
             });
         }
         function stopVideos() { items.forEach(i=>{ let f=i.querySelector('iframe'); if(f) f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}','*'); i.classList.remove('playing'); }); }
-        
-        document.addEventListener('keydown', e => { 
-            if (e.key === 'Escape') { if(isFocusMode) window.toggleGameMode(); }
-            if(e.code==='Space' && videoOpen && document.activeElement !== document.getElementById('chat-input')) { 
-                e.preventDefault(); window.toggleVideoDrawer(); 
-            } 
-        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { if(isFocusMode) window.toggleGameMode(); } if(e.code==='Space' && videoOpen && document.activeElement !== document.getElementById('chat-input')) { e.preventDefault(); window.toggleVideoDrawer(); } });
         document.getElementById('video-drawer').addEventListener('wheel', e => { if(videoOpen){ e.preventDefault(); if(e.deltaY>0) idx++; else idx--; stopVideos(); updateCar(); }}, {passive:false});
         window.playVideo = (o) => { o.parentElement.classList.add('playing'); o.nextElementSibling.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}','*'); }
     </script>
