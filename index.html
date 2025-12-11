@@ -296,7 +296,7 @@
         .google-btn { width: 100%; padding: 12px; margin-top: 10px; background: #fff; color: #333; border: none; font-family: 'Orbitron', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
         .close-sidebar-btn, .auth-close { background: transparent; border: none; color: #fff; cursor: pointer; }
 
-        /* VIDEO DRAWER FIX */
+        /* VIDEO DRAWER & CAROUSEL FIX */
         .video-trigger { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); padding: 10px 40px; background: rgba(0,0,0,0.8); border: 1px solid var(--val-red); border-bottom: none; color: var(--val-white); font-family: 'Orbitron', sans-serif; cursor: pointer; z-index: 3000; clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%); transition: 0.3s;}
         #video-drawer { position: fixed; bottom: -100vh; left: 0; width: 100%; height: 90vh; background: rgba(10, 12, 16, 0.98); z-index: 3000; transition: bottom 0.6s; display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 2px solid var(--val-red); }
         #video-drawer.active { bottom: 0; }
@@ -319,6 +319,7 @@
             background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; 
             font-size: 3rem; color: #fff; cursor: pointer; z-index: 5; transition: 0.3s; 
         }
+        /* Oynatılınca overlay kaybolsun */
         .carousel-item.playing .video-overlay { opacity: 0; pointer-events: none; }
 
         /* NAVIGATION ARROWS */
@@ -342,6 +343,144 @@
         .game-ctrl-btn:hover { background: #fff; color: #000; }
         .game-ctrl-btn.settings-btn { border-color: var(--cyber-blue); }
         .game-ctrl-btn.settings-btn:hover { background: var(--cyber-blue); }
+
+        /* ----------------------------------------------------- */
+        /* --- MOBİL OPTİMİZASYON (PHONE ONLY max-width 768px) --- */
+        /* ----------------------------------------------------- */
+        @media screen and (max-width: 768px) {
+            
+            /* 1. Header ve Logo Ortalama */
+            .header-container {
+                justify-content: center;
+                padding: 10px;
+                background: rgba(0,0,0,0.5);
+                flex-wrap: wrap;
+            }
+            .logo {
+                font-size: 2rem;
+                text-align: center;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            /* Üstteki Auth Butonlarını ve Sosyal Linkleri Gizle (Aşağıya taşıyacağız) */
+            .top-menu {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: auto;
+                background: rgba(15, 25, 35, 0.98);
+                border-top: 1px solid var(--val-red);
+                padding: 10px 5px;
+                justify-content: space-around;
+                z-index: 9000;
+                flex-wrap: wrap;
+                display: flex !important; /* Force flex on mobile */
+            }
+            
+            /* Sosyal Linkleri Gizle (Yer kalmıyor) */
+            .menu-link { display: none; }
+
+            /* Theme Toggle Sağ Üstte Kalsın */
+            #theme-toggle-btn {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+            }
+
+            /* Kullanıcı Profili ve Auth Butonlarını Alt Bara Sığdır */
+            #auth-buttons, #user-profile {
+                width: 100%;
+                justify-content: center;
+                margin: 0;
+            }
+
+            /* 2. Lobi Kartları - Yatay Şeritler */
+            .lobby-wrapper {
+                width: 100%;
+                height: 100%;
+                top: 0; left: 0;
+                transform: none;
+                padding-top: 80px; /* Header boşluğu */
+                padding-bottom: 120px; /* Alt bar boşluğu */
+                overflow-y: auto; /* Scroll aç */
+                justify-content: flex-start;
+            }
+            .lobby-container {
+                flex-direction: column; /* Alt alta */
+                width: 95%;
+                height: auto;
+                gap: 10px;
+                perspective: none; /* 3D'yi mobilde kapat */
+            }
+            .lobby-card {
+                width: 100%;
+                max-width: none;
+                height: 70px; /* Şerit yüksekliği */
+                flex: none;
+                flex-direction: row; /* Yan yana içerik */
+                align-items: center;
+                padding: 0 20px;
+                clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); /* Basit kesim */
+                transform: none !important; /* Hover efektini iptal et */
+            }
+            .card-bg { opacity: 0.4; }
+            .card-info {
+                background: transparent;
+                padding: 0;
+                text-align: left;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+            }
+            .card-title { font-size: 1rem; margin: 0; }
+            .card-subtitle { margin: 0; font-size: 0.7rem; }
+
+            /* 3. Odak Oyununu Kaldır */
+            #game-mode-toggle {
+                display: none !important;
+            }
+
+            /* 4. Video Galeri Butonu */
+            .video-trigger {
+                bottom: 65px; /* Auth barın hemen üstü */
+                width: 100%;
+                left: 0;
+                transform: none;
+                clip-path: none;
+                border-bottom: 1px solid var(--val-red);
+                border-left: none; border-right: none;
+                font-size: 0.8rem;
+                padding: 8px;
+                background: rgba(0,0,0,0.9);
+            }
+
+            /* 5. Video Galeri İçeriği - Ufalt */
+            #video-drawer {
+                height: 100vh;
+                z-index: 9999;
+            }
+            .carousel-container {
+                transform: scale(0.55); /* %55 oranında küçült */
+                height: 40vh;
+            }
+            #video-drawer h2 { font-size: 1.2rem; margin-top: 20px; }
+
+            /* 6. Müzik Butonu - Ufalt ve Yerleştir */
+            #music-ctrl-btn {
+                bottom: 105px; /* Video butonunun üstü */
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 5px 15px;
+                font-size: 0.7rem;
+                white-space: nowrap;
+                width: auto;
+                background: rgba(0,0,0,0.8);
+                border-color: var(--cyber-blue);
+            }
+        }
     </style>
 </head>
 <body>
