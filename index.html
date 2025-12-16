@@ -202,6 +202,7 @@
         .lobby-container { 
             display: flex; gap: 20px; height: 450px; width: 85vw; max-width: 1400px;
             justify-content: center; align-items: center; perspective: 1000px; margin-top: 50px;
+            flex-wrap: nowrap; /* Varsayılan olarak yan yana */
         }
 
         .lobby-card { 
@@ -236,6 +237,9 @@
         .c3 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/14145d7bf9be17afa80c04ee4fbe200076cc1769-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c4 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7cb513c9b3eae3286449776e85753138436d553c-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c5 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/47387e354c34d51b84066bc47af3c5755b92b9c5-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
+        /* Şikayet kutusu görseli */
+        .c6 .card-bg { background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZgYdC196WhEoHB-hYIMX4ew9ZmGoFVjyRXg&s'); filter: sepia(1) hue-rotate(190deg) saturate(3) brightness(0.6); }
+        .c6:hover .card-bg { filter: sepia(0) brightness(1); }
 
         .card-info { 
             background: linear-gradient(to top, rgba(0,0,0,0.95), transparent); 
@@ -471,6 +475,8 @@
             .about-img { width: 100%; height: 250px; }
             #game-mode-toggle { display: none; }
             .sidebar-trigger { display: none; }
+            .lobby-container { flex-wrap: wrap; }
+            .lobby-card { flex: 0 0 100%; }
         }
     </style>
 </head>
@@ -534,7 +540,7 @@
         <div class="lobby-container">
             <div class="lobby-card c1" onclick="scrollToSection('sec-hakkinda')">
                 <div class="card-bg"></div>
-                <div class="card-info"><div class="card-title">HAKKINDA</div><div class="card-subtitle">KİMİZ?</div></div>
+                <div class="card-info"><div class="card-title">BİZ KİMİZ</div><div class="card-subtitle">KİMİZ?</div></div>
             </div>
             <div class="lobby-card c2" onclick="scrollToSection('sec-yayin')">
                 <div class="card-bg"></div>
@@ -542,15 +548,22 @@
             </div>
             <div class="lobby-card c3" onclick="scrollToSection('sec-oyun')">
                 <div class="card-bg"></div>
-                <div class="card-info"><div class="card-title">YOUTUBE DASHBOARD</div><div class="card-subtitle">ANALİZ</div></div>
+                <div class="card-info"><div class="card-title">ANALİZ</div><div class="card-subtitle">ANALİZ</div></div>
             </div>
             <div class="lobby-card c4" onclick="scrollToSection('sec-ajan')">
                 <div class="card-bg"></div>
-                <div class="card-info"><div class="card-title">AJAN DOSYASI</div><div class="card-subtitle">PROFİL</div></div>
+                <div class="card-info"><div class="card-title">KİMİZ</div><div class="card-subtitle">PROFİL</div></div>
             </div>
             <div class="lobby-card c5" onclick="scrollToSection('sec-ekipman')">
                 <div class="card-bg"></div>
-                <div class="card-info"><div class="card-title">CEPHANELİK</div><div class="card-subtitle">GEAR</div></div>
+                <div class="card-info"><div class="card-title">EKİPMAN</div><div class="card-subtitle">GEAR</div></div>
+            </div>
+            <div class="lobby-card c6" onclick="openComplaintModal()">
+                <div class="card-bg"></div>
+                <div class="card-info">
+                    <div class="card-title">ŞİKAYET</div>
+                    <div class="card-subtitle">ŞİKAYET KUTUSU</div>
+                </div>
             </div>
         </div>
         <button id="game-mode-toggle" onclick="toggleGameMode()">ODAK MODU</button>
@@ -829,6 +842,32 @@
         <div style="text-align:center; color:white; margin-top:20px; font-size:0.8rem; opacity:0.6;">ÇIKMAK İÇİN YUKARIYA TIKLAYINIZ</div>
     </div>
 
+    <div id="complaint-modal-wrapper" class="auth-modal-wrapper" style="z-index: 9999;">
+        <div class="auth-box" style="border-color: var(--val-red); background: rgba(15, 25, 35, 0.98);">
+            <i class="fas fa-times auth-close" onclick="closeComplaintModal()" style="position: absolute; top: 15px; right: 15px; color: white; cursor: pointer;"></i>
+            
+            <h2 style="font-family:'Orbitron', sans-serif; color:var(--val-red); letter-spacing:2px; margin-bottom: 5px;">GİZLİ PROTOKOL</h2>
+            <p style="color:#8b9bb4; font-size:0.9rem; margin-bottom:20px;">Mesajınız şifrelenip doğrudan yönetim merkezine iletilecektir.</p>
+
+            <form action="https://formspree.io/f/mwpgjdep" method="POST" style="width:100%;">
+                
+                <div style="margin-bottom:15px;">
+                    <label style="color:#ece8e1; font-size:0.8rem; display:block; margin-bottom:5px;">Ajan Kod Adı / İsim</label>
+                    <input type="text" name="name" required class="auth-input" placeholder="Adınız..." style="width:100%;">
+                </div>
+
+                <div style="margin-bottom:20px;">
+                    <label style="color:#ece8e1; font-size:0.8rem; display:block; margin-bottom:5px;">Rapor / Şikayet</label>
+                    <textarea name="message" rows="4" required class="auth-input" placeholder="Durumu rapor et..." style="width:100%; resize:none; font-family: 'Rajdhani', sans-serif;"></textarea>
+                </div>
+
+                <button type="submit" class="auth-submit-btn" style="background: var(--val-red); color: white; width: 100%; border:none; padding:12px; font-family:'Orbitron', sans-serif; cursor:pointer; font-size:1rem;">
+                    RAPORU GÖNDER
+                </button>
+            </form>
+        </div>
+    </div>
+
     <div id="auth-modal-wrapper" class="auth-modal-wrapper">
         <div id="box-login" class="auth-box" style="display:none;">
             <i class="fas fa-times auth-close" onclick="closeAuth()"></i>
@@ -904,6 +943,23 @@
             loadKickClips();
             loadYoutubeStats(); // Youtube verilerini çek
         };
+        
+        /* --- ŞİKAYET KUTUSU JS --- */
+        window.openComplaintModal = () => {
+            const modal = document.getElementById('complaint-modal-wrapper');
+            modal.style.display = 'flex';
+            modal.style.animation = 'fadeIn 0.3s ease';
+        }
+
+        window.closeComplaintModal = () => {
+            document.getElementById('complaint-modal-wrapper').style.display = 'none';
+        }
+
+        document.getElementById('complaint-modal-wrapper').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeComplaintModal();
+            }
+        });
 
         // --- YOUTUBE DASHBOARD LOGIC ---
         const YT_API_URL = "https://sbelements.canersavas3d.workers.dev/";
@@ -1477,6 +1533,3 @@
     </script>
 </body>
 </html>
-
-
-
