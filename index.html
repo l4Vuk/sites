@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHRBRK and Pascal </title>
+    <title>SHRBRK and Pascal</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,8 +53,7 @@
         [data-theme="light"] .content-section,
         [data-theme="light"] .yt-card,
         [data-theme="light"] .mini-video-card,
-        [data-theme="light"] .yt-comment,
-        [data-theme="light"] .mobile-nav-btn {
+        [data-theme="light"] .yt-comment {
             background-color: #fff !important;
             color: #000 !important;
             border-color: #ccc !important;
@@ -86,10 +85,9 @@
             height: 100vh;
             user-select: none;
             transition: background 0.5s ease, color 0.5s ease;
-            padding-bottom: 80px; /* Mobil dock için alt boşluk */
         }
 
-        body.focus-mode { overflow: hidden; padding-bottom: 0; }
+        body.focus-mode { overflow: hidden; }
         .ui-hidden { display: none !important; }
 
         ::-webkit-scrollbar { width: 8px; }
@@ -198,13 +196,13 @@
 
         /* --- HERO & LOBBY --- */
         #hero-section {
-            min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
+            height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
         }
 
         .lobby-container { 
             display: flex; gap: 20px; height: 450px; width: 85vw; max-width: 1400px;
             justify-content: center; align-items: center; perspective: 1000px; margin-top: 50px;
-            flex-wrap: nowrap;
+            flex-wrap: nowrap; /* Varsayılan olarak yan yana */
         }
 
         .lobby-card { 
@@ -239,6 +237,7 @@
         .c3 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/14145d7bf9be17afa80c04ee4fbe200076cc1769-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c4 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7cb513c9b3eae3286449776e85753138436d553c-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
         .c5 .card-bg { background-image: url('https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/47387e354c34d51b84066bc47af3c5755b92b9c5-616x822.png?accountingTag=VAL?auto=format&fit=fill&q=80&w=352'); }
+        /* Şikayet kutusu görseli */
         .c6 .card-bg { background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZgYdC196WhEoHB-hYIMX4ew9ZmGoFVjyRXg&s'); filter: sepia(1) hue-rotate(190deg) saturate(3) brightness(0.6); }
         .c6:hover .card-bg { filter: sepia(0) brightness(1); }
 
@@ -282,36 +281,55 @@
         .tab-panel.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- YOUTUBE DASHBOARD STYLES --- */
+        /* --- YOUTUBE DASHBOARD STYLES (NEW) --- */
         .yt-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .yt-card { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 20px; text-align: center; border-radius: 4px; transition: 0.3s; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        .yt-card { 
+            background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 20px; 
+            text-align: center; border-radius: 4px; transition: 0.3s; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
         .yt-card:hover { border-color: var(--val-red); transform: translateY(-5px); background: rgba(255, 70, 85, 0.05); }
         .yt-card::before { content:''; position: absolute; top:0; left:0; width:3px; height:100%; background: var(--val-red); opacity:0.5; }
+        
         .yt-val { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: bold; color: #fff; margin: 10px 0; }
         .yt-label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
         .yt-trend { font-size: 0.75rem; color: var(--cyber-blue); margin-top: 5px; }
+
         .yt-content-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
-        .yt-section-header { font-family: 'Orbitron', sans-serif; color: var(--val-white); border-left: 3px solid var(--val-red); padding-left: 15px; margin-bottom: 20px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
+        @media (max-width: 900px) { .yt-content-layout { grid-template-columns: 1fr; } }
+
+        .yt-section-header { 
+            font-family: 'Orbitron', sans-serif; color: var(--val-white); 
+            border-left: 3px solid var(--val-red); padding-left: 15px; margin-bottom: 20px; font-size: 1.1rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
         .top-video-wrapper { background: rgba(0,0,0,0.4); border: 1px solid #444; padding: 15px; margin-bottom: 25px; }
         .top-video-embed { width: 100%; aspect-ratio: 16/9; border: none; margin-bottom: 15px; }
         .top-video-meta { display: flex; justify-content: space-between; font-size: 0.9rem; color: #ccc; }
         .tv-stat { background: rgba(255, 70, 85, 0.1); padding: 5px 10px; color: var(--val-red); font-weight: bold; }
+
         .yt-video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
         .mini-video-card { background: rgba(0,0,0,0.3); border: 1px solid #333; transition: 0.3s; }
         .mini-video-card:hover { border-color: var(--cyber-blue); }
         .mini-embed { width: 100%; aspect-ratio: 16/9; border: none; }
         .mini-info { padding: 10px; font-size: 0.8rem; }
         .mini-title { color: #fff; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
         .yt-comment-list { display: flex; flex-direction: column; gap: 10px; }
         .yt-comment { background: rgba(255,255,255,0.05); padding: 10px; display: flex; gap: 10px; font-size: 0.85rem; border-left: 2px solid #555; }
         .yt-comment img { width: 30px; height: 30px; border-radius: 50%; }
         .yt-c-author { color: var(--val-red); font-weight: bold; font-size: 0.8rem; margin-bottom: 3px; }
         .yt-c-text { color: #ddd; line-height: 1.3; }
+
         .yt-metric-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
         .yt-metric-val { color: var(--cyber-blue); font-family: 'Orbitron', sans-serif; }
+        /* ------------------------------------- */
 
         .game-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .game-stat-card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 20px; text-align: center; border-radius: 4px; transition: 0.3s; }
+        .game-stat-card:hover { border-color: var(--val-red); transform: translateY(-5px); }
         .rank-icon { font-size: 2.5rem; color: var(--val-red); margin-bottom: 10px; }
         .gear-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .gear-category { background: rgba(0,0,0,0.3); border: 1px solid #444; padding: 20px; }
@@ -445,182 +463,20 @@
         .auth-modal-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 7000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.2); border: 1px solid #444; color: #fff; }
 
-        #mobile-bottom-nav { display: none; }
-
         @media screen and (max-width: 768px) {
-            /* GENEL AYARLAR */
-            body { 
-                padding-bottom: 70px; /* Alt bar için boşluk */
-                overflow-x: hidden;
-            }
-
-            /* HEADER */
-            .header-container { padding: 10px 0; position: absolute; width:100%; background: transparent !important; box-shadow: none !important; border:none !important; }
-            .header-content { gap: 5px; }
-            .logo { font-size: 2.2rem; text-shadow: 0 0 10px #ff4655; }
+            .header-container { padding: 10px; }
+            .logo { font-size: 2rem; }
             .social-row { display:none; } 
-            
-            /* SAĞ DİKEY BAR (AUTH & THEME) */
-            .auth-wrapper {
-                position: fixed;
-                top: 50%;
-                right: 0;
-                transform: translateY(-50%);
-                flex-direction: column;
-                background: rgba(0,0,0,0.8);
-                padding: 15px 5px;
-                border: 1px solid var(--val-red);
-                border-right: none;
-                border-radius: 10px 0 0 10px;
-                gap: 15px;
-                z-index: 8000;
-            }
-            body.scrolled-mode .auth-wrapper { top: 50%; } /* Scroll olunca yukarı kaçmasın */
-            
-            /* Metin butonları gizle, ikonları göster */
-            .auth-btn { 
-                padding: 10px !important; 
-                width: 40px; 
-                height: 40px; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                border-radius: 5px;
-                clip-path: none;
-                font-size: 0 !important; /* Yazıyı gizle */
-            }
-            .auth-btn::before {
-                font-family: "Font Awesome 6 Free";
-                font-weight: 900;
-                font-size: 1.2rem;
-            }
-            .auth-btn[onclick*="login"]::before { content: "\f2f6"; } /* Sign in icon */
-            .auth-btn[onclick*="register"]::before { content: "\f234"; } /* User plus icon */
-            
-            #user-profile { flex-direction: column; gap: 10px; }
-            .user-name { display: none; } /* Mobilde isme gerek yok, ikon yeter */
-            
-            /* MÜZİK ÇALAR (Sadece Play/Pause, Sağ Üst) */
-            #music-wrapper {
-                top: 10px;
-                right: 10px;
-                left: auto;
-                z-index: 8100;
-                background: transparent;
-            }
-            .music-btn { width: 35px; height: 35px; border-radius: 50%; border-color: rgba(255,255,255,0.3); clip-path: none; }
-            .music-btn:not(.music-btn-main) { display: none; } /* İleri geri butonlarını gizle */
-            .music-btn-main { padding: 0; width: 40px; height: 40px; border-color: var(--val-red); }
-
-            /* LOBBY KARTLARI (Alt Alta, Dolu Dolu) */
-            .lobby-container { 
-                flex-direction: column; 
-                width: 95%; 
-                height: auto; 
-                margin-top: 20px; 
-                gap: 8px; /* Kartlar arası boşluk azaldı */
-            }
-            .lobby-card { 
-                width: 100%; 
-                height: 70px; /* Daha ince kartlar */
-                flex: none; /* Flex büyümesini engelle */
-                clip-path: none !important; 
-                border-radius: 5px;
-                border-bottom: 2px solid var(--val-red);
-                filter: grayscale(0) brightness(0.8); /* Mobilde gri olmasın */
-            }
+            .lobby-container { flex-direction: column; width: 95%; height: auto; margin-top: 100px; gap: 15px; }
+            .lobby-card { width: 100%; height: 120px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px) !important; }
             .lobby-card::after { display: none; }
-            .card-info { 
-                padding: 0 20px; 
-                transform: none; 
-                opacity: 1; 
-                height: 100%; 
-                display: flex; 
-                align-items: center; 
-                justify-content: space-between; 
-                background: linear-gradient(90deg, rgba(0,0,0,0.9), transparent);
-            }
-            .card-title { font-size: 1.1rem; text-align: left; }
-            .card-subtitle { display: none; } /* Mobilde alt başlık kalabalık yapar */
-            
-            /* İÇERİK ALANLARI (Boşlukları Azalt) */
-            .content-section { 
-                width: 100%; 
-                padding: 20px 10px; 
-                margin-bottom: 30px; 
-                border: none; 
-                border-top: 1px solid var(--val-red); 
-                border-bottom: 1px solid var(--val-red); 
-                clip-path: none;
-                box-shadow: none;
-                min-height: auto;
-            }
-            .section-header { font-size: 1.8rem; padding-bottom: 10px; margin-bottom: 20px; }
-            
-            /* DETAYLI GRIDLERİ TEK SÜTUNA İNDİR */
-            .game-stats-grid, .gear-grid, .about-grid, .stats-row, .video-grid, .yt-content-layout { 
-                grid-template-columns: 1fr; 
-                display: flex; 
-                flex-direction: column; 
-            }
-            .about-img { width: 100%; height: 250px; margin-bottom: 15px; }
-            .about-grid { gap: 0; }
-            
-            /* GİZLENEN MASAÜSTÜ ÖĞELERİ */
+            .content-section { width: 95%; padding: 20px; }
+            .game-stats-grid, .gear-grid, .about-grid, .stats-row, .video-grid { grid-template-columns: 1fr; }
+            .about-img { width: 100%; height: 250px; }
             #game-mode-toggle { display: none; }
-            .sidebar-trigger { display: none; } /* Yan chat butonlarını gizle */
-            .video-trigger { display: none; } /* Alt video butonunu gizle */
-            
-            /* MOBİL ALT DOCK MENU */
-            #mobile-bottom-nav {
-                display: flex;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 60px;
-                background: #0f1923;
-                border-top: 2px solid var(--val-red);
-                z-index: 9900;
-                box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
-            }
-            .mobile-nav-btn {
-                flex: 1;
-                background: transparent;
-                border: none;
-                color: #fff;
-                font-family: 'Orbitron', sans-serif;
-                font-size: 0.9rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 5px;
-                border-right: 1px solid #333;
-            }
-            .mobile-nav-btn:last-child { border-right: none; }
-            .mobile-nav-btn:active { background: var(--val-red); }
-            .mobile-nav-btn i { font-size: 1.2rem; color: var(--val-red); }
-            .mobile-nav-btn:active i { color: #fff; }
-
-            /* Chat ve Video Drawer Mobilde Tam Ekran */
-            #chat-sidebar, #video-drawer, #clips-sidebar {
-                width: 100%;
-                left: 0; /* Chat soldan değil alttan/tam ekran gelebilir ama basitlik için soldan 100% */
-            }
-            #chat-sidebar { left: -100%; }
-            #chat-sidebar.active { left: 0; }
-            #clips-sidebar { right: -100%; }
-            #clips-sidebar.active { right: 0; }
-
-            /* Carousel Mobilde Küçült */
-            .carousel-container { height: 40vh; margin-top: 10px; }
-            .carousel { width: 300px; height: 180px; }
-            .carousel-item { width: 300px; height: 180px; }
-            .carousel-item.active { z-index: 20; }
-            .nav-btn { font-size: 2rem; padding: 10px; }
-            .nav-btn.left { left: 5px; }
-            .nav-btn.right { right: 5px; }
+            .sidebar-trigger { display: none; }
+            .lobby-container { flex-wrap: wrap; }
+            .lobby-card { flex: 0 0 100%; }
         }
     </style>
 </head>
@@ -640,9 +496,9 @@
 
     <div class="auth-wrapper" id="auth-buttons-container">
         <button id="theme-toggle-btn" onclick="toggleTheme()" title="Mod Değiştir"><i class="fas fa-adjust"></i></button>
-        <div id="auth-buttons" style="display:flex; gap:10px; flex-direction: inherit;">
-            <button class="auth-btn" onclick="openAuth('login')" title="Giriş Yap">GİRİŞ YAP</button>
-            <button class="auth-btn primary" onclick="openAuth('register')" title="Kayıt Ol">KAYIT OL</button>
+        <div id="auth-buttons" style="display:flex; gap:10px;">
+            <button class="auth-btn" onclick="openAuth('login')">GİRİŞ YAP</button>
+            <button class="auth-btn primary" onclick="openAuth('register')">KAYIT OL</button>
         </div>
         <div id="user-profile">
             <span class="user-name" id="display-name">KULLANICI</span>
@@ -713,26 +569,11 @@
         <button id="game-mode-toggle" onclick="toggleGameMode()">ODAK MODU</button>
     </div>
 
-    <div id="mobile-bottom-nav">
-        <button class="mobile-nav-btn" onclick="toggleVideoDrawer()">
-            <i class="fas fa-film"></i>
-            GALERİ
-        </button>
-        <button class="mobile-nav-btn" onclick="toggleSidebar()">
-            <i class="fas fa-comments"></i>
-            CHAT
-        </button>
-        <button class="mobile-nav-btn" onclick="toggleClips()">
-            <i class="fas fa-video"></i>
-            KLİPLER
-        </button>
-    </div>
-
     <div class="content-flow" id="main-content-flow">
         
         <div id="sec-hakkinda" class="content-section">
             <div class="section-header">HAKKINDA</div>
-            <div class="content-text" style="font-size:1.1rem; line-height:1.6; text-align:center;">
+            <div class="content-text" style="font-size:1.2rem; line-height:1.8; text-align:center;">
                 <p>Biz Seher ve Burak.Kısaca SHRBRK. Farklı platformlarda olmak üzere yaklaşık 4 senedir yayın açıyoruz.</p>
                 <p>Seher , Yüksek Lisansını bitirmiş ve YÜKSEK İÇ MİMAR unvanını alan 28 yaşında zorba birisi.</p>
                 <p>Burak , Yüksek Lisansını bitirememiş ve YÜKSEK Beden Eğitimi Öğretmeni unvanını alamamış 30 yaşında zorbalanan birisi.</p>
@@ -1425,14 +1266,8 @@
             const sb = document.getElementById('chat-sidebar');
             const mw = document.getElementById('music-wrapper');
             sb.classList.toggle('active');
-            
-            // Mobilde müzik wrapper'ı kaydırmaya gerek yok, sabit dursun
-            if(window.innerWidth > 768) {
-                mw.classList.toggle('shifted'); 
-            }
-            
+            mw.classList.toggle('shifted'); 
             document.getElementById('clips-sidebar').classList.remove('active');
-            document.getElementById('video-drawer').classList.remove('active');
         };
 
         window.toggleClips = () => {
@@ -1440,7 +1275,6 @@
             cs.classList.toggle('active');
             document.getElementById('chat-sidebar').classList.remove('active');
             document.getElementById('music-wrapper').classList.remove('shifted');
-            document.getElementById('video-drawer').classList.remove('active');
         }
 
         window.closePage = () => { }
@@ -1511,12 +1345,11 @@
                 document.getElementById('clips-trigger'), 
                 document.getElementById('video-trigger'), 
                 document.getElementById('auth-buttons-container'), 
-                document.getElementById('music-wrapper'),
-                document.getElementById('mobile-bottom-nav') // Mobil dock da gizlensin
+                document.getElementById('music-wrapper')
             ];
             
             if(isFocusMode) {
-                uiElements.forEach(el => { if(el) el.classList.add('ui-hidden'); });
+                uiElements.forEach(el => el.classList.add('ui-hidden'));
                 topControls.style.display = 'flex';
                 document.body.classList.add('focus-mode'); // Scroll'u kilitle
                 document.body.classList.add('game-cursor-hidden');
@@ -1528,7 +1361,7 @@
                 hud.style.display = 'none';
                 resetGameVars();
             } else {
-                uiElements.forEach(el => { if(el) el.classList.remove('ui-hidden'); });
+                uiElements.forEach(el => el.classList.remove('ui-hidden'));
                 topControls.style.display = 'none';
                 document.body.classList.remove('focus-mode'); // Scroll'u aç
                 document.body.classList.remove('game-cursor-hidden');
@@ -1662,11 +1495,6 @@
             if(isFocusMode) return; 
             const d = document.getElementById('video-drawer');
             const txt = document.getElementById('video-text');
-            
-            // Eğer diğer paneller açıksa kapat
-            document.getElementById('chat-sidebar').classList.remove('active');
-            document.getElementById('clips-sidebar').classList.remove('active');
-
             if(videoOpen) { 
                 closeVideoDrawer();
             } else { 
