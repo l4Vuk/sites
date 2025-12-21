@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHRBRK and Pascal</title>
+    <title>SHRBRK | Time Attack Hub</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -464,19 +464,79 @@
         .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.2); border: 1px solid #444; color: #fff; }
 
         @media screen and (max-width: 768px) {
+            /* 1. GİZLENECEK ÖGELER (Mobilde istenmeyenler) */
+            #chat-sidebar, .sidebar-trigger,  /* Chat ve Sol Butonu */
+            #clips-sidebar, #clips-trigger,   /* Klipler ve Sağ Butonu */
+            #music-wrapper,                   /* Müzik Player */
+            #theme-toggle-btn {               /* Aydınlık Mod */
+                display: none !important;
+            }
+
+            /* 2. HEADER ve LOGO */
             .header-container { padding: 10px; }
-            .logo { font-size: 2rem; }
+            .logo { font-size: 1.8rem; }
             .social-row { display:none; } 
-            .lobby-container { flex-direction: column; width: 95%; height: auto; margin-top: 100px; gap: 15px; }
-            .lobby-card { width: 100%; height: 120px; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px) !important; }
+
+            /* 3. HERO ve KART DÜZENİ (YATAY SCROLL) */
+            #hero-section {
+                height: 100vh;
+                padding-top: 60px; /* Header için boşluk */
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+            }
+
+            .lobby-container { 
+                flex-direction: row !important; /* Yan yana diz */
+                width: 100%;
+                height: 55vh; /* Mobilde kart yüksekliğini sınırla */
+                margin-top: 30px;
+                gap: 15px;
+                overflow-x: auto; /* Yatay kaydırma */
+                overflow-y: hidden;
+                padding: 0 20px;
+                scroll-snap-type: x mandatory; /* Kartların ortada durmasını sağlar */
+                flex-wrap: nowrap !important;
+                justify-content: flex-start;
+                align-items: center;
+                -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+            }
+
+            .lobby-card { 
+                flex: 0 0 85%; /* Bir kart ekranın %85'ini kaplasın */
+                height: 100%; /* Konteynerin boyunu al */
+                clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px) !important; 
+                margin-bottom: 0;
+                scroll-snap-align: center; /* Ortaya hizala */
+            }
+
             .lobby-card::after { display: none; }
+
+            /* 4. İÇERİK BÖLÜMLERİ */
             .content-section { width: 95%; padding: 20px; }
+            
+            /* Tab butonlarını yatayda sığdır */
+            .tab-nav {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                justify-content: flex-start;
+                white-space: nowrap;
+                padding-bottom: 10px;
+            }
+            .tab-btn { flex-shrink: 0; }
+
             .game-stats-grid, .gear-grid, .about-grid, .stats-row, .video-grid { grid-template-columns: 1fr; }
             .about-img { width: 100%; height: 250px; }
             #game-mode-toggle { display: none; }
-            .sidebar-trigger { display: none; }
-            .lobby-container { flex-wrap: wrap; }
-            .lobby-card { flex: 0 0 100%; }
+            
+            /* Auth butonlarını sağ üste taşı */
+            .auth-wrapper {
+                top: 15px;
+                right: 15px;
+            }
+            /* Kullanıcı adı uzunsa gizle, sadece çıkış ikonu kalsın */
+            .user-name { display: none; }
         }
     </style>
 </head>
