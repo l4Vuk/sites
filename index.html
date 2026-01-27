@@ -3,572 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visual Trivia</title>
+    <title>SHRBRK - Clip Player</title>
     <style>
-        :root {
-            /* LIGHT MODE */
-            --bg-body: #f5f5f7;
-            --bg-card: #ffffff;
-            --text-main: #1d1d1f;
-            --text-sub: #86868b;
-            --accent: #0071e3;
-            --accent-hover: #0077ed;
-            --border: #d2d2d7;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            --radius: 20px;
-            --input-bg: #f5f5f7;
-            --danger: #ff3b30;
-            --success: #34c759;
-            --tile-color: #3a3a3c;
-        }
-
-        body.dark-mode {
-            /* DARK MODE */
-            --bg-body: #000000;
-            --bg-card: #1c1c1e;
-            --text-main: #f5f5f7;
-            --text-sub: #86868b;
-            --accent: #2997ff;
-            --accent-hover: #0071e3;
-            --border: #38383a;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            --input-bg: #2c2c2e;
-            --tile-color: #2c2c2e;
-        }
-
-        * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
+        body, html {
             margin: 0;
-            min-height: 100vh;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+        }
+        #video-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .warning {
+            color: yellow;
+            font-family: sans-serif;
+            text-align: center;
+            background: rgba(0,0,0,0.8);
             padding: 20px;
+            position: absolute;
+            top: 10px;
+            z-index: 999;
         }
-
-        header { position: absolute; top: 20px; right: 20px; z-index: 100; }
-        .theme-toggle {
-            background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main);
-            padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 500;
-            box-shadow: var(--shadow); display: flex; align-items: center; gap: 8px;
-        }
-
-        h1 { font-weight: 700; font-size: 2.5rem; text-align: center; margin-bottom: 30px; letter-spacing: -1px;}
-
-        /* --- KART --- */
-        .card {
-            background: var(--bg-card); padding: 40px; border-radius: var(--radius);
-            box-shadow: var(--shadow); width: 100%; max-width: 500px; text-align: center; position: relative;
-        }
-        .hidden { display: none !important; }
-
-        /* --- MENÜ --- */
-        .menu-grid { display: grid; gap: 15px; }
-        .btn-large {
-            background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main);
-            padding: 20px; font-size: 1.1rem; font-weight: 600; border-radius: 16px;
-            cursor: pointer; transition: transform 0.2s, border-color 0.2s; text-align: left;
-            display: flex; flex-direction: column;
-        }
-        .btn-large:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.02); }
-        .btn-desc { font-size:0.8rem; color:var(--text-sub); font-weight:400; margin-top:5px; }
-
-        /* --- OYUN GÖRSELLERİ --- */
-        .image-container {
-            width: 300px; height: 300px; margin: 0 auto 20px auto;
-            border-radius: 16px; overflow: hidden; background: #000; position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-
-        .image-container img {
-            width: 100%; height: 100%; object-fit: cover; display: block;
-        }
-
-        /* --- FUSION (FÜZYON) MODU --- */
-        .fusion-wrapper img {
-            position: absolute; top: 0; left: 0;
-            opacity: 0.5;
-            mix-blend-mode: normal; 
-        }
-
-        /* --- TILE (KARE) MODU --- */
-        .tile-grid {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: grid;
-            grid-template-columns: repeat(6, 1fr); /* 6x6 = 36 Kare */
-            grid-template-rows: repeat(6, 1fr);
-        }
-        .tile {
-            background-color: var(--tile-color);
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: opacity 0.5s ease;
-            z-index: 2;
-        }
-        .tile.revealed { opacity: 0; }
-
-        /* Spinner */
-        .spinner {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 40px; height: 40px; border: 3px solid rgba(128,128,128,0.2);
-            border-top: 3px solid var(--accent); border-radius: 50%;
-            animation: spin 0.8s linear infinite; z-index: 10; display: none;
-        }
-        @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-
-        /* --- KONTROLLER --- */
-        .back-link { position: absolute; top: 20px; left: 20px; color: var(--text-sub); cursor: pointer; font-size: 0.9rem;}
-        
-        select {
-            width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border);
-            background: var(--input-bg); color: var(--text-main); font-size: 1rem; outline: none;
-            margin-bottom: 15px; appearance: none; cursor: pointer;
-        }
-        
-        .btn-primary {
-            width: 100%; padding: 15px; background: var(--accent); color: white;
-            border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer;
-        }
-        .btn-primary:hover { background: var(--accent-hover); }
-
-        .quiz-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
-        .quiz-btn {
-            padding: 15px; background: var(--input-bg); border: 1px solid var(--border);
-            color: var(--text-main); border-radius: 12px; cursor: pointer; font-weight: 500; transition: 0.2s;
-            font-size: 0.95rem;
-        }
-        .quiz-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-        .lives { font-weight: 600; color: var(--text-sub); margin-bottom: 10px; }
-        .lives span { color: var(--danger); }
-        .status-msg { margin-top: 15px; font-weight: 600; min-height: 24px; }
-        .msg-success { color: var(--success); }
-        .msg-error { color: var(--danger); }
-
     </style>
 </head>
 <body>
 
-    <header>
-        <button class="theme-toggle" onclick="toggleTheme()">
-            <span id="theme-icon">🌙</span>
-        </button>
-    </header>
-
-    <div class="container">
-        <h1 id="app-title">Visual Trivia</h1>
-
-        <div id="main-menu" class="card">
-            <div class="menu-grid">
-                <button class="btn-large" onclick="loadGame('blur')">
-                    💧 Bulanık Mod
-                    <span class="btn-desc">Listeden seç, 3 saniyede bir netleşir.</span>
-                </button>
-                <button class="btn-large" onclick="loadGame('tile')">
-                    🧩 Kare Açmaca
-                    <span class="btn-desc">Merkez ve köşeler en son açılır!</span>
-                </button>
-                <button class="btn-large" onclick="loadGame('fusion')">
-                    🧬 Füzyon
-                    <span class="btn-desc">İki resim üst üste! Hangi ikili?</span>
-                </button>
-            </div>
+    <div id="video-container">
         </div>
-
-        <div id="game-blur" class="card hidden">
-            <a class="back-link" onclick="goHome()">← Menü</a>
-            <div class="lives">Kalan Hak: <span id="lives-blur">3</span></div>
-            
-            <div class="image-container">
-                <div class="spinner" id="spinner-blur"></div>
-                <img id="img-blur" src="" alt="Soru" onerror="handleImgError(this)">
-            </div>
-
-            <select id="select-blur"><option value="">Karakteri Seç...</option></select>
-            <button class="btn-primary" onclick="checkBlurGuess()">Tahmin Et</button>
-            <div id="msg-blur" class="status-msg"></div>
-        </div>
-
-        <div id="game-tile" class="card hidden">
-            <a class="back-link" onclick="goHome()">← Menü</a>
-            <div class="lives">Kalan Hak: <span id="lives-tile">3</span></div>
-
-            <div class="image-container">
-                <div class="spinner" id="spinner-tile"></div>
-                <img id="img-tile" src="" alt="Soru" onerror="handleImgError(this)">
-                <div id="tile-overlay" class="tile-grid"></div>
-            </div>
-
-            <div class="quiz-grid" id="options-tile"></div>
-            <div id="msg-tile" class="status-msg"></div>
-        </div>
-
-        <div id="game-fusion" class="card hidden">
-            <a class="back-link" onclick="goHome()">← Menü</a>
-            <div class="lives">Kalan Hak: <span id="lives-fusion">3</span></div>
-
-            <div class="image-container fusion-wrapper">
-                <div class="spinner" id="spinner-fusion"></div>
-                <img id="img-fusion-1" src="">
-                <img id="img-fusion-2" src="">
-            </div>
-
-            <div class="quiz-grid" id="options-fusion"></div>
-            <div id="msg-fusion" class="status-msg"></div>
-        </div>
-
-    </div>
 
     <script>
-        // --- 1. VERİTABANI ---
-        const imageFiles = [
-            "Aişe.png", "AliFu.png", "Alina.png", "Aslı Tek.png", "Aslı_Göztaşı.jpeg",
-            "Aysıla.jpg", "Ayça.jpg", "Ayşegül_HOCA.png", "Azra.png", "Bedirhan.png",
-            "Belinay.png", "Beren.png", "Beril.png", "Berke_HOCA.png", "Besti.jpg",
-            "Burcu.png", "Civan.png", "Damla.png", "Damla_Eroğlu.png", "Dilara.jpg",
-            "Duru.png", "Ece.png", "Ece_Ertuğrul.png", "Ecenur.png", "Efnan.jpeg",
-            "Ela.jpeg", "Ela.png", "Elif.png", "Elvin.png", "Enes_HOCA.png", "Eser.png",
-            "Esin.jpg", "Esra.png", "Ezgi.png", "Fatime.png", "Gülçin.png", "Gülşah_HOCA.png",
-            "Hilal.jpg", "Irmak.png", "Irmak2.png", "Kardelen_Menajer.png", "Kübra.png",
-            "Lara_Byeol.jpg", "Lara_Lu.png", "Lidya.jpg", "Melissa.jpg", "Mina.jpg",
-            "Mina_Aydoğdu.jpg", "Mira.png", "Miray.png", "Naz.png", "Naz_Lal.png",
-            "Nazlı.png", "Nisa.png", "Rengin.png", "Senanur.jpeg", "Sibel.png",
-            "Stilist.png", "Sude.png", "Sueda.jpeg", "Tuğçe.png", "ZYC.jpg",
-            "Zelal.png", "Zeynep.png", "Zoktay.jpg"
+        // --- 1. ADIM: SİTE ADRESİNİ BURAYA YAZ ---
+        // Bilgisayarda test ediyorsan "localhost" kalsın.
+        // Siteye yüklediysen (örn: shrbrk.netlify.app) tırnak içine onu yaz.
+        // DİKKAT: "https://" veya "www" YAZMA. Sadece alan adı.
+        const SITE_DOMAIN = "localhost"; 
+
+        // --- 2. ADIM: KLİP ID'LERİ ---
+        const clipList = [
+            "AbjectDeliciousTroutPipeHype", 
+            "AmazonianEncouragingLyrebirdAllenHuhu",
+            "BenevolentOutstandingPanPicoMause"
         ];
-        
-        const IMAGE_BASE = 'https://raw.githubusercontent.com/l4Vuk/big5/main/';
 
-        let db = [];
-        let currentTarget = null;
-        let fusionTarget2 = null;
-        let gameInterval = null;
-        let currentLives = 3;
-        let isLocked = false;
-
-        window.onload = function() {
-            db = imageFiles.map(f => {
-                let name = f.substring(0, f.lastIndexOf('.')).replace(/_/g, ' ');
-                return {
-                    id: f,
-                    name: name,
-                    src: IMAGE_BASE + encodeURIComponent(f)
-                };
-            }).sort((a,b) => a.name.localeCompare(b.name));
-
-            const sel = document.getElementById('select-blur');
-            db.forEach(c => {
-                let opt = document.createElement('option');
-                opt.value = c.id;
-                opt.text = c.name;
-                sel.appendChild(opt);
-            });
-
-            sel.addEventListener('keypress', (e) => {
-                if(e.key === 'Enter') checkBlurGuess();
-            });
-        };
-
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            document.getElementById('theme-icon').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        function getSeededRandomIndex(length) {
+            const now = new Date().getTime();
+            const sixHoursMs = 6 * 60 * 60 * 1000;
+            const timeBlock = Math.floor(now / sixHoursMs);
+            const seededRandom = Math.sin(timeBlock) * 10000;
+            const positiveRandom = seededRandom - Math.floor(seededRandom);
+            return Math.floor(positiveRandom * length);
         }
 
-        function loadGame(mode) {
-            document.getElementById('main-menu').classList.add('hidden');
-            document.getElementById('app-title').style.display = 'none';
-            if(mode === 'blur') {
-                document.getElementById('game-blur').classList.remove('hidden');
-                startBlurRound();
-            } else if (mode === 'tile') {
-                document.getElementById('game-tile').classList.remove('hidden');
-                startTileRound();
-            } else if (mode === 'fusion') {
-                document.getElementById('game-fusion').classList.remove('hidden');
-                startFusionRound();
-            }
-        }
-
-        function goHome() {
-            clearInterval(gameInterval);
-            document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
-            document.getElementById('main-menu').classList.remove('hidden');
-            document.getElementById('app-title').style.display = 'block';
-        }
-
-        function handleImgError(img) {
-            img.style.opacity = 1;
-            img.alt = "Görsel Yüklenemedi";
-        }
-
-        // ===========================================
-        // OYUN 1: BULANIK MOD
-        // ===========================================
-        let blurVal = 12;
-        let grayVal = 100;
-
-        function startBlurRound() {
-            resetGameUI('blur');
-            const img = document.getElementById('img-blur');
-            const spinner = document.getElementById('spinner-blur');
+        function embedClip() {
+            const container = document.getElementById('video-container');
             
-            img.style.opacity = 0;
-            spinner.style.display = 'block';
+            // Eğer dosya file:// ile açıldıysa uyar
+            if (window.location.protocol === 'file:') {
+                container.innerHTML = `<div class="warning">
+                    ⚠️ HATA: Bu dosya çift tıklanarak çalışmaz.<br>
+                    VS Code "Live Server" eklentisi kullanın veya siteyi bir sunucuya yükleyin.
+                </div>`;
+                return;
+            }
 
-            setTimeout(() => {
-                currentTarget = getRandomChar();
-                img.style.transition = 'none';
-                img.style.filter = `blur(50px) grayscale(100%)`;
-                img.src = currentTarget.src;
+            const index = getSeededRandomIndex(clipList.length);
+            const clipID = clipList[index];
 
-                img.onload = () => {
-                    spinner.style.display = 'none';
-                    blurVal = 12; grayVal = 100;
-                    img.style.filter = `blur(${blurVal}px) grayscale(${grayVal}%)`;
-                    img.style.transition = 'opacity 0.5s ease';
-                    img.style.opacity = 1;
-
-                    let steps = 0;
-                    gameInterval = setInterval(() => {
-                        steps++;
-                        if (steps <= 5) blurVal -= 0.75;
-                        else { blurVal -= 0.5; grayVal -= 5; }
-
-                        if(blurVal < 0) blurVal = 0;
-                        if(grayVal < 0) grayVal = 0;
-                        img.style.filter = `blur(${blurVal}px) grayscale(${grayVal}%)`;
-
-                        if(blurVal <= 0 && grayVal <= 0) clearInterval(gameInterval);
-                    }, 3000);
-                };
-            }, 500);
-        }
-
-        function checkBlurGuess() {
-            if(isLocked) return;
-            const val = document.getElementById('select-blur').value;
-            const msg = document.getElementById('msg-blur');
-            if(!val) return;
-            if(val === currentTarget.id) endRound(true, 'blur', msg);
-            else handleWrongAnswer('blur', msg);
-        }
-
-        // ===========================================
-        // OYUN 2: KARE AÇMACA (ÖZEL SIRA)
-        // ===========================================
-        let tileQueue = []; 
-
-        function startTileRound() {
-            resetGameUI('tile');
-            const spinner = document.getElementById('spinner-tile');
-            const img = document.getElementById('img-tile');
-            const overlay = document.getElementById('tile-overlay');
+            // Otomatik algılama veya manuel ayar
+            // Eğer yukarıya manuel bir domain yazdıysan onu kullanır, yoksa tarayıcıdakini alır.
+            let parentDomain = SITE_DOMAIN;
             
-            overlay.innerHTML = '';
-            
-            // 3 Grup Oluştur
-            let earlyTiles = [];  // En Dış Çerçeve (Köşeler hariç)
-            let middleTiles = []; // Orta Halka
-            let lateTiles = [];   // Merkez + Sol Üst + Sağ Alt
-            
-            for(let row=0; row<6; row++) {
-                for(let col=0; col<6; col++) {
-                    let div = document.createElement('div');
-                    div.className = 'tile';
-                    overlay.appendChild(div);
-
-                    // Özel Durumlar: Sol Üst (0,0) ve Sağ Alt (5,5) -> EN SON (LATE)
-                    if((row === 0 && col === 0) || (row === 5 && col === 5)) {
-                        lateTiles.push(div);
-                        continue;
-                    }
-
-                    // Merkez (2,2 | 2,3 | 3,2 | 3,3) -> EN SON (LATE)
-                    if((row === 2 || row === 3) && (col === 2 || col === 3)) {
-                        lateTiles.push(div);
-                        continue;
-                    }
-
-                    // En Dış Kenar (Satır 0, Satır 5, Sütun 0, Sütun 5) -> İLK (EARLY)
-                    if(row === 0 || row === 5 || col === 0 || col === 5) {
-                        earlyTiles.push(div);
-                        continue;
-                    }
-
-                    // Geri kalan her şey (Orta Halka) -> ORTA (MIDDLE)
-                    middleTiles.push(div);
-                }
+            // Eğer SITE_DOMAIN boşsa veya localhost ise ve şu anki adres farklıysa, otomatik al:
+            if (window.location.hostname && window.location.hostname !== "") {
+                parentDomain = window.location.hostname;
             }
 
-            // Grupları kendi içinde karıştır
-            shuffleArray(earlyTiles);
-            shuffleArray(middleTiles);
-            shuffleArray(lateTiles);
+            console.log("Kullanılan Parent Domain:", parentDomain); // F12 konsolunda kontrol et
 
-            // Sırayı birleştir: Önce Early, Sonra Middle, En Son Late
-            tileQueue = [...earlyTiles, ...middleTiles, ...lateTiles];
+            // Twitch Embed Linki
+            const embedUrl = `https://clips.twitch.tv/embed?clip=${clipID}&parent=${parentDomain}&autoplay=true&muted=false`;
 
-            spinner.style.display = 'block';
-
-            setTimeout(() => {
-                currentTarget = getRandomChar();
-                generateQuizOptions('options-tile', 'tile', currentTarget);
-                img.src = currentTarget.src;
-
-                img.onload = () => {
-                    spinner.style.display = 'none';
-                    
-                    // Teker Teker Açma Döngüsü (1 Saniyede 1 Kare)
-                    gameInterval = setInterval(() => {
-                        if(tileQueue.length > 0) {
-                            let tile = tileQueue.shift(); 
-                            tile.classList.add('revealed');
-                        } else {
-                            clearInterval(gameInterval);
-                        }
-                    }, 1000); 
-                };
-            }, 500);
+            container.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
         }
 
-        // Dizi karıştırma
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        // ===========================================
-        // OYUN 3: FÜZYON MODU
-        // ===========================================
-        function startFusionRound() {
-            resetGameUI('fusion');
-            const spinner = document.getElementById('spinner-fusion');
-            const img1 = document.getElementById('img-fusion-1');
-            const img2 = document.getElementById('img-fusion-2');
-            const optionsDiv = document.getElementById('options-fusion');
-
-            img1.src = ""; img2.src = "";
-            spinner.style.display = 'block';
-
-            setTimeout(() => {
-                currentTarget = getRandomChar();
-                do { fusionTarget2 = getRandomChar(); } while (fusionTarget2.id === currentTarget.id);
-
-                img1.src = currentTarget.src;
-                img2.src = fusionTarget2.src;
-
-                optionsDiv.innerHTML = '';
-                const correctText = `${currentTarget.name} & ${fusionTarget2.name}`;
-                
-                let wrongOptions = [];
-                while(wrongOptions.length < 3) {
-                    let c1 = getRandomChar();
-                    let c2 = getRandomChar();
-                    if(c1.id !== c2.id) {
-                        let text = `${c1.name} & ${c2.name}`;
-                        if(text !== correctText && !wrongOptions.includes(text)) wrongOptions.push(text);
-                    }
-                }
-
-                let allOptions = [...wrongOptions, correctText].sort(() => 0.5 - Math.random());
-
-                allOptions.forEach(optText => {
-                    let btn = document.createElement('button');
-                    btn.className = 'quiz-btn';
-                    btn.innerText = optText;
-                    if(optText === correctText) {
-                        btn.onclick = () => endRound(true, 'fusion', document.getElementById('msg-fusion'));
-                    } else {
-                        btn.onclick = () => handleWrongAnswer('fusion', document.getElementById('msg-fusion'), btn);
-                    }
-                    optionsDiv.appendChild(btn);
-                });
-
-                setTimeout(() => { spinner.style.display = 'none'; }, 500);
-            }, 500);
-        }
-
-        // --- YARDIMCI FONKSİYONLAR ---
-        function resetGameUI(mode) {
-            currentLives = 3;
-            isLocked = false;
-            clearInterval(gameInterval);
-            document.getElementById(`lives-${mode}`).innerText = 3;
-            document.getElementById(`msg-${mode}`).innerText = '';
-            if(mode === 'blur') document.getElementById('select-blur').value = '';
-            if(mode === 'tile') document.getElementById('options-tile').innerHTML = '';
-        }
-
-        function getRandomChar() {
-            return db[Math.floor(Math.random() * db.length)];
-        }
-
-        function generateQuizOptions(divId, mode, target) {
-            const container = document.getElementById(divId);
-            container.innerHTML = '';
-            let wrongs = db.filter(x => x.id !== target.id).sort(() => 0.5 - Math.random()).slice(0, 3);
-            let options = [...wrongs, target].sort(() => 0.5 - Math.random());
-
-            options.forEach(opt => {
-                let btn = document.createElement('button');
-                btn.className = 'quiz-btn';
-                btn.innerText = opt.name;
-                btn.onclick = () => {
-                    if(isLocked) return;
-                    if(opt.id === target.id) {
-                        btn.style.borderColor = 'var(--success)';
-                        btn.style.color = 'var(--success)';
-                        endRound(true, mode, document.getElementById(`msg-${mode}`));
-                    } else {
-                        btn.style.borderColor = 'var(--danger)';
-                        btn.style.opacity = 0.5;
-                        btn.disabled = true;
-                        handleWrongAnswer(mode, document.getElementById(`msg-${mode}`));
-                    }
-                };
-                container.appendChild(btn);
-            });
-        }
-
-        function handleWrongAnswer(mode, msgEl, btn) {
-            if(btn) { 
-                btn.style.borderColor = 'var(--danger)';
-                btn.style.opacity = 0.5;
-                btn.disabled = true;
-            }
-            currentLives--;
-            document.getElementById(`lives-${mode}`).innerText = currentLives;
-            if(currentLives <= 0) endRound(false, mode, msgEl);
-            else {
-                msgEl.className = 'status-msg msg-error';
-                msgEl.innerText = "Yanlış! Tekrar dene.";
-                setTimeout(() => msgEl.innerText = '', 1000);
-            }
-        }
-
-        function endRound(isWin, mode, msgEl) {
-            isLocked = true;
-            clearInterval(gameInterval);
-            msgEl.className = isWin ? 'status-msg msg-success' : 'status-msg msg-error';
-            let answerText = currentTarget.name;
-            if(mode === 'fusion') answerText = `${currentTarget.name} & ${fusionTarget2.name}`;
-            msgEl.innerText = isWin ? `Tebrikler! ${answerText}` : `Hakkın Bitti! Doğru: ${answerText}`;
-
-            if(mode === 'blur') document.getElementById('img-blur').style.filter = 'none';
-            else if (mode === 'tile') document.querySelectorAll('.tile').forEach(t => t.classList.add('revealed'));
-
-            setTimeout(() => {
-                if(mode === 'blur') startBlurRound();
-                else if (mode === 'tile') startTileRound();
-                else if (mode === 'fusion') startFusionRound();
-            }, 3000);
-        }
+        embedClip();
     </script>
 </body>
 </html>
