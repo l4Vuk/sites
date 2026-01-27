@@ -1,193 +1,233 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHRBRK</title>
-    <style>
-        /* --- MİNİMALİST TASARIM DİLİ --- */
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #1a1a1a; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            color: #fff;
-            user-select: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHRBRK</title>
 
-        /* --- VİDEO KONTEYNERİ --- */
-        #main-wrapper {
-            width: 100%; height: 100%;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-        }
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial;
+    overflow: hidden;
+    color: #fff;
+}
 
-        #video-frame {
-            width: 85%;
-            height: 85%;
-            background: #000;
-            border: 10px solid #000; /* Kalın Siyah Çerçeve */
-            box-sizing: border-box;
-            position: relative;
-            z-index: 5;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-        }
+/* ================= MAIN ================= */
+#main-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        iframe {
-            width: 100%; height: 100%;
-            border: none;
-            display: block;
-        }
+#video-frame {
+    width: 85%;
+    height: 85%;
+    background: #000;
+    border: 10px solid #000;
+    position: relative;
+    box-shadow: 0 0 60px rgba(0,0,0,0.6);
+}
 
-        /* --- YÜKLEME EKRANI --- */
-        #loading-overlay {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(26, 26, 26, 0.95);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            z-index: 10;
-            transition: opacity 0.4s ease;
-        }
+iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
 
-        .loading-title {
-            font-size: 12px;
-            letter-spacing: 6px;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            color: #fff;
-        }
+/* ================= LOADER ================= */
+#loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15,15,15,0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    transition: opacity .4s ease;
+}
 
-        .loading-bar {
-            width: 50px; height: 2px;
-            background: #fff;
-            animation: expand 1s infinite ease-in-out;
-        }
+.loading-title {
+    font-size: 11px;
+    letter-spacing: 6px;
+    margin-bottom: 14px;
+}
 
-        @keyframes expand {
-            0% { width: 0px; opacity: 0; }
-            50% { width: 50px; opacity: 1; }
-            100% { width: 0px; opacity: 0; }
-        }
+.loading-bar {
+    width: 60px;
+    height: 2px;
+    background: white;
+    animation: load 1.2s infinite ease-in-out;
+}
 
-        /* --- SCROLL HINT --- */
-        .scroll-hint {
-            position: absolute;
-            bottom: 3%;
-            font-size: 10px;
-            opacity: 0.3;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            animation: fade 2s infinite;
-        }
+@keyframes load {
+    0% { width: 0; opacity: 0 }
+    50% { width: 60px; opacity: 1 }
+    100% { width: 0; opacity: 0 }
+}
 
-        @keyframes fade {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 0.5; }
-        }
+/* ================= KICK OVERLAY ================= */
+#kick-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(0,255,0,0.15), rgba(0,0,0,0.92));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .5s ease;
+}
 
-    </style>
+#kick-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.kick-box {
+    text-align: center;
+    animation: pulse 2s infinite;
+}
+
+.kick-title {
+    font-size: 13px;
+    letter-spacing: 5px;
+    opacity: .8;
+}
+
+.kick-button {
+    margin-top: 18px;
+    padding: 14px 34px;
+    border: 1px solid rgba(0,255,0,0.6);
+    background: transparent;
+    color: #00ff7f;
+    font-size: 12px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    transition: all .3s ease;
+}
+
+.kick-button:hover {
+    background: rgba(0,255,0,0.15);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: .8 }
+    50% { transform: scale(1.05); opacity: 1 }
+    100% { transform: scale(1); opacity: .8 }
+}
+
+/* ================= SCROLL ================= */
+.scroll-hint {
+    position: absolute;
+    bottom: 3%;
+    font-size: 10px;
+    opacity: .3;
+    letter-spacing: 2px;
+}
+</style>
 </head>
+
 <body>
 
-    <div id="loading-overlay">
-        <div class="loading-title">...SHRBRK...</div>
-        <div class="loading-bar"></div>
-    </div>
+<div id="loading-overlay">
+    <div class="loading-title">...SHRBRK...</div>
+    <div class="loading-bar"></div>
+</div>
 
-    <div id="main-wrapper">
-        <div id="video-frame">
-            <div id="video-slot"></div>
+<div id="main-wrapper">
+    <div id="video-frame">
+        <div id="video-slot"></div>
+
+        <!-- Kick Overlay -->
+        <div id="kick-overlay">
+            <div class="kick-box">
+                <div class="kick-title">KICK CLIP</div>
+                <button class="kick-button" id="kick-btn">KICK’TE İZLE</button>
+            </div>
         </div>
-        <div class="scroll-hint">KAYDIR / SCROLL</div>
     </div>
 
-    <script>
-        // =================================================================
-        // TWITCH ID LİSTESİ
-        // =================================================================
-        const twitchClips = ["VainLuckyMetalTheThing-EU4OisuRh_dhB7JP","FurtiveSuaveTofuPanicVis-tNVoerDzcYBMzTKN","AmusedMoldyMoonDeIlluminati-4PEYeqX7a8u5ts2o","HedonisticSquareRedpandaBIRB-PE5LkhRWkXJw0Kqs","YummyHappyTapirSuperVinlin-I4zFdlGpdrueaMus","BloodyPricklyYakinikuCorgiDerp-dVYwvPxFzXtT-8EA","ScrumptiousGloriousChowderOneHand-zDS3scCgfBNJTmD_","GoodDelightfulOstrichImGlitch-dna684bIWqNiw8cs","CleverOilyMochaShazBotstix-mpd7p-g3YYr2gIdn","HelplessGrotesqueMarjoramSoonerLater-WZSuOPjpfO7DGsNJ","MiniatureTangentialSandpiperNerfRedBlaster-kvp7-DCEmy8Ppbn9","ModernNimbleLardDoggo-asF4JrHAowdWQiCz","SucculentSuccessfulMangoOpieOP-6rUxbWrZ4ha1eZ2s","ImpossibleKawaiiLEDPicoMause-dE9ppMvRUQlGSzA1","SmokyFlaccidButterflyJebaited-hWa5-8bOWpVvM2iv","WildTubularLasagnaTwitchRPG-jnv7Ts_ZAhYx8led","EnthusiasticHeadstrongUdonKippa-aW-neHo2TSZLvAv9","PatientVainJalapenoYee-8EoOggRW-FTVbKfH","SpeedyFastNeanderthalPJSalt-ozMRnQB4PHBHFwCP","FlirtySarcasticElkStrawBeary-OojCWZ2UxiV4N-S-","SolidCaringKiwiAMPEnergyCherry-Ed4sOTJ_Y705Uj1s","CreativeStupidCodEleGiggle-BsVOdPjgwIQXaU8t","ScrumptiousTallMuleRalpherZ-sk0IrlvBGW-sfCQg","AttractivePiercingPlumageBigBrother-L6RpwIxfKlEr-2bk","FurryTubularHyenaPeoplesChamp-WrPMm8kiIKzGWJGG","YawningStrangeFennelItsBoshyTime-Tp84mwql0SE5bP4b","TangibleFlirtyBibimbapFailFish--lvZYAtHo7LTGWaY","EvilAntediluvianWaterBCWarrior-ZCvqU6lr2yR9-x3B","BoringJoyousSamosaOptimizePrime-GJn3sjKL11cn_6e6","EphemeralBenevolentTaroDancingBaby-w0Vh_9wuztguSLm6","SparklingSmoggyBeanPanicBasket-qskWrXAN_KDXHLIj","SavageCreativeNigiriWow-7Tr9PRn9g2zeGhSd","SillyWealthyWaspBloodTrail-EoaLPssutx1v0fbc","SilkyLachrymoseEggplantBIRB-14bFvKEABv8pRtn7","KnottyGleamingDragonfruitMoreCowbell-pinDw4FiRK2Il88I","GorgeousKawaiiCasetteKappaWealth-4mPjZS9O72W7-bsj","DreamyTrustworthyMarjoramHumbleLife-rDMZ7ttUrXtR-ziW","FancyFuriousGrouseBigBrother-JovgDwe_tk1lP3aT","AttractiveDrabChickenOSfrog-NAXR_nW33x0uAwxL","HedonisticInexpensiveLatteUWot-ptE5O9Yzj8fKbJ6x","AbrasiveOnerousPuffinBibleThump-5hYZKJYqDXiWlB0A","VastGorgeousIguanaYee-eD-AU9EPObHzPYNX","LaconicFaintLattePeteZarollTie-ECUk6C7BTPe0-nBL","SmallSucculentHawkOMGScoots-aL3Dw2YPsPxiPDx-","FuriousObedientLegKAPOW-xfO7ada71F4eRO4E","FilthyPreciousMangetoutTF2John-2sshTu8EZz2vwOu9","LivelyIronicShieldNotLikeThis-j_fGwlGMOT_Ejk-E","CalmLittleGrouseAsianGlow-lTiQpQKIXrEMnK3_","BusyBlatantSkirretPeoplesChamp-jA8LyFVnVl1wxNG1","OnerousShortPlumageNerfRedBlaster-HQ1Jlb2r0JixMeeF","ResourcefulAttractiveBaguetteGingerPower-aNk6lz1LGQ0vIoSM","RespectfulTransparentCatShadyLulu-kMSQ5QU6sOMr4_ax","StupidSweetTurtleTwitchRPG-_JWVIZ70vl-shjgo","DignifiedSarcasticBorkPlanking---9vC5GgP4Vyl3Gv","AcceptablePluckyAlpacaDerp-AxnjnoVw5kY4F2p5","ManlyBlatantNightingaleTwitchRPG-yJqu5-yoaUBymz7E","ZealousSillyQueleaRalpherZ-kb94PrFumwojRBeA","PoliteInnocentButterflyCoolStoryBob-vx8t-sYuvxndigjX","AuspiciousTameCobraKlappa-BZFqMLLDB4CG1K_q","AverageFunnyAlmondDBstyle-Zdpy5JqmW84Ke0gG","AbnegateSuccessfulTarsierUWot-DfPkGfMr3ahvrieQ","AbstemiousFilthyKleeNotATK-8fNyJ6XJaxLsXFCs","FuriousSleepyPlumageTakeNRG-2_uJ84665MBIWpBl","SincereOddButterflyVoteNay-jJPFc-FcixB12QNv","ConcernedCredulousBearKappa-Ub4h0HP2wFBctydr","FilthyAltruisticGarlicShazBotstix-Md_Y0xqwHySoWE4X","AgitatedPleasantWombatNononoCat-wAS1__aDArdSLVy9","ThoughtfulBrightArmadilloBuddhaBar-jeFc6PaT48hJyyf2","SilkyEnjoyableKangarooSSSsss-AlHnZCOQkPpQMdjY","KnottyLovelyNeanderthalSaltBae-B87UG6Hkrnm_NPsu","TallFaintWaspSquadGoals-JTAm16SO2SB5rUH6","ZanyCulturedAlbatrossKappaPride-rHefHtIldr5zQUBj","LazySparklyMarrowFreakinStinkin-GCmFdV0MZS6LUdRg","TenderStrangeBeaverGrammarKing-dMUq2s2aukE_CqUe","PopularDeliciousGrassDoggo-L5HMqIhdU3qmXGve","RepleteAgitatedShrimpPhilosoraptor-qfT2V-RQ-5_fUBKF","InventiveFriendlyPieSuperVinlin-awD_SmJmkSxXEU1T","ClearHungryParrotSwiftRage-TqlJZjVxh4QVDOpO","DrabEnergeticGiraffeBCWarrior-9dcRh09BuvItGTM9","ConfidentConfidentEyeballCopyThis-XRZ8Q7EEZwsWngsv","RefinedEasyStarBabyRage-DOpjZBrCGZ7iV_gc","ArtisticDarkBearPraiseIt-D5YBj-7_T4kKOc8F","HomelySpikyDogeChocolateRain-0FtmFd-RGM7ajC2i","ArtisticTolerantSoybeanHotPokket-3nf1581-E1yvCzij","BrainyAssiduousMochaPartyTime-ONSE5J3abtZCmweb","PoliteRepleteStarlingTakeNRG-twYfnuS-doIqsuXd","ArbitrarySucculentTrayLeeroyJenkins-s6Vx9I7nMIq2-BAk","BlushingUnsightlyHummingbirdDendiFace-o6vGPISnjlKPqBpi","CaringLovelyEelNinjaGrumpy-jVM1dN1WKGatsF3L","HomelySmallButterflyVoHiYo-cKqe_nm1I7YBEmys","AwkwardAcceptableSpaghettiNotLikeThis-NKvrdm0d_j4S_G7A","JollySuspiciousCatFreakinStinkin-iBIv4pccOWDdWz0P","PolishedNeighborlyAnacondaDuDudu-pJ8SudZyxLu7GSBS","IgnorantSpikyPineapplePastaThat-cI584Lazz8iSijOn","CharmingSmallAlbatrossChocolateRain-aPPWn5KmYQjyDx6R","EasyTenderStinkbugKreygasm-e9X6N52pKzSHzEfa","IgnorantDirtyWaspRitzMitz-4f_1QLKw_TU5GU70","KathishMistyLapwingBloodTrail-OZaOKWhDukGOxR1g","KindConcernedArugulaTwitchRaid-1qeSS77NLuoj_UjL","WrongTacitJamMrDestructoid-W0qGC23KvTXOEZDg","BlatantSmoggyCattleJKanStyle-BZWUatHIU5iKX-rg","DeafHelplessWallabyMoreCowbell-u7LuhHGT-bA6EOI0","BreakableSplendidAmazonFrankerZ-O0mvvF8xnOdGZ02h","HelplessCuriousEagleSSSsss-aTFpaYsIgDD3TDir","CalmShinyArtichokeSoonerLater-WwihVIssapfbP4J4","AmazingGlutenFreeCormorantBatChest-AB92JCNq0iSSgyjq","ConsiderateSmoggyStapleRaccAttack-GKeQ6s0oEI5qFbiI","FineVainGoblinDansGame-Hhshb1BuF44E1p4J","LightSparklyKiwiCorgiDerp-Iozj3Kj_MNhpQX5u","EmpathicPlausiblePlumDerp-b3Goe8t9BzYGBged","FreezingHealthyWoodcockPanicBasket-CywVRLirEGE3UEEA","DistinctAffluentRadicchioPrimeMe-ATgJeRResrhbAR2A","PrettyDifferentLampStinkyCheese-dImto9DPDi1Y9_r_","SparklingOddYamLeeroyJenkins-4KdJzcNEjGvBB0Wy","SuccessfulTiredEchidnaStinkyCheese-fe9gKpAjziDRgRYA","DependableBraveWolverineOhMyDog-N8qc8nl7kSEOlApY","NiceSweetTarsierOMGScoots-dn08vJ1w9A6yHtVO","ThankfulBadCamelFunRun-d0pecPFtiap8Ef7n","SteamyBrainyOrcaBloodTrail-cHLQEKD8c-ZPLn_z","AdventurousDepressedTapirTheThing-G6FzrZJkPpmUnojI","RamshackleLongPoxWoofer-Q4TMmW2JE1tpjbAZ","KitschySillyArtichokeBrainSlug-UWqsDfjNVhZQnLvU","LongGorgeousShieldWOOP-JBJbJpqfArHyhafz","HardDrabWeaselMVGame-6yXCQj8F6kTkar2I","AttractiveFineLasagnaTebowing-rRizns6ZqhRdedqp","PiliableBoxySparrowDAESuppy-NTsymi4pGXGzXHw9","VenomousLazyCrowNinjaGrumpy-7ct7PvSxRUObCYBN","TenaciousConfidentPancakeImGlitch-_E_s6mXvM24ZA_IF","BlushingAgileRhinocerosDxAbomb-wm9KtYKLFVmHEAGT","RichPlausibleRatResidentSleeper-UiXMOWUbxC_KK_y6","CleverGlamorousOstrichTheTarFu-WRU_EW7aFbqF8SeK","PeppyEncouragingAirGuitarPraiseIt-U5w_5pU8wzs5WVJP","MoistGenerousFiddleheadsTwitchRaid-_DWQmoUW_SJEXs2o","EntertainingTardyNikudonMau5-ujP9B-vvwHhntzP2","FairDeafFinchPipeHype-PDSGRxasuloeGq5B","GiftedLightMinkDBstyle-5cCuliGg6jwJVPGy","ScrumptiousHeadstrongBeaverThisIsSparta-rrHqaPrchKxrKbA1","PopularAlluringRaccoonSquadGoals-o-E5Y8YUCjhl6f_9","InnocentToughWaspKeyboardCat-HOMGINdx4I6D7rh6","AmazonianFurryBulgogiNinjaGrumpy-UEfyKsaUrYZiXbVR"];
+    <div class="scroll-hint">SCROLL</div>
+</div>
 
-        // =================================================================
-        // KICK ID LİSTESİ
-        // =================================================================
-        const kickClips = ["clip_01KF7184JGDQHZ537SY14X7MVB","clip_01KF6SPWF6SJ4F038BM4CHT4KN","clip_01KF4DTGZXVEHSJH78GYDEQ8ZT","clip_01KF1PG7G0X54VXHFY5WC1Y7JJ","clip_01KF1PFV2E1NE3JG1KP9J8AD1P","clip_01KEZ3FQ3MMBEM4HEDBWYYW2JT","clip_01KEYCKVY91E3SZ5TJCM7K56QC","clip_01KED4W39VFJRT092TJPECDZZE","clip_01KDV1XJ200PEKGHEHQJ1389SY","clip_01KDTVSWRHK4XXFT02DG3VRM7Y","clip_01KCCYWPT2EADYFWWGN8S22WKX","clip_01KCCYW2YQWPAZ1WQ8PMSWDVN1","clip_01KC79QT79YYYYD8J0TFSMW913","clip_01KBV0TPT7PTASQ2WG9ZPZ7779","clip_01KBTW8141EYPVV5B244CSFB3N","clip_01KBNKAQ8Y9TTM6WQNVBY9Y3W3","clip_01KBNH7QPH6B5PV2FWGVJAHYRD","clip_01KBHSTTQJB9WA4XKAS0S3FDZB","clip_01KBGDMMMF3KKKV1KKMCZGT3QP","clip_01KBAZJMXZFHPF484BMV64S6PH","clip_01KAQ2F6CPWK12Y5AJG9EDZ4ZV","clip_01KAQ2691QXBQCFCCTZPM38YPX","clip_01KAQ0G83YBC99450A5XM9C7DA","clip_01KAPYWAE2P6WPME6PWF0VCA38","clip_01KAPYS3EQ07B92AV8MX4FFC72","clip_01KAHHNX9PFGESGVJGTY3BWEF9","clip_01KA90SW28TTTS3PEGEHYQ49KR","clip_01KA4J3F8XBRE6NAVTSTQKHA1M","clip_01KA2G1J5D3PT236RP62C46ZCH","clip_01KA23W87B7CBJ4F74A8P6TAWY","clip_01KA1DS9QQH3D8ETKW5QJJE7X0","clip_01KA1DP15B60JC7TGP8D320Z1H","clip_01K9QT8BB6J4W214XC40CJWD04","clip_01K9FTGAQP2WFZKHAQNZER4JCC","clip_01K988GSJ7RTB2PP66YAYGT4QC","clip_01K986EX140C4WWNM3M4WXHK2C","clip_01K9861ZQB2GP9FEW50HWRBRR5","clip_01K985XWMCC8Y4RZH6VH7G9YZN","clip_01K95NRYPTRSSBZWXQF8QGRJ77","clip_01K8KQHCYBZY4YKT6DFRWQZ5E1","clip_01K8HGJM7DN7PVDKE6FQ2ANYST","clip_01K8HEXV4VVVWMX9QGKHWC305P","clip_01K8BF3628M8J61BWDV5V5CKPN","clip_01K8BE9E7YZ6ZGRVYAMV7ECYYG","clip_01K8B5XQ4B5Y1G2YQZYA11K8A8","clip_01K89VCJJ412M4T4PCJFGBQ3D6","clip_01K89V8AEQF7XDX8RBV45DYV4W","clip_01K89V41FGYGR1GXEQ36J5VAED","clip_01K89TBDFGEC8CXJZBG7HVTVSZ","clip_01K89T59Z2C1GY2Y3ZBBG6SKTD","clip_01K89G1FD7PHB85WVJ4767C25Y","clip_01K89E5RHGBED18H7QCAJEV2CA","clip_01K89CG6FJEC9CD3ZZ0FYEXMTW","clip_01K89BFYQMDRWKA27JMAMJ9ZW4","clip_01K8982FQFXGYEYZ2JQF5H9DY7","clip_01K86SWKDDY6EH4X6DB69TQH6P","clip_01K7YCEFBZA57C8APQH6WS8J4C","clip_01K7YA2HM6NMQZ287QNC2JM5HK","clip_01K7ES3VTBEDKSK7NHA22YYJM5","clip_01K7EREFXJPP94H83PT7W7RHJT","clip_01K7C022HDN6BBW0RW88XFYHW6","clip_01K7BZJWJ96JM59QTSSTBWF88A","clip_01K7BZGRTG53GPHZND5JXKKVHP","clip_01K7BZ8JWZ6BTZ53NAMP1Z3MS2","clip_01K7BYJVKXB0CZX66D99N40D6X","clip_01K7ACN06E8KPX70XZWCN8PQ7S","clip_01K79DYTBPKYMZYGDZA18W4H1K","clip_01K79DGRFSBR65DSN6164ERY3Z","clip_01K79BBX69CHAQZ4CHFQ7F4YED","clip_01K79A5DJA34SJVS13NZ9KEAM5","clip_01K77Y8M03SYQT8B2PHGJN8D5C","clip_01K77XSBVA00R8CSNV57S92QS5","clip_01K77WD6MPXCG59ACB0QJ5S38H","clip_01K77WAZ75TC4KC7R4XAHK3GRH","clip_01K77VDE0NR4FCNBEAQR28DRWR","clip_01K72G5SHEQ4AQZN04HY62FQNA","clip_01K6BTBPP634PZMJC6JDQ7YPTP","clip_01K6BT7HW23JQYXQR2EJQ4BVTM","clip_01K6BSXEXTBF1MB8J62C1M0H1M","clip_01K6BSW0D6VRS9BGXZA0YJEF1P","clip_01K6BSGAGGCRYG50VP7TVK7N05","clip_01K6BS3HEY85XQD5H2ASX42B41","clip_01K6BNZ88JNTG3BZDBXTGX76ZV","clip_01K6BNX2FBP5VC031Y886HZJYS","clip_01K6BNMCCMJ5DATPYHFP7Q2J1R","clip_01K6BEBEDK8SP21WCSGXR87RFT","clip_01K690S3CZRCGYFYENX21DACFV","clip_01K68YK6NBC3VRCV8KCAYRNYSN","clip_01K63WGK2BP62SZYFZ9H7R7MVG","clip_01K60FYYGEXKDB2GB42JPX4VH2","clip_01K5C9WN9VV35XB2V3VZJD0K1V","clip_01K5A5WP7WW12NCW2JNVR8XV9Y","clip_01K5A5Q2TB74DRDG0RZK8X9DEH","clip_01K5A5DQVWA4E496GCKS3S0JH5","clip_01K5A4YEQN74N642VJZ7W2TTEN","clip_01K5A4V2FZNJ6142FRS8JTEW8Q","clip_01K5A4SV3XYCHFT2N38M6DN02H","clip_01K5A4QQ1PZB7RGSNV1DT6TXMX","clip_01K5A4H68SE0S7MNTWRQVKHBQV","clip_01K5A4E78JRDE1JQHG4FJ8441V","clip_01K5A48E2W5X59YA4NN94G6T1Q","clip_01K5A39SKJ6JRWZNS1Z996D66Z","clip_01K5A39RKDQMEG8H4T875T5BJZ","clip_01K5A2Z014TW4KH6H7B41GHQ66","clip_01K5A2WN9WVXY127MCJM8FYWN4","clip_01K5A2WMH50G122GXD5C3TPJD6","clip_01K5A2P3X985S5FX7RWS29N36Q","clip_01K5A2M33E46J1MZXDHDZZNZJD","clip_01K5A2M2BN19D42H4C8Z81A6AH","clip_01K5A26MXWCBBYDJ35H25071D0","clip_01K54Y86WF0SSAHCR4RZ8AC62M","clip_01K4RB0ZHAWJCR4EA6A17WRG2B","clip_01K4K4Z2KHJ4M8S51N8VEWR9D3","clip_01K4JVMTZP0R5AGC1W1K140GNX","clip_01K40HNJF6H29GEKT3AC5N1TY9","clip_01K3XWBNYY8AYZBB3Y0BCPRDQ2","clip_01K3XVZPYK1NSZM6CVKXRX6Z7Q","clip_01K39JESRGTV6GZF5J19TN8XG4","clip_01K34D2H4WAT1E37RFKGYDW7CY","clip_01K31R26MT5RBS69JGP6ZGSDRE","clip_01K2TEG37GQ4GXCN8QJS4ZZREV","clip_01K2T205V48W7GZN60BPH0W4RK","clip_01K2T0HJ1R1K2ZD9PDR3KYJE7C","clip_01K2SZXS815MCP11R827HS061E","clip_01K2SZNKMWB74X4X15H0E7YEG0","clip_01K2SY8WVT9AM9JT9HADPW0QZW","clip_01K2SWYS4DBYFKH49A5BW3HFE5","clip_01K2SA99DCVBN0D7N64RJNWV3R","clip_01K2Q6AE5WEJJ9VN9RJS3WJHZQ","clip_01K2N8553WASZ4RV41FW0Z098V","clip_01K1BQ9W7SSEJDFA2WCHMHF56Z","clip_01K145SQYVGXX5J2K08ZV6556Y","clip_01K145G75G07TJE9C6VX7QDV3J","clip_01K1454RXB4CER52SQHVV3MPZ4","clip_01K144QDA8ESYV6ZV8BANC0R6F","clip_01K144AV1RXX9G07DBQ4ZWK0Y0","clip_01K0WFCHC454WTF54AV43C48E8","clip_01K04Q8FJPWAVEP9GMFC70AG8B","clip_01JZK10N20FEDDWF88ZJH37GKA","clip_01JZK0Y96HHR50HMC88RKG6SDH","clip_01JZGM8V19TDHVXTHV7W6E5B46","clip_01JZGKRAWX2BE8Q6MFKVZYTQ2B","clip_01JYBWK0D0F0QKGCJW38XB20JX","clip_01JYBW5K9TZA417GPMP9HAH72F","clip_01JX0W88VWFE5YQPQ62V9K812F","clip_01JX0VSTD7FB7EKHR2A6VRVDAC","clip_01JWMA18TJ4TMYTBWTVTCT8B7N","clip_01JW6TGPNXH0XH0AAGKP19GQV7","clip_01JW6HRQ118G8BH4MM3739DN74","clip_01JW6HASNTES3JH0FVG4ST2ET9","clip_01JW6GWG2JWJQMX04BNHDHE8TD","clip_01JVZDYH64GX9T3J8EB16NR6XN","clip_01JV30NNRBQ9946NMAZV4AS8M7","clip_01JTXAJP5B2DC14YNAARRWG83H","clip_01JT6PN5VWFVTV35NN4B8812P2","clip_01JT65S1C6SQFXKJ4X030AK8YM","clip_01JT474AXNC1QM0XH9XSGZ3SKQ","clip_01JS6Y5P2E56RNX5EXVKF8BEKG","clip_01JRTKYJCM9P6DMENE22BZ19Q4","clip_01JQ9WX5F4WXC38AF2BTCA59FC","clip_01JPQY8A4DDNP8KDC71JWKNCMX","clip_01JPHMB844BT5Z5WE6ZBB8CG7X","clip_01JNQ5WEKN7P9CPYQRTT4ZRB2F","clip_01JNPJWPY4YWXCSDD9CJMYNZD7","clip_01JNPHAC67EMP18X1HN8QHVT9V","clip_01JNENXAS8TFV37T46BM9RRN8G","clip_01JMT2XKK30QVHNRNRR8SVZ0F0","clip_01JMS82SQG0J50019N7VM84ETN","clip_01JMS7FD52KJ2RHG40XQ3WAMHC","clip_01JM5PGFPMMR3NYVGK5BGN9BZP","clip_01JKKFD618N38KNWRTPB37J9YZ","clip_01JJSXBYA8E30W5QTEDZPCQWYC","clip_01JJSVR3W9JGDE8EXRBJRRH8GE","clip_01JJ1KWZ174GXPVAX35BBEEQQF","clip_01JJ0G06PFXSXMTWDDP6DF0KYG","clip_01JJ0FSPGKN3DFH70628BF2CEF","clip_01JJ0F5EHN4SJ26ZV916GAXH2X","clip_01JJ0F0PEM3XMG4QPJR2E25MK2","clip_01JHBJEG9TWN640S0AD2F8S05S","clip_01JHBH4GC4NT5NZ7Z383R8H0JE","clip_01JGPX80G7MX2KFQJPWNPHVEG6","clip_01JGF9VVXZ7K4PMTCP8WW8XGVP","clip_01JGF4EWT5YNSVTKQZVP3K83WD","clip_01JGEED7DHDYRVQ19C3S1X37BS","clip_01JG7B9WJS0HG3G97XPX58J39Z","clip_01JG797AGNQ37BBS3B81DW4JX5","clip_01JFZ321S2VC4Z9EJ9YNYEJ9RX","clip_01JF5YMS5FJ61RYY95DX2BHJE9","clip_01JES7ZSJSPXH3Q1A8YZYQPCFW","clip_01JES5YMXHEC6DR1J5NEQ7DC0R","clip_01JEE1G19TJJA9NMB8Q7BBCNF2","clip_01JDZ6FVCRYNKRXYNA1EDF6X6K","clip_01JDEVEE587G9VYEYCV7JT23J7","clip_01JD318BASYB7B0J0Y281DG32C","clip_01JCVEAVZ9ZA752EAT9D7552YQ","clip_01JC954TB9FETG93PH65KMV5KJ","clip_01J9SF5XY4AEEW9F3DBRWTF82N","clip_01J914NJZHS4NMTXP2ABGD4BBX","clip_01J8X1SXKE466JM6FDXPQ9YE7H","clip_01J8R66KHRC45FHN2B7B3EAJ40","clip_01J7PF4AD9R55J5WRZW4SG568D","clip_01J7H79SCWKW304HXF4PC86WFP","clip_01J4J3H15FE27QKRP2TAEVQZF1","clip_01J4HGG0T9HBSCND9Z47HK0ZJB","clip_01J4H670JSMBWGZXY2642Q4A0T","clip_01J4F7V3S8Q2DQV406N0QGQNN0","clip_01J4F724F264AK6NVW1ZJ0KC8R","clip_01J4EV42HPQSWR72GMH4SGYNET","clip_01J42KNYTJ660DNNJEAXAFTB7X","clip_01J42KN8MJXMWK285ZEJM9FKKH","clip_01J429J1HXZQMNFFB09NNBBFTV","clip_01J428XT2K9NMXQWQYSK5VWQW5","clip_01J428RFKB46QDWD4CGW6YEDKW","clip_01J406TKTD2DHX0JDR71C2XRNQ","clip_01J3ZY3AKRF8MN16M3ERPRZ6X3","clip_01J3ZF8N934WF0FSBF9ZY37J0Y","clip_01J3ZCBMVQXFAPMKJSBP4QJ0QS","clip_01J3Z4CS2DFFGQT18VJB4BQC45","clip_01J3Z2K825DSG32E8T7WK1WZ23","clip_01J3XNM6A676AENHNZW9P2V25T","clip_01J3TW5T9HGKX1CNNXE8HS6GBJ","clip_01J3TK73G1QYGG5ZEWBKYP5X3E","clip_01J3TBKZTZ3AWMQXMQQPSQ1CX4","clip_01J3P3FXXWEB2DVJTAJWVJPZSV","clip_01J3K2H9YM7FBRJFPXSRNFS5MV","clip_01J3JBM64T1WA5951545QZ770R","clip_01J3GSQ7WCX54XVB6BMS0WQSHE","clip_01J3GGHA0RTNRHEYTG9G4FBBXY","clip_01J3DV40025XSJTDB2YKJTC2JZ","clip_01J3DA4ZH6KDHAP6D7G44TVNCV","clip_01J3BQ0ZX8VD19E0AJAEQE0TP3"];
+<script>
+/* ================= DATA ================= */
+const twitchClips = ["VainLuckyMetalTheThing-EU4OisuRh_dhB7JP","FurtiveSuaveTofuPanicVis-tNVoerDzcYBMzTKN","AmusedMoldyMoonDeIlluminati-4PEYeqX7a8u5ts2o","HedonisticSquareRedpandaBIRB-PE5LkhRWkXJw0Kqs","YummyHappyTapirSuperVinlin-I4zFdlGpdrueaMus","BloodyPricklyYakinikuCorgiDerp-dVYwvPxFzXtT-8EA","ScrumptiousGloriousChowderOneHand-zDS3scCgfBNJTmD_","GoodDelightfulOstrichImGlitch-dna684bIWqNiw8cs","CleverOilyMochaShazBotstix-mpd7p-g3YYr2gIdn","HelplessGrotesqueMarjoramSoonerLater-WZSuOPjpfO7DGsNJ","MiniatureTangentialSandpiperNerfRedBlaster-kvp7-DCEmy8Ppbn9","ModernNimbleLardDoggo-asF4JrHAowdWQiCz","SucculentSuccessfulMangoOpieOP-6rUxbWrZ4ha1eZ2s","ImpossibleKawaiiLEDPicoMause-dE9ppMvRUQlGSzA1","SmokyFlaccidButterflyJebaited-hWa5-8bOWpVvM2iv","WildTubularLasagnaTwitchRPG-jnv7Ts_ZAhYx8led","EnthusiasticHeadstrongUdonKippa-aW-neHo2TSZLvAv9","PatientVainJalapenoYee-8EoOggRW-FTVbKfH","SpeedyFastNeanderthalPJSalt-ozMRnQB4PHBHFwCP","FlirtySarcasticElkStrawBeary-OojCWZ2UxiV4N-S-","SolidCaringKiwiAMPEnergyCherry-Ed4sOTJ_Y705Uj1s","CreativeStupidCodEleGiggle-BsVOdPjgwIQXaU8t","ScrumptiousTallMuleRalpherZ-sk0IrlvBGW-sfCQg","AttractivePiercingPlumageBigBrother-L6RpwIxfKlEr-2bk","FurryTubularHyenaPeoplesChamp-WrPMm8kiIKzGWJGG","YawningStrangeFennelItsBoshyTime-Tp84mwql0SE5bP4b","TangibleFlirtyBibimbapFailFish--lvZYAtHo7LTGWaY","EvilAntediluvianWaterBCWarrior-ZCvqU6lr2yR9-x3B","BoringJoyousSamosaOptimizePrime-GJn3sjKL11cn_6e6","EphemeralBenevolentTaroDancingBaby-w0Vh_9wuztguSLm6","SparklingSmoggyBeanPanicBasket-qskWrXAN_KDXHLIj","SavageCreativeNigiriWow-7Tr9PRn9g2zeGhSd","SillyWealthyWaspBloodTrail-EoaLPssutx1v0fbc","SilkyLachrymoseEggplantBIRB-14bFvKEABv8pRtn7","KnottyGleamingDragonfruitMoreCowbell-pinDw4FiRK2Il88I","GorgeousKawaiiCasetteKappaWealth-4mPjZS9O72W7-bsj","DreamyTrustworthyMarjoramHumbleLife-rDMZ7ttUrXtR-ziW","FancyFuriousGrouseBigBrother-JovgDwe_tk1lP3aT","AttractiveDrabChickenOSfrog-NAXR_nW33x0uAwxL","HedonisticInexpensiveLatteUWot-ptE5O9Yzj8fKbJ6x","AbrasiveOnerousPuffinBibleThump-5hYZKJYqDXiWlB0A","VastGorgeousIguanaYee-eD-AU9EPObHzPYNX","LaconicFaintLattePeteZarollTie-ECUk6C7BTPe0-nBL","SmallSucculentHawkOMGScoots-aL3Dw2YPsPxiPDx-","FuriousObedientLegKAPOW-xfO7ada71F4eRO4E","FilthyPreciousMangetoutTF2John-2sshTu8EZz2vwOu9","LivelyIronicShieldNotLikeThis-j_fGwlGMOT_Ejk-E","CalmLittleGrouseAsianGlow-lTiQpQKIXrEMnK3_","BusyBlatantSkirretPeoplesChamp-jA8LyFVnVl1wxNG1","OnerousShortPlumageNerfRedBlaster-HQ1Jlb2r0JixMeeF","ResourcefulAttractiveBaguetteGingerPower-aNk6lz1LGQ0vIoSM","RespectfulTransparentCatShadyLulu-kMSQ5QU6sOMr4_ax","StupidSweetTurtleTwitchRPG-_JWVIZ70vl-shjgo","DignifiedSarcasticBorkPlanking---9vC5GgP4Vyl3Gv","AcceptablePluckyAlpacaDerp-AxnjnoVw5kY4F2p5","ManlyBlatantNightingaleTwitchRPG-yJqu5-yoaUBymz7E","ZealousSillyQueleaRalpherZ-kb94PrFumwojRBeA","PoliteInnocentButterflyCoolStoryBob-vx8t-sYuvxndigjX","AuspiciousTameCobraKlappa-BZFqMLLDB4CG1K_q","AverageFunnyAlmondDBstyle-Zdpy5JqmW84Ke0gG","AbnegateSuccessfulTarsierUWot-DfPkGfMr3ahvrieQ","AbstemiousFilthyKleeNotATK-8fNyJ6XJaxLsXFCs","FuriousSleepyPlumageTakeNRG-2_uJ84665MBIWpBl","SincereOddButterflyVoteNay-jJPFc-FcixB12QNv","ConcernedCredulousBearKappa-Ub4h0HP2wFBctydr","FilthyAltruisticGarlicShazBotstix-Md_Y0xqwHySoWE4X","AgitatedPleasantWombatNononoCat-wAS1__aDArdSLVy9","ThoughtfulBrightArmadilloBuddhaBar-jeFc6PaT48hJyyf2","SilkyEnjoyableKangarooSSSsss-AlHnZCOQkPpQMdjY","KnottyLovelyNeanderthalSaltBae-B87UG6Hkrnm_NPsu","TallFaintWaspSquadGoals-JTAm16SO2SB5rUH6","ZanyCulturedAlbatrossKappaPride-rHefHtIldr5zQUBj","LazySparklyMarrowFreakinStinkin-GCmFdV0MZS6LUdRg","TenderStrangeBeaverGrammarKing-dMUq2s2aukE_CqUe","PopularDeliciousGrassDoggo-L5HMqIhdU3qmXGve","RepleteAgitatedShrimpPhilosoraptor-qfT2V-RQ-5_fUBKF","InventiveFriendlyPieSuperVinlin-awD_SmJmkSxXEU1T","ClearHungryParrotSwiftRage-TqlJZjVxh4QVDOpO","DrabEnergeticGiraffeBCWarrior-9dcRh09BuvItGTM9","ConfidentConfidentEyeballCopyThis-XRZ8Q7EEZwsWngsv","RefinedEasyStarBabyRage-DOpjZBrCGZ7iV_gc","ArtisticDarkBearPraiseIt-D5YBj-7_T4kKOc8F","HomelySpikyDogeChocolateRain-0FtmFd-RGM7ajC2i","ArtisticTolerantSoybeanHotPokket-3nf1581-E1yvCzij","BrainyAssiduousMochaPartyTime-ONSE5J3abtZCmweb","PoliteRepleteStarlingTakeNRG-twYfnuS-doIqsuXd","ArbitrarySucculentTrayLeeroyJenkins-s6Vx9I7nMIq2-BAk","BlushingUnsightlyHummingbirdDendiFace-o6vGPISnjlKPqBpi","CaringLovelyEelNinjaGrumpy-jVM1dN1WKGatsF3L","HomelySmallButterflyVoHiYo-cKqe_nm1I7YBEmys","AwkwardAcceptableSpaghettiNotLikeThis-NKvrdm0d_j4S_G7A","JollySuspiciousCatFreakinStinkin-iBIv4pccOWDdWz0P","PolishedNeighborlyAnacondaDuDudu-pJ8SudZyxLu7GSBS","IgnorantSpikyPineapplePastaThat-cI584Lazz8iSijOn","CharmingSmallAlbatrossChocolateRain-aPPWn5KmYQjyDx6R","EasyTenderStinkbugKreygasm-e9X6N52pKzSHzEfa","IgnorantDirtyWaspRitzMitz-4f_1QLKw_TU5GU70","KathishMistyLapwingBloodTrail-OZaOKWhDukGOxR1g","KindConcernedArugulaTwitchRaid-1qeSS77NLuoj_UjL","WrongTacitJamMrDestructoid-W0qGC23KvTXOEZDg","BlatantSmoggyCattleJKanStyle-BZWUatHIU5iKX-rg","DeafHelplessWallabyMoreCowbell-u7LuhHGT-bA6EOI0","BreakableSplendidAmazonFrankerZ-O0mvvF8xnOdGZ02h","HelplessCuriousEagleSSSsss-aTFpaYsIgDD3TDir","CalmShinyArtichokeSoonerLater-WwihVIssapfbP4J4","AmazingGlutenFreeCormorantBatChest-AB92JCNq0iSSgyjq","ConsiderateSmoggyStapleRaccAttack-GKeQ6s0oEI5qFbiI","FineVainGoblinDansGame-Hhshb1BuF44E1p4J","LightSparklyKiwiCorgiDerp-Iozj3Kj_MNhpQX5u","EmpathicPlausiblePlumDerp-b3Goe8t9BzYGBged","FreezingHealthyWoodcockPanicBasket-CywVRLirEGE3UEEA","DistinctAffluentRadicchioPrimeMe-ATgJeRResrhbAR2A","PrettyDifferentLampStinkyCheese-dImto9DPDi1Y9_r_","SparklingOddYamLeeroyJenkins-4KdJzcNEjGvBB0Wy","SuccessfulTiredEchidnaStinkyCheese-fe9gKpAjziDRgRYA","DependableBraveWolverineOhMyDog-N8qc8nl7kSEOlApY","NiceSweetTarsierOMGScoots-dn08vJ1w9A6yHtVO","ThankfulBadCamelFunRun-d0pecPFtiap8Ef7n","SteamyBrainyOrcaBloodTrail-cHLQEKD8c-ZPLn_z","AdventurousDepressedTapirTheThing-G6FzrZJkPpmUnojI","RamshackleLongPoxWoofer-Q4TMmW2JE1tpjbAZ","KitschySillyArtichokeBrainSlug-UWqsDfjNVhZQnLvU","LongGorgeousShieldWOOP-JBJbJpqfArHyhafz","HardDrabWeaselMVGame-6yXCQj8F6kTkar2I","AttractiveFineLasagnaTebowing-rRizns6ZqhRdedqp","PiliableBoxySparrowDAESuppy-NTsymi4pGXGzXHw9","VenomousLazyCrowNinjaGrumpy-7ct7PvSxRUObCYBN","TenaciousConfidentPancakeImGlitch-_E_s6mXvM24ZA_IF","BlushingAgileRhinocerosDxAbomb-wm9KtYKLFVmHEAGT","RichPlausibleRatResidentSleeper-UiXMOWUbxC_KK_y6","CleverGlamorousOstrichTheTarFu-WRU_EW7aFbqF8SeK","PeppyEncouragingAirGuitarPraiseIt-U5w_5pU8wzs5WVJP","MoistGenerousFiddleheadsTwitchRaid-_DWQmoUW_SJEXs2o","EntertainingTardyNikudonMau5-ujP9B-vvwHhntzP2","FairDeafFinchPipeHype-PDSGRxasuloeGq5B","GiftedLightMinkDBstyle-5cCuliGg6jwJVPGy","ScrumptiousHeadstrongBeaverThisIsSparta-rrHqaPrchKxrKbA1","PopularAlluringRaccoonSquadGoals-o-E5Y8YUCjhl6f_9","InnocentToughWaspKeyboardCat-HOMGINdx4I6D7rh6","AmazonianFurryBulgogiNinjaGrumpy-UEfyKsaUrYZiXbVR"];
 
-        // =================================================================
-        // ÇALIŞMA MANTIĞI
-        // =================================================================
-        
-        let masterList = [];
-        twitchClips.forEach(id => masterList.push({ id: id, type: 'twitch' }));
-        kickClips.forEach(id => masterList.push({ id: id, type: 'kick' }));
+const kickClips = ["clip_01KF7184JGDQHZ537SY14X7MVB","clip_01KF6SPWF6SJ4F038BM4CHT4KN","clip_01KF4DTGZXVEHSJH78GYDEQ8ZT","clip_01KF1PG7G0X54VXHFY5WC1Y7JJ","clip_01KF1PFV2E1NE3JG1KP9J8AD1P","clip_01KEZ3FQ3MMBEM4HEDBWYYW2JT","clip_01KEYCKVY91E3SZ5TJCM7K56QC","clip_01KED4W39VFJRT092TJPECDZZE","clip_01KDV1XJ200PEKGHEHQJ1389SY","clip_01KDTVSWRHK4XXFT02DG3VRM7Y","clip_01KCCYWPT2EADYFWWGN8S22WKX","clip_01KCCYW2YQWPAZ1WQ8PMSWDVN1","clip_01KC79QT79YYYYD8J0TFSMW913","clip_01KBV0TPT7PTASQ2WG9ZPZ7779","clip_01KBTW8141EYPVV5B244CSFB3N","clip_01KBNKAQ8Y9TTM6WQNVBY9Y3W3","clip_01KBNH7QPH6B5PV2FWGVJAHYRD","clip_01KBHSTTQJB9WA4XKAS0S3FDZB","clip_01KBGDMMMF3KKKV1KKMCZGT3QP","clip_01KBAZJMXZFHPF484BMV64S6PH","clip_01KAQ2F6CPWK12Y5AJG9EDZ4ZV","clip_01KAQ2691QXBQCFCCTZPM38YPX","clip_01KAQ0G83YBC99450A5XM9C7DA","clip_01KAPYWAE2P6WPME6PWF0VCA38","clip_01KAPYS3EQ07B92AV8MX4FFC72","clip_01KAHHNX9PFGESGVJGTY3BWEF9","clip_01KA90SW28TTTS3PEGEHYQ49KR","clip_01KA4J3F8XBRE6NAVTSTQKHA1M","clip_01KA2G1J5D3PT236RP62C46ZCH","clip_01KA23W87B7CBJ4F74A8P6TAWY","clip_01KA1DS9QQH3D8ETKW5QJJE7X0","clip_01KA1DP15B60JC7TGP8D320Z1H","clip_01K9QT8BB6J4W214XC40CJWD04","clip_01K9FTGAQP2WFZKHAQNZER4JCC","clip_01K988GSJ7RTB2PP66YAYGT4QC","clip_01K986EX140C4WWNM3M4WXHK2C","clip_01K9861ZQB2GP9FEW50HWRBRR5","clip_01K985XWMCC8Y4RZH6VH7G9YZN","clip_01K95NRYPTRSSBZWXQF8QGRJ77","clip_01K8KQHCYBZY4YKT6DFRWQZ5E1","clip_01K8HGJM7DN7PVDKE6FQ2ANYST","clip_01K8HEXV4VVVWMX9QGKHWC305P","clip_01K8BF3628M8J61BWDV5V5CKPN","clip_01K8BE9E7YZ6ZGRVYAMV7ECYYG","clip_01K8B5XQ4B5Y1G2YQZYA11K8A8","clip_01K89VCJJ412M4T4PCJFGBQ3D6","clip_01K89V8AEQF7XDX8RBV45DYV4W","clip_01K89V41FGYGR1GXEQ36J5VAED","clip_01K89TBDFGEC8CXJZBG7HVTVSZ","clip_01K89T59Z2C1GY2Y3ZBBG6SKTD","clip_01K89G1FD7PHB85WVJ4767C25Y","clip_01K89E5RHGBED18H7QCAJEV2CA","clip_01K89CG6FJEC9CD3ZZ0FYEXMTW","clip_01K89BFYQMDRWKA27JMAMJ9ZW4","clip_01K8982FQFXGYEYZ2JQF5H9DY7","clip_01K86SWKDDY6EH4X6DB69TQH6P","clip_01K7YCEFBZA57C8APQH6WS8J4C","clip_01K7YA2HM6NMQZ287QNC2JM5HK","clip_01K7ES3VTBEDKSK7NHA22YYJM5","clip_01K7EREFXJPP94H83PT7W7RHJT","clip_01K7C022HDN6BBW0RW88XFYHW6","clip_01K7BZJWJ96JM59QTSSTBWF88A","clip_01K7BZGRTG53GPHZND5JXKKVHP","clip_01K7BZ8JWZ6BTZ53NAMP1Z3MS2","clip_01K7BYJVKXB0CZX66D99N40D6X","clip_01K7ACN06E8KPX70XZWCN8PQ7S","clip_01K79DYTBPKYMZYGDZA18W4H1K","clip_01K79DGRFSBR65DSN6164ERY3Z","clip_01K79BBX69CHAQZ4CHFQ7F4YED","clip_01K79A5DJA34SJVS13NZ9KEAM5","clip_01K77Y8M03SYQT8B2PHGJN8D5C","clip_01K77XSBVA00R8CSNV57S92QS5","clip_01K77WD6MPXCG59ACB0QJ5S38H","clip_01K77WAZ75TC4KC7R4XAHK3GRH","clip_01K77VDE0NR4FCNBEAQR28DRWR","clip_01K72G5SHEQ4AQZN04HY62FQNA","clip_01K6BTBPP634PZMJC6JDQ7YPTP","clip_01K6BT7HW23JQYXQR2EJQ4BVTM","clip_01K6BSXEXTBF1MB8J62C1M0H1M","clip_01K6BSW0D6VRS9BGXZA0YJEF1P","clip_01K6BSGAGGCRYG50VP7TVK7N05","clip_01K6BS3HEY85XQD5H2ASX42B41","clip_01K6BNZ88JNTG3BZDBXTGX76ZV","clip_01K6BNX2FBP5VC031Y886HZJYS","clip_01K6BNMCCMJ5DATPYHFP7Q2J1R","clip_01K6BEBEDK8SP21WCSGXR87RFT","clip_01K690S3CZRCGYFYENX21DACFV","clip_01K68YK6NBC3VRCV8KCAYRNYSN","clip_01K63WGK2BP62SZYFZ9H7R7MVG","clip_01K60FYYGEXKDB2GB42JPX4VH2","clip_01K5C9WN9VV35XB2V3VZJD0K1V","clip_01K5A5WP7WW12NCW2JNVR8XV9Y","clip_01K5A5Q2TB74DRDG0RZK8X9DEH","clip_01K5A5DQVWA4E496GCKS3S0JH5","clip_01K5A4YEQN74N642VJZ7W2TTEN","clip_01K5A4V2FZNJ6142FRS8JTEW8Q","clip_01K5A4SV3XYCHFT2N38M6DN02H","clip_01K5A4QQ1PZB7RGSNV1DT6TXMX","clip_01K5A4H68SE0S7MNTWRQVKHBQV","clip_01K5A4E78JRDE1JQHG4FJ8441V","clip_01K5A48E2W5X59YA4NN94G6T1Q","clip_01K5A39SKJ6JRWZNS1Z996D66Z","clip_01K5A39RKDQMEG8H4T875T5BJZ","clip_01K5A2Z014TW4KH6H7B41GHQ66","clip_01K5A2WN9WVXY127MCJM8FYWN4","clip_01K5A2WMH50G122GXD5C3TPJD6","clip_01K5A2P3X985S5FX7RWS29N36Q","clip_01K5A2M33E46J1MZXDHDZZNZJD","clip_01K5A2M2BN19D42H4C8Z81A6AH","clip_01K5A26MXWCBBYDJ35H25071D0","clip_01K54Y86WF0SSAHCR4RZ8AC62M","clip_01K4RB0ZHAWJCR4EA6A17WRG2B","clip_01K4K4Z2KHJ4M8S51N8VEWR9D3","clip_01K4JVMTZP0R5AGC1W1K140GNX","clip_01K40HNJF6H29GEKT3AC5N1TY9","clip_01K3XWBNYY8AYZBB3Y0BCPRDQ2","clip_01K3XVZPYK1NSZM6CVKXRX6Z7Q","clip_01K39JESRGTV6GZF5J19TN8XG4","clip_01K34D2H4WAT1E37RFKGYDW7CY","clip_01K31R26MT5RBS69JGP6ZGSDRE","clip_01K2TEG37GQ4GXCN8QJS4ZZREV","clip_01K2T205V48W7GZN60BPH0W4RK","clip_01K2T0HJ1R1K2ZD9PDR3KYJE7C","clip_01K2SZXS815MCP11R827HS061E","clip_01K2SZNKMWB74X4X15H0E7YEG0","clip_01K2SY8WVT9AM9JT9HADPW0QZW","clip_01K2SWYS4DBYFKH49A5BW3HFE5","clip_01K2SA99DCVBN0D7N64RJNWV3R","clip_01K2Q6AE5WEJJ9VN9RJS3WJHZQ","clip_01K2N8553WASZ4RV41FW0Z098V","clip_01K1BQ9W7SSEJDFA2WCHMHF56Z","clip_01K145SQYVGXX5J2K08ZV6556Y","clip_01K145G75G07TJE9C6VX7QDV3J","clip_01K1454RXB4CER52SQHVV3MPZ4","clip_01K144QDA8ESYV6ZV8BANC0R6F","clip_01K144AV1RXX9G07DBQ4ZWK0Y0","clip_01K0WFCHC454WTF54AV43C48E8","clip_01K04Q8FJPWAVEP9GMFC70AG8B","clip_01JZK10N20FEDDWF88ZJH37GKA","clip_01JZK0Y96HHR50HMC88RKG6SDH","clip_01JZGM8V19TDHVXTHV7W6E5B46","clip_01JZGKRAWX2BE8Q6MFKVZYTQ2B","clip_01JYBWK0D0F0QKGCJW38XB20JX","clip_01JYBW5K9TZA417GPMP9HAH72F","clip_01JX0W88VWFE5YQPQ62V9K812F","clip_01JX0VSTD7FB7EKHR2A6VRVDAC","clip_01JWMA18TJ4TMYTBWTVTCT8B7N","clip_01JW6TGPNXH0XH0AAGKP19GQV7","clip_01JW6HRQ118G8BH4MM3739DN74","clip_01JW6HASNTES3JH0FVG4ST2ET9","clip_01JW6GWG2JWJQMX04BNHDHE8TD","clip_01JVZDYH64GX9T3J8EB16NR6XN","clip_01JV30NNRBQ9946NMAZV4AS8M7","clip_01JTXAJP5B2DC14YNAARRWG83H","clip_01JT6PN5VWFVTV35NN4B8812P2","clip_01JT65S1C6SQFXKJ4X030AK8YM","clip_01JT474AXNC1QM0XH9XSGZ3SKQ","clip_01JS6Y5P2E56RNX5EXVKF8BEKG","clip_01JRTKYJCM9P6DMENE22BZ19Q4","clip_01JQ9WX5F4WXC38AF2BTCA59FC","clip_01JPQY8A4DDNP8KDC71JWKNCMX","clip_01JPHMB844BT5Z5WE6ZBB8CG7X","clip_01JNQ5WEKN7P9CPYQRTT4ZRB2F","clip_01JNPJWPY4YWXCSDD9CJMYNZD7","clip_01JNPHAC67EMP18X1HN8QHVT9V","clip_01JNENXAS8TFV37T46BM9RRN8G","clip_01JMT2XKK30QVHNRNRR8SVZ0F0","clip_01JMS82SQG0J50019N7VM84ETN","clip_01JMS7FD52KJ2RHG40XQ3WAMHC","clip_01JM5PGFPMMR3NYVGK5BGN9BZP","clip_01JKKFD618N38KNWRTPB37J9YZ","clip_01JJSXBYA8E30W5QTEDZPCQWYC","clip_01JJSVR3W9JGDE8EXRBJRRH8GE","clip_01JJ1KWZ174GXPVAX35BBEEQQF","clip_01JJ0G06PFXSXMTWDDP6DF0KYG","clip_01JJ0FSPGKN3DFH70628BF2CEF","clip_01JJ0F5EHN4SJ26ZV916GAXH2X","clip_01JJ0F0PEM3XMG4QPJR2E25MK2","clip_01JHBJEG9TWN640S0AD2F8S05S","clip_01JHBH4GC4NT5NZ7Z383R8H0JE","clip_01JGPX80G7MX2KFQJPWNPHVEG6","clip_01JGF9VVXZ7K4PMTCP8WW8XGVP","clip_01JGF4EWT5YNSVTKQZVP3K83WD","clip_01JGEED7DHDYRVQ19C3S1X37BS","clip_01JG7B9WJS0HG3G97XPX58J39Z","clip_01JG797AGNQ37BBS3B81DW4JX5","clip_01JFZ321S2VC4Z9EJ9YNYEJ9RX","clip_01JF5YMS5FJ61RYY95DX2BHJE9","clip_01JES7ZSJSPXH3Q1A8YZYQPCFW","clip_01JES5YMXHEC6DR1J5NEQ7DC0R","clip_01JEE1G19TJJA9NMB8Q7BBCNF2","clip_01JDZ6FVCRYNKRXYNA1EDF6X6K","clip_01JDEVEE587G9VYEYCV7JT23J7","clip_01JD318BASYB7B0J0Y281DG32C","clip_01JCVEAVZ9ZA752EAT9D7552YQ","clip_01JC954TB9FETG93PH65KMV5KJ","clip_01J9SF5XY4AEEW9F3DBRWTF82N","clip_01J914NJZHS4NMTXP2ABGD4BBX","clip_01J8X1SXKE466JM6FDXPQ9YE7H","clip_01J8R66KHRC45FHN2B7B3EAJ40","clip_01J7PF4AD9R55J5WRZW4SG568D","clip_01J7H79SCWKW304HXF4PC86WFP","clip_01J4J3H15FE27QKRP2TAEVQZF1","clip_01J4HGG0T9HBSCND9Z47HK0ZJB","clip_01J4H670JSMBWGZXY2642Q4A0T","clip_01J4F7V3S8Q2DQV406N0QGQNN0","clip_01J4F724F264AK6NVW1ZJ0KC8R","clip_01J4EV42HPQSWR72GMH4SGYNET","clip_01J42KNYTJ660DNNJEAXAFTB7X","clip_01J42KN8MJXMWK285ZEJM9FKKH","clip_01J429J1HXZQMNFFB09NNBBFTV","clip_01J428XT2K9NMXQWQYSK5VWQW5","clip_01J428RFKB46QDWD4CGW6YEDKW","clip_01J406TKTD2DHX0JDR71C2XRNQ","clip_01J3ZY3AKRF8MN16M3ERPRZ6X3","clip_01J3ZF8N934WF0FSBF9ZY37J0Y","clip_01J3ZCBMVQXFAPMKJSBP4QJ0QS","clip_01J3Z4CS2DFFGQT18VJB4BQC45","clip_01J3Z2K825DSG32E8T7WK1WZ23","clip_01J3XNM6A676AENHNZW9P2V25T","clip_01J3TW5T9HGKX1CNNXE8HS6GBJ","clip_01J3TK73G1QYGG5ZEWBKYP5X3E","clip_01J3TBKZTZ3AWMQXMQQPSQ1CX4","clip_01J3P3FXXWEB2DVJTAJWVJPZSV","clip_01J3K2H9YM7FBRJFPXSRNFS5MV","clip_01J3JBM64T1WA5951545QZ770R","clip_01J3GSQ7WCX54XVB6BMS0WQSHE","clip_01J3GGHA0RTNRHEYTG9G4FBBXY","clip_01J3DV40025XSJTDB2YKJTC2JZ","clip_01J3DA4ZH6KDHAP6D7G44TVNCV","clip_01J3BQ0ZX8VD19E0AJAEQE0TP3","clip_error","clip_success","clip_title","clip_created"];
 
-        let isSelectionInProgress = false;
+let master = [];
+twitchClips.forEach(i => master.push({id:i,type:"twitch"}));
+kickClips.forEach(i => master.push({id:i,type:"kick"}));
 
-        function playRandomClip() {
-            if (isSelectionInProgress) return;
-            isSelectionInProgress = true;
+let busy = false;
 
-            const loader = document.getElementById('loading-overlay');
-            const slot = document.getElementById('video-slot');
+/* ================= PLAYER ================= */
+function playRandom() {
+    if (busy) return;
+    busy = true;
 
-            // 1. Yükleniyor Göster
-            loader.style.opacity = "1";
-            slot.innerHTML = ""; 
+    const loader = document.getElementById("loading-overlay");
+    const slot = document.getElementById("video-slot");
+    const kickOverlay = document.getElementById("kick-overlay");
 
-            // 2. Bekle (Animasyon Hissi)
-            setTimeout(() => {
-                const randomClip = masterList[Math.floor(Math.random() * masterList.length)];
-                
-                let embedCode = "";
-                let domain = window.location.hostname || "localhost";
+    loader.style.opacity = "1";
+    kickOverlay.classList.remove("active");
+    slot.innerHTML = "";
 
-                if (randomClip.type === 'twitch') {
-                    // Twitch: Autoplay false, Muted false
-                    const url = `https://clips.twitch.tv/embed?clip=${randomClip.id}&parent=${domain}&autoplay=false&muted=false`;
-                    embedCode = `<iframe src="${url}" allowfullscreen></iframe>`;
-                } else {
-                    // Kick: /video/ YOLU EKLENDİ (DÜZELTME BURADA)
-                    const url = `https://player.kick.com/video/${randomClip.id}?autoplay=false&muted=false`;
-                    embedCode = `<iframe src="${url}" allowfullscreen></iframe>`;
-                }
+    setTimeout(() => {
+        const clip = master[Math.floor(Math.random()*master.length)];
+        const domain = location.hostname || "localhost";
 
-                slot.innerHTML = embedCode;
+        if (clip.type === "twitch") {
+            slot.innerHTML = `
+              <iframe 
+                src="https://clips.twitch.tv/embed?clip=${clip.id}&parent=${domain}"
+                allowfullscreen>
+              </iframe>`;
+        } else {
+            // Kick → overlay mode
+            kickOverlay.classList.add("active");
+            document.getElementById("kick-btn").onclick = () => {
+    const win = window.open(`https://kick.com/shrbrk/clips/${clip.id}`, "_blank");
 
-                // 3. Yükleme Ekranını Kaldır
-                setTimeout(() => {
-                    loader.style.opacity = "0";
-                    isSelectionInProgress = false;
-                }, 500);
+    setTimeout(() => {
+        if (!win || win.closed) {
+            playRandom(); // 404 veya engel varsa otomatik geç
+        }
+    }, 1500);
+};
 
-            }, 1000); 
         }
 
-        // --- SCROLL ALGILAMA ---
-        
-        // Mouse Tekerleği
-        window.addEventListener('wheel', (e) => {
-            if (e.deltaY > 0) { 
-                playRandomClip();
-            }
-        });
+        loader.style.opacity = "0";
+        busy = false;
+    }, 900);
+}
 
-        // Dokunmatik
-        let touchStartY = 0;
-        window.addEventListener('touchstart', e => {
-            touchStartY = e.changedTouches[0].screenY;
-        });
+/* ================= INPUT ================= */
+window.addEventListener("wheel", e => {
+    if (e.deltaY > 0) playRandom();
+});
 
-        window.addEventListener('touchend', e => {
-            let touchEndY = e.changedTouches[0].screenY;
-            if (touchStartY - touchEndY > 50) { 
-                playRandomClip();
-            }
-        });
+let touchY = 0;
+window.addEventListener("touchstart", e => {
+    touchY = e.changedTouches[0].screenY;
+});
+window.addEventListener("touchend", e => {
+    if (touchY - e.changedTouches[0].screenY > 50) playRandom();
+});
 
-        // Başlangıçta çalıştır
-        window.onload = playRandomClip;
+window.onload = playRandom;
+</script>
 
-    </script>
 </body>
 </html>
