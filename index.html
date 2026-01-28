@@ -36,11 +36,36 @@ html, body {
     height: 100%;
 }
 
-iframe {
+/* Twitch için normal iframe */
+iframe.twitch-player {
     width: 100%;
     height: 100%;
     border: none;
     display: block;
+    pointer-events: all;
+}
+
+/* Kick için zoom efekti */
+iframe.kick-player {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    pointer-events: all;
+    transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+
+/* Kick zoom durumu */
+#video-slot.kick-mode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#video-slot.kick-mode iframe.kick-player {
+    width: 90%;
+    height: 90%;
+    transform: scale(1);
 }
 
 video {
@@ -62,6 +87,7 @@ video {
     justify-content: center;
     z-index: 20;
     transition: opacity .4s ease;
+    pointer-events: none;
 }
 
 .loading-title {
@@ -83,6 +109,54 @@ video {
     50% { width: 60px; opacity: 1 }
     100% { width: 0; opacity: 0 }
 }
+
+/* ================= SCROLL HINT ================= */
+#scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+    z-index: 10;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+#scroll-hint.hidden {
+    opacity: 0;
+}
+
+/* ================= PLATFORM INDICATOR ================= */
+#platform-indicator {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    z-index: 15;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#platform-indicator.show {
+    opacity: 1;
+}
+
+#platform-indicator.twitch {
+    background: #9146ff;
+    color: #fff;
+}
+
+#platform-indicator.kick {
+    background: #53fc18;
+    color: #000;
+}
 </style>
 </head>
 
@@ -95,6 +169,9 @@ video {
             <div class="loading-title">YÜKLENIYOR</div>
             <div class="loading-bar"></div>
         </div>
+
+        <div id="platform-indicator">PLATFORM</div>
+        <div id="scroll-hint">↓ SCROLL FOR NEXT</div>
     </div>
 </div>
 
@@ -118,6 +195,18 @@ function buildMasterList() {
 buildMasterList();
 
 let busy = false;
+let currentClipType = null;
+
+/* ================= PLATFORM INDICATOR ================= */
+function showPlatformIndicator(type) {
+    const indicator = document.getElementById('platform-indicator');
+    indicator.textContent = type.toUpperCase();
+    indicator.className = `show ${type}`;
+    
+    setTimeout(() => {
+        indicator.classList.remove('show');
+    }, 2000);
+}
 
 /* ================= PLAYER ================= */
 async function playRandom() {
@@ -130,17 +219,23 @@ async function playRandom() {
     // Temizlik
     loader.style.opacity = "1";
     slot.innerHTML = "";
+    slot.className = ""; // Reset class
 
     await new Promise(resolve => setTimeout(resolve, 600));
 
     const clip = master[Math.floor(Math.random() * master.length)];
+    currentClipType = clip.type;
+
+    // Platform göster
+    showPlatformIndicator(clip.type);
 
     try {
         if (clip.type === "twitch") {
-            // Twitch için iframe embed
+            // Twitch için tam ekran iframe - kontrol edilebilir
             const domain = location.hostname || "localhost";
             slot.innerHTML = `
               <iframe 
+                class="twitch-player"
                 src="https://clips.twitch.tv/embed?clip=${clip.id}&parent=${domain}&autoplay=true"
                 allowfullscreen>
               </iframe>`;
@@ -148,18 +243,21 @@ async function playRandom() {
             loader.style.opacity = "0";
             
         } else if (clip.type === "kick") {
-            // Kick için - BURAYA SENİN EMBED KODUNU EKLE
+            // Kick için zoom modlu iframe - kontrol edilebilir
+            slot.className = "kick-mode";
             
-            // YÖNTEM 1: İframe ile (eğer Kick iframe destekliyorsa)
+            // BURAYA SENİN KICK EMBED URL'İNİ EKLE
             slot.innerHTML = `
               <iframe 
+                class="kick-player"
                 src="https://kick.com/shrbrk/clips/${clip.id}"
                 allowfullscreen
                 allow="autoplay; encrypted-media">
               </iframe>`;
             
-            /* YÖNTEM 2: Video tag ile direkt video URL
+            /* YÖNTEM 2: Video tag ile
             const videoUrl = await getKickVideoUrl(clip.id);
+            slot.className = "kick-mode";
             slot.innerHTML = `
               <video controls autoplay>
                 <source src="${videoUrl}" type="video/mp4">
@@ -179,9 +277,18 @@ async function playRandom() {
 }
 
 /* ================= INPUT CONTROLS ================= */
+let scrollHintTimeout;
+
 // Scroll ile geçiş
 window.addEventListener("wheel", e => {
-    if (e.deltaY > 0) playRandom();
+    if (e.deltaY > 0) {
+        playRandom();
+        
+        // Scroll hint'i gizle
+        const hint = document.getElementById('scroll-hint');
+        hint.classList.add('hidden');
+        clearTimeout(scrollHintTimeout);
+    }
 });
 
 // Touchscreen desteği
@@ -189,12 +296,38 @@ let touchY = 0;
 window.addEventListener("touchstart", e => {
     touchY = e.changedTouches[0].screenY;
 });
+
 window.addEventListener("touchend", e => {
-    if (touchY - e.changedTouches[0].screenY > 50) playRandom();
+    if (touchY - e.changedTouches[0].screenY > 50) {
+        playRandom();
+        
+        // Scroll hint'i gizle
+        const hint = document.getElementById('scroll-hint');
+        hint.classList.add('hidden');
+    }
+});
+
+// Mouse hareketi ile hint'i tekrar göster
+let mouseTimeout;
+window.addEventListener("mousemove", () => {
+    const hint = document.getElementById('scroll-hint');
+    hint.classList.remove('hidden');
+    
+    clearTimeout(mouseTimeout);
+    mouseTimeout = setTimeout(() => {
+        hint.classList.add('hidden');
+    }, 3000);
 });
 
 /* ================= INIT ================= */
-window.onload = playRandom;
+window.onload = () => {
+    playRandom();
+    
+    // 5 saniye sonra hint'i gizle
+    setTimeout(() => {
+        document.getElementById('scroll-hint').classList.add('hidden');
+    }, 5000);
+};
 </script>
 
 </body>
