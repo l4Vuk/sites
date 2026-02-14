@@ -1,362 +1,750 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SHRBRK - Fullscreen Feed</title>
+    <meta charset="UTF-8">
+    <title>SEH-KADER-BUR </title>
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #gameContainer {
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+        canvas {
+            background: #1a1a20;
+            display: block;
+            border: 2px solid #333;
+        }
+        /* UI Overlays */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            text-shadow: 1px 1px 4px black;
+        }
+        .hp-bar-container {
+            width: 200px;
+            background: #333;
+            height: 20px;
+            border: 2px solid white;
+            position: relative;
+        }
+        .hp-fill {
+            height: 100%;
+            transition: width 0.2s;
+        }
+        #hp-blue { background: cyan; width: 100%; }
+        #hp-red { background: #ff4444; width: 100%; }
+        
+        #mission-display {
+            position: absolute;
+            top: 50px;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        #mission-timer {
+            font-size: 18px;
+            color: white;
+        }
 
-<style>
-/* ================= TEMEL AYARLAR ================= */
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    overflow: hidden; /* Sayfa kaydırma çubuklarını gizle */
-    color: #fff;
-}
+        /* Modal for Upgrades */
+        #upgrade-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ffd700;
+            padding: 20px;
+            text-align: center;
+            pointer-events: auto;
+            border-radius: 10px;
+            z-index: 100;
+            min-width: 400px;
+        }
+        #upgrade-modal h2 { margin-top: 0; color: #ffd700; }
+        .upgrade-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+        .upgrade-btn:hover {
+            background: #444;
+            border-color: cyan;
+        }
 
-#main-wrapper {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    background: #000;
-}
-
-#video-frame {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* ================= VIDEO SLOT & IFRAMES ================= */
-#video-slot {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    /* İframe taşmalarını gizle */
-    overflow: hidden; 
-}
-
-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-    /* Kontrollerin (Play/Pause) çalışması için tıklamalar açık */
-    pointer-events: all; 
-}
-
-/* --- KICK ÖZEL AYARLAR --- */
-/* Kick modunda video slotu biraz taşabilir, biz onu maskeleyeceğiz */
-#video-slot.kick-mode iframe.kick-player {
-    /* Yanlardan %10 kırpılacağı için görüntüyü %125 büyütüyoruz ki tam otursun */
-    width: 125%;  
-    height: 125%; 
-    /* Tam ortaya hizalamak için kaydır */
-    transform: translate(-10%, -10%); 
-    object-fit: cover;
-}
-
-/* ================= YAN KAPATICILAR (%10 MASKS) ================= */
-/* Bu bantlar videonun ÜSTÜNDE durur (z-index yüksek) */
-/* Hem görüntüyü kapatır hem de SCROLL işlemini yakalar */
-.side-mask {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 10%;        /* Ekranın %10'u kadar genişlik */
-    background: #000;  /* Siyah renk */
-    z-index: 100;      /* Video ve her şeyin üstünde */
-    display: none;     /* Varsayılan olarak gizli (Twitch'te yok) */
-    pointer-events: auto; /* Scroll ve tıklamayı yakalar */
-}
-
-.side-mask.left { left: 0; }
-.side-mask.right { right: 0; }
-
-/* Sadece Kick modu aktifken bu bantları göster */
-#video-frame.kick-active .side-mask {
-    display: block;
-}
-
-/* ================= GÖRÜNMEZ SCROLL ALANLARI ================= */
-/* İframe tekerlek hareketini yuttuğu için, kenarlara ve alta görünmez alanlar koyuyoruz.
-   Fare bu alanlardayken scroll %100 çalışır. */
-.scroll-safe-zone {
-    position: absolute;
-    z-index: 90; /* Video üstünde, Maskelerin altında */
-    background: transparent; 
-    pointer-events: auto; /* Olayları yakala */
-}
-
-.scroll-safe-zone.bottom {
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 8%; /* Ekranın alt %8'lik kısmı scroll için güvenli alan */
-}
-
-.scroll-safe-zone.top {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 8%; /* Ekranın üst %8'lik kısmı */
-}
-
-/* ================= LOADER & UI ================= */
-#loading-overlay {
-    position: absolute;
-    inset: 0;
-    background: #000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 200; /* En üstte */
-    transition: opacity .4s ease;
-    pointer-events: none;
-}
-
-.loading-title {
-    font-size: 11px;
-    letter-spacing: 6px;
-    margin-bottom: 14px;
-    color: #fff;
-}
-
-.loading-bar {
-    width: 60px;
-    height: 2px;
-    background: white;
-    animation: load 1.2s infinite ease-in-out;
-}
-
-@keyframes load {
-    0% { width: 0; opacity: 0 }
-    50% { width: 60px; opacity: 1 }
-    100% { width: 0; opacity: 0 }
-}
-
-#platform-indicator {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 6px 14px;
-    border-radius: 4px;
-    z-index: 150;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-weight: bold;
-}
-
-#platform-indicator.show { opacity: 1; }
-#platform-indicator.twitch { background: #9146ff; color: #fff; }
-#platform-indicator.kick { background: #53fc18; color: #000; }
-
-#scroll-hint {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: rgba(255,255,255,0.4);
-    z-index: 150;
-    pointer-events: none;
-    transition: opacity 0.3s;
-    text-align: center;
-    width: 100%;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-}
-#scroll-hint.hidden { opacity: 0; }
-
-</style>
+        /* Dash Cooldown Indicators */
+        .dash-indicator {
+            position: absolute;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="main-wrapper">
-    <div id="video-frame">
-        <div id="video-slot"></div>
-
-        <div class="side-mask left"></div>
-        <div class="side-mask right"></div>
-
-        <div class="scroll-safe-zone top"></div>
-        <div class="scroll-safe-zone bottom"></div>
-        
-        <div id="loading-overlay">
-            <div class="loading-title">YÜKLENIYOR</div>
-            <div class="loading-bar"></div>
+<div id="gameContainer">
+    <canvas id="gameCanvas" width="1000" height="700"></canvas>
+    
+    <div id="ui-layer">
+        <div class="top-bar">
+            <div>
+                <div style="color:cyan; margin-bottom:5px;">SEHO (WASD + Shift)</div>
+                <div class="hp-bar-container"><div id="hp-blue" class="hp-fill"></div></div>
+            </div>
+            <div>
+                <div style="text-align:right; color:#ff4444; margin-bottom:5px;">BURAK (Oklar + Enter)</div>
+                <div class="hp-bar-container"><div id="hp-red" class="hp-fill"></div></div>
+            </div>
         </div>
+    </div>
 
-        <div id="platform-indicator">PLATFORM</div>
-        <div id="scroll-hint">↓ DEĞİŞTİRMEK İÇİN KENARLARI KAYDIR</div>
+    <div id="mission-display">
+        <div id="mission-text">ISINMA TURU</div>
+        <div id="mission-timer">30s</div>
+    </div>
+
+    <div id="upgrade-modal">
+        <h2>GÖREV TAMAMLANDI!</h2>
+        <p>YÜKSELTME SEÇ:</p>
+        <div id="upgrade-options"></div>
     </div>
 </div>
 
 <script>
-/* ================= DATA ================= */
-const twitchClips = ["VainLuckyMetalTheThing-EU4OisuRh_dhB7JP","FurtiveSuaveTofuPanicVis-tNVoerDzcYBMzTKN","AmusedMoldyMoonDeIlluminati-4PEYeqX7a8u5ts2o","HedonisticSquareRedpandaBIRB-PE5LkhRWkXJw0Kqs","YummyHappyTapirSuperVinlin-I4zFdlGpdrueaMus","BloodyPricklyYakinikuCorgiDerp-dVYwvPxFzXtT-8EA","ScrumptiousGloriousChowderOneHand-zDS3scCgfBNJTmD_","GoodDelightfulOstrichImGlitch-dna684bIWqNiw8cs","CleverOilyMochaShazBotstix-mpd7p-g3YYr2gIdn","HelplessGrotesqueMarjoramSoonerLater-WZSuOPjpfO7DGsNJ","MiniatureTangentialSandpiperNerfRedBlaster-kvp7-DCEmy8Ppbn9","ModernNimbleLardDoggo-asF4JrHAowdWQiCz","SucculentSuccessfulMangoOpieOP-6rUxbWrZ4ha1eZ2s","ImpossibleKawaiiLEDPicoMause-dE9ppMvRUQlGSzA1","SmokyFlaccidButterflyJebaited-hWa5-8bOWpVvM2iv","WildTubularLasagnaTwitchRPG-jnv7Ts_ZAhYx8led","EnthusiasticHeadstrongUdonKippa-aW-neHo2TSZLvAv9","PatientVainJalapenoYee-8EoOggRW-FTVbKfH","SpeedyFastNeanderthalPJSalt-ozMRnQB4PHBHFwCP","FlirtySarcasticElkStrawBeary-OojCWZ2UxiV4N-S-","SolidCaringKiwiAMPEnergyCherry-Ed4sOTJ_Y705Uj1s","CreativeStupidCodEleGiggle-BsVOdPjgwIQXaU8t","ScrumptiousTallMuleRalpherZ-sk0IrlvBGW-sfCQg","AttractivePiercingPlumageBigBrother-L6RpwIxfKlEr-2bk","FurryTubularHyenaPeoplesChamp-WrPMm8kiIKzGWJGG","YawningStrangeFennelItsBoshyTime-Tp84mwql0SE5bP4b","TangibleFlirtyBibimbapFailFish--lvZYAtHo7LTGWaY","EvilAntediluvianWaterBCWarrior-ZCvqU6lr2yR9-x3B","BoringJoyousSamosaOptimizePrime-GJn3sjKL11cn_6e6","EphemeralBenevolentTaroDancingBaby-w0Vh_9wuztguSLm6","SparklingSmoggyBeanPanicBasket-qskWrXAN_KDXHLIj","SavageCreativeNigiriWow-7Tr9PRn9g2zeGhSd","SillyWealthyWaspBloodTrail-EoaLPssutx1v0fbc","SilkyLachrymoseEggplantBIRB-14bFvKEABv8pRtn7","KnottyGleamingDragonfruitMoreCowbell-pinDw4FiRK2Il88I","GorgeousKawaiiCasetteKappaWealth-4mPjZS9O72W7-bsj","DreamyTrustworthyMarjoramHumbleLife-rDMZ7ttUrXtR-ziW","FancyFuriousGrouseBigBrother-JovgDwe_tk1lP3aT","AttractiveDrabChickenOSfrog-NAXR_nW33x0uAwxL","HedonisticInexpensiveLatteUWot-ptE5O9Yzj8fKbJ6x","AbrasiveOnerousPuffinBibleThump-5hYZKJYqDXiWlB0A","VastGorgeousIguanaYee-eD-AU9EPObHzPYNX","LaconicFaintLattePeteZarollTie-ECUk6C7BTPe0-nBL","SmallSucculentHawkOMGScoots-aL3Dw2YPsPxiPDx-","FuriousObedientLegKAPOW-xfO7ada71F4eRO4E","FilthyPreciousMangetoutTF2John-2sshTu8EZz2vwOu9","LivelyIronicShieldNotLikeThis-j_fGwlGMOT_Ejk-E","CalmLittleGrouseAsianGlow-lTiQpQKIXrEMnK3_","BusyBlatantSkirretPeoplesChamp-jA8LyFVnVl1wxNG1","OnerousShortPlumageNerfRedBlaster-HQ1Jlb2r0JixMeeF","ResourcefulAttractiveBaguetteGingerPower-aNk6lz1LGQ0vIoSM","RespectfulTransparentCatShadyLulu-kMSQ5QU6sOMr4_ax","StupidSweetTurtleTwitchRPG-_JWVIZ70vl-shjgo","DignifiedSarcasticBorkPlanking---9vC5GgP4Vyl3Gv","AcceptablePluckyAlpacaDerp-AxnjnoVw5kY4F2p5","ManlyBlatantNightingaleTwitchRPG-yJqu5-yoaUBymz7E","ZealousSillyQueleaRalpherZ-kb94PrFumwojRBeA","PoliteInnocentButterflyCoolStoryBob-vx8t-sYuvxndigjX","AuspiciousTameCobraKlappa-BZFqMLLDB4CG1K_q","AverageFunnyAlmondDBstyle-Zdpy5JqmW84Ke0gG","AbnegateSuccessfulTarsierUWot-DfPkGfMr3ahvrieQ","AbstemiousFilthyKleeNotATK-8fNyJ6XJaxLsXFCs","FuriousSleepyPlumageTakeNRG-2_uJ84665MBIWpBl","SincereOddButterflyVoteNay-jJPFc-FcixB12QNv","ConcernedCredulousBearKappa-Ub4h0HP2wFBctydr","FilthyAltruisticGarlicShazBotstix-Md_Y0xqwHySoWE4X","AgitatedPleasantWombatNononoCat-wAS1__aDArdSLVy9","ThoughtfulBrightArmadilloBuddhaBar-jeFc6PaT48hJyyf2","SilkyEnjoyableKangarooSSSsss-AlHnZCOQkPpQMdjY","KnottyLovelyNeanderthalSaltBae-B87UG6Hkrnm_NPsu","TallFaintWaspSquadGoals-JTAm16SO2SB5rUH6","ZanyCulturedAlbatrossKappaPride-rHefHtIldr5zQUBj","LazySparklyMarrowFreakinStinkin-GCmFdV0MZS6LUdRg","TenderStrangeBeaverGrammarKing-dMUq2s2aukE_CqUe","PopularDeliciousGrassDoggo-L5HMqIhdU3qmXGve","RepleteAgitatedShrimpPhilosoraptor-qfT2V-RQ-5_fUBKF","InventiveFriendlyPieSuperVinlin-awD_SmJmkSxXEU1T","ClearHungryParrotSwiftRage-TqlJZjVxh4QVDOpO","DrabEnergeticGiraffeBCWarrior-9dcRh09BuvItGTM9","ConfidentConfidentEyeballCopyThis-XRZ8Q7EEZwsWngsv","RefinedEasyStarBabyRage-DOpjZBrCGZ7iV_gc","ArtisticDarkBearPraiseIt-D5YBj-7_T4kKOc8F","HomelySpikyDogeChocolateRain-0FtmFd-RGM7ajC2i","ArtisticTolerantSoybeanHotPokket-3nf1581-E1yvCzij","BrainyAssiduousMochaPartyTime-ONSE5J3abtZCmweb","PoliteRepleteStarlingTakeNRG-twYfnuS-doIqsuXd","ArbitrarySucculentTrayLeeroyJenkins-s6Vx9I7nMIq2-BAk","BlushingUnsightlyHummingbirdDendiFace-o6vGPISnjlKPqBpi","CaringLovelyEelNinjaGrumpy-jVM1dN1WKGatsF3L","HomelySmallButterflyVoHiYo-cKqe_nm1I7YBEmys","AwkwardAcceptableSpaghettiNotLikeThis-NKvrdm0d_j4S_G7A","JollySuspiciousCatFreakinStinkin-iBIv4pccOWDdWz0P","PolishedNeighborlyAnacondaDuDudu-pJ8SudZyxLu7GSBS","IgnorantSpikyPineapplePastaThat-cI584Lazz8iSijOn","CharmingSmallAlbatrossChocolateRain-aPPWn5KmYQjyDx6R","EasyTenderStinkbugKreygasm-e9X6N52pKzSHzEfa","IgnorantDirtyWaspRitzMitz-4f_1QLKw_TU5GU70","KathishMistyLapwingBloodTrail-OZaOKWhDukGOxR1g","KindConcernedArugulaTwitchRaid-1qeSS77NLuoj_UjL","WrongTacitJamMrDestructoid-W0qGC23KvTXOEZDg","BlatantSmoggyCattleJKanStyle-BZWUatHIU5iKX-rg","DeafHelplessWallabyMoreCowbell-u7LuhHGT-bA6EOI0","BreakableSplendidAmazonFrankerZ-O0mvvF8xnOdGZ02h","HelplessCuriousEagleSSSsss-aTFpaYsIgDD3TDir","CalmShinyArtichokeSoonerLater-WwihVIssapfbP4J4","AmazingGlutenFreeCormorantBatChest-AB92JCNq0iSSgyjq","ConsiderateSmoggyStapleRaccAttack-GKeQ6s0oEI5qFbiI","FineVainGoblinDansGame-Hhshb1BuF44E1p4J","LightSparklyKiwiCorgiDerp-Iozj3Kj_MNhpQX5u","EmpathicPlausiblePlumDerp-b3Goe8t9BzYGBged","FreezingHealthyWoodcockPanicBasket-CywVRLirEGE3UEEA","DistinctAffluentRadicchioPrimeMe-ATgJeRResrhbAR2A","PrettyDifferentLampStinkyCheese-dImto9DPDi1Y9_r_","SparklingOddYamLeeroyJenkins-4KdJzcNEjGvBB0Wy","SuccessfulTiredEchidnaStinkyCheese-fe9gKpAjziDRgRYA","DependableBraveWolverineOhMyDog-N8qc8nl7kSEOlApY","NiceSweetTarsierOMGScoots-dn08vJ1w9A6yHtVO","ThankfulBadCamelFunRun-d0pecPFtiap8Ef7n","SteamyBrainyOrcaBloodTrail-cHLQEKD8c-ZPLn_z","AdventurousDepressedTapirTheThing-G6FzrZJkPpmUnojI","RamshackleLongPoxWoofer-Q4TMmW2JE1tpjbAZ","KitschySillyArtichokeBrainSlug-UWqsDfjNVhZQnLvU","LongGorgeousShieldWOOP-JBJbJpqfArHyhafz","HardDrabWeaselMVGame-6yXCQj8F6kTkar2I","AttractiveFineLasagnaTebowing-rRizns6ZqhRdedqp","PiliableBoxySparrowDAESuppy-NTsymi4pGXGzXHw9","VenomousLazyCrowNinjaGrumpy-7ct7PvSxRUObCYBN","TenaciousConfidentPancakeImGlitch-_E_s6mXvM24ZA_IF","BlushingAgileRhinocerosDxAbomb-wm9KtYKLFVmHEAGT","RichPlausibleRatResidentSleeper-UiXMOWUbxC_KK_y6","CleverGlamorousOstrichTheTarFu-WRU_EW7aFbqF8SeK","PeppyEncouragingAirGuitarPraiseIt-U5w_5pU8wzs5WVJP","MoistGenerousFiddleheadsTwitchRaid-_DWQmoUW_SJEXs2o","EntertainingTardyNikudonMau5-ujP9B-vvwHhntzP2","FairDeafFinchPipeHype-PDSGRxasuloeGq5B","GiftedLightMinkDBstyle-5cCuliGg6jwJVPGy","ScrumptiousHeadstrongBeaverThisIsSparta-rrHqaPrchKxrKbA1","PopularAlluringRaccoonSquadGoals-o-E5Y8YUCjhl6f_9","InnocentToughWaspKeyboardCat-HOMGINdx4I6D7rh6","AmazonianFurryBulgogiNinjaGrumpy-UEfyKsaUrYZiXbVR"];
+/**
+ * TETHERED SOULS
+ * A Co-op Physics Survival Game
+ */
 
-const kickClips = ["clip_01KF7184JGDQHZ537SY14X7MVB","clip_01KF6SPWF6SJ4F038BM4CHT4KN","clip_01KF4DTGZXVEHSJH78GYDEQ8ZT","clip_01KF1PG7G0X54VXHFY5WC1Y7JJ","clip_01KF1PFV2E1NE3JG1KP9J8AD1P","clip_01KEZ3FQ3MMBEM4HEDBWYYW2JT","clip_01KEYCKVY91E3SZ5TJCM7K56QC","clip_01KED4W39VFJRT092TJPECDZZE","clip_01KDV1XJ200PEKGHEHQJ1389SY","clip_01KDTVSWRHK4XXFT02DG3VRM7Y","clip_01KCCYWPT2EADYFWWGN8S22WKX","clip_01KCCYW2YQWPAZ1WQ8PMSWDVN1","clip_01KC79QT79YYYYD8J0TFSMW913","clip_01KBV0TPT7PTASQ2WG9ZPZ7779","clip_01KBTW8141EYPVV5B244CSFB3N","clip_01KBNKAQ8Y9TTM6WQNVBY9Y3W3","clip_01KBNH7QPH6B5PV2FWGVJAHYRD","clip_01KBHSTTQJB9WA4XKAS0S3FDZB","clip_01KBGDMMMF3KKKV1KKMCZGT3QP","clip_01KBAZJMXZFHPF484BMV64S6PH","clip_01KAQ2F6CPWK12Y5AJG9EDZ4ZV","clip_01KAQ2691QXBQCFCCTZPM38YPX","clip_01KAQ0G83YBC99450A5XM9C7DA","clip_01KAPYWAE2P6WPME6PWF0VCA38","clip_01KAPYS3EQ07B92AV8MX4FFC72","clip_01KAHHNX9PFGESGVJGTY3BWEF9","clip_01KA90SW28TTTS3PEGEHYQ49KR","clip_01KA4J3F8XBRE6NAVTSTQKHA1M","clip_01KA2G1J5D3PT236RP62C46ZCH","clip_01KA23W87B7CBJ4F74A8P6TAWY","clip_01KA1DS9QQH3D8ETKW5QJJE7X0","clip_01KA1DP15B60JC7TGP8D320Z1H","clip_01K9QT8BB6J4W214XC40CJWD04","clip_01K9FTGAQP2WFZKHAQNZER4JCC","clip_01K988GSJ7RTB2PP66YAYGT4QC","clip_01K986EX140C4WWNM3M4WXHK2C","clip_01K9861ZQB2GP9FEW50HWRBRR5","clip_01K985XWMCC8Y4RZH6VH7G9YZN","clip_01K95NRYPTRSSBZWXQF8QGRJ77","clip_01K8KQHCYBZY4YKT6DFRWQZ5E1","clip_01K8HGJM7DN7PVDKE6FQ2ANYST","clip_01K8HEXV4VVVWMX9QGKHWC305P","clip_01K8BF3628M8J61BWDV5V5CKPN","clip_01K8BE9E7YZ6ZGRVYAMV7ECYYG","clip_01K8B5XQ4B5Y1G2YQZYA11K8A8","clip_01K89VCJJ412M4T4PCJFGBQ3D6","clip_01K89V8AEQF7XDX8RBV45DYV4W","clip_01K89V41FGYGR1GXEQ36J5VAED","clip_01K89TBDFGEC8CXJZBG7HVTVSZ","clip_01K89T59Z2C1GY2Y3ZBBG6SKTD","clip_01K89G1FD7PHB85WVJ4767C25Y","clip_01K89E5RHGBED18H7QCAJEV2CA","clip_01K89CG6FJEC9CD3ZZ0FYEXMTW","clip_01K89BFYQMDRWKA27JMAMJ9ZW4","clip_01K8982FQFXGYEYZ2JQF5H9DY7","clip_01K86SWKDDY6EH4X6DB69TQH6P","clip_01K7YCEFBZA57C8APQH6WS8J4C","clip_01K7YA2HM6NMQZ287QNC2JM5HK","clip_01K7ES3VTBEDKSK7NHA22YYJM5","clip_01K7EREFXJPP94H83PT7W7RHJT","clip_01K7C022HDN6BBW0RW88XFYHW6","clip_01K7BZJWJ96JM59QTSSTBWF88A","clip_01K7BZGRTG53GPHZND5JXKKVHP","clip_01K7BZ8JWZ6BTZ53NAMP1Z3MS2","clip_01K7BYJVKXB0CZX66D99N40D6X","clip_01K7ACN06E8KPX70XZWCN8PQ7S","clip_01K79DYTBPKYMZYGDZA18W4H1K","clip_01K79DGRFSBR65DSN6164ERY3Z","clip_01K79BBX69CHAQZ4CHFQ7F4YED","clip_01K79A5DJA34SJVS13NZ9KEAM5","clip_01K77Y8M03SYQT8B2PHGJN8D5C","clip_01K77XSBVA00R8CSNV57S92QS5","clip_01K77WD6MPXCG59ACB0QJ5S38H","clip_01K77WAZ75TC4KC7R4XAHK3GRH","clip_01K77VDE0NR4FCNBEAQR28DRWR","clip_01K72G5SHEQ4AQZN04HY62FQNA","clip_01K6BTBPP634PZMJC6JDQ7YPTP","clip_01K6BT7HW23JQYXQR2EJQ4BVTM","clip_01K6BSXEXTBF1MB8J62C1M0H1M","clip_01K6BSW0D6VRS9BGXZA0YJEF1P","clip_01K6BSGAGGCRYG50VP7TVK7N05","clip_01K6BS3HEY85XQD5H2ASX42B41","clip_01K6BNZ88JNTG3BZDBXTGX76ZV","clip_01K6BNX2FBP5VC031Y886HZJYS","clip_01K6BNMCCMJ5DATPYHFP7Q2J1R","clip_01K6BEBEDK8SP21WCSGXR87RFT","clip_01K690S3CZRCGYFYENX21DACFV","clip_01K68YK6NBC3VRCV8KCAYRNYSN","clip_01K63WGK2BP62SZYFZ9H7R7MVG","clip_01K60FYYGEXKDB2GB42JPX4VH2","clip_01K5C9WN9VV35XB2V3VZJD0K1V","clip_01K5A5WP7WW12NCW2JNVR8XV9Y","clip_01K5A5Q2TB74DRDG0RZK8X9DEH","clip_01K5A5DQVWA4E496GCKS3S0JH5","clip_01K5A4YEQN74N642VJZ7W2TTEN","clip_01K5A4V2FZNJ6142FRS8JTEW8Q","clip_01K5A4SV3XYCHFT2N38M6DN02H","clip_01K5A4QQ1PZB7RGSNV1DT6TXMX","clip_01K5A4H68SE0S7MNTWRQVKHBQV","clip_01K5A4E78JRDE1JQHG4FJ8441V","clip_01K5A48E2W5X59YA4NN94G6T1Q","clip_01K5A39SKJ6JRWZNS1Z996D66Z","clip_01K5A39RKDQMEG8H4T875T5BJZ","clip_01K5A2Z014TW4KH6H7B41GHQ66","clip_01K5A2WN9WVXY127MCJM8FYWN4","clip_01K5A2WMH50G122GXD5C3TPJD6","clip_01K5A2P3X985S5FX7RWS29N36Q","clip_01K5A2M33E46J1MZXDHDZZNZJD","clip_01K5A2M2BN19D42H4C8Z81A6AH","clip_01K5A26MXWCBBYDJ35H25071D0","clip_01K54Y86WF0SSAHCR4RZ8AC62M","clip_01K4RB0ZHAWJCR4EA6A17WRG2B","clip_01K4K4Z2KHJ4M8S51N8VEWR9D3","clip_01K4JVMTZP0R5AGC1W1K140GNX","clip_01K40HNJF6H29GEKT3AC5N1TY9","clip_01K3XWBNYY8AYZBB3Y0BCPRDQ2","clip_01K3XVZPYK1NSZM6CVKXRX6Z7Q","clip_01K39JESRGTV6GZF5J19TN8XG4","clip_01K34D2H4WAT1E37RFKGYDW7CY","clip_01K31R26MT5RBS69JGP6ZGSDRE","clip_01K2TEG37GQ4GXCN8QJS4ZZREV","clip_01K2T205V48W7GZN60BPH0W4RK","clip_01K2T0HJ1R1K2ZD9PDR3KYJE7C","clip_01K2SZXS815MCP11R827HS061E","clip_01K2SZNKMWB74X4X15H0E7YEG0","clip_01K2SY8WVT9AM9JT9HADPW0QZW","clip_01K2SWYS4DBYFKH49A5BW3HFE5","clip_01K2SA99DCVBN0D7N64RJNWV3R","clip_01K2Q6AE5WEJJ9VN9RJS3WJHZQ","clip_01K2N8553WASZ4RV41FW0Z098V","clip_01K1BQ9W7SSEJDFA2WCHMHF56Z","clip_01K145SQYVGXX5J2K08ZV6556Y","clip_01K145G75G07TJE9C6VX7QDV3J","clip_01K1454RXB4CER52SQHVV3MPZ4","clip_01K144QDA8ESYV6ZV8BANC0R6F","clip_01K144AV1RXX9G07DBQ4ZWK0Y0","clip_01K0WFCHC454WTF54AV43C48E8","clip_01K04Q8FJPWAVEP9GMFC70AG8B","clip_01JZK10N20FEDDWF88ZJH37GKA","clip_01JZK0Y96HHR50HMC88RKG6SDH","clip_01JZGM8V19TDHVXTHV7W6E5B46","clip_01JZGKRAWX2BE8Q6MFKVZYTQ2B","clip_01JYBWK0D0F0QKGCJW38XB20JX","clip_01JYBW5K9TZA417GPMP9HAH72F","clip_01JX0W88VWFE5YQPQ62V9K812F","clip_01JX0VSTD7FB7EKHR2A6VRVDAC","clip_01JWMA18TJ4TMYTBWTVTCT8B7N","clip_01JW6TGPNXH0XH0AAGKP19GQV7","clip_01JW6HRQ118G8BH4MM3739DN74","clip_01JW6HASNTES3JH0FVG4ST2ET9","clip_01JW6GWG2JWJQMX04BNHDHE8TD","clip_01JVZDYH64GX9T3J8EB16NR6XN","clip_01JV30NNRBQ9946NMAZV4AS8M7","clip_01JTXAJP5B2DC14YNAARRWG83H","clip_01JT6PN5VWFVTV35NN4B8812P2","clip_01JT65S1C6SQFXKJ4X030AK8YM","clip_01JT474AXNC1QM0XH9XSGZ3SKQ","clip_01JS6Y5P2E56RNX5EXVKF8BEKG","clip_01JRTKYJCM9P6DMENE22BZ19Q4","clip_01JQ9WX5F4WXC38AF2BTCA59FC","clip_01JPQY8A4DDNP8KDC71JWKNCMX","clip_01JPHMB844BT5Z5WE6ZBB8CG7X","clip_01JNQ5WEKN7P9CPYQRTT4ZRB2F","clip_01JNPJWPY4YWXCSDD9CJMYNZD7","clip_01JNPHAC67EMP18X1HN8QHVT9V","clip_01JNENXAS8TFV37T46BM9RRN8G","clip_01JMT2XKK30QVHNRNRR8SVZ0F0","clip_01JMS82SQG0J50019N7VM84ETN","clip_01JMS7FD52KJ2RHG40XQ3WAMHC","clip_01JM5PGFPMMR3NYVGK5BGN9BZP","clip_01JKKFD618N38KNWRTPB37J9YZ","clip_01JJSXBYA8E30W5QTEDZPCQWYC","clip_01JJSVR3W9JGDE8EXRBJRRH8GE","clip_01JJ1KWZ174GXPVAX35BBEEQQF","clip_01JJ0G06PFXSXMTWDDP6DF0KYG","clip_01JJ0FSPGKN3DFH70628BF2CEF","clip_01JJ0F5EHN4SJ26ZV916GAXH2X","clip_01JJ0F0PEM3XMG4QPJR2E25MK2","clip_01JHBJEG9TWN640S0AD2F8S05S","clip_01JHBH4GC4NT5NZ7Z383R8H0JE","clip_01JGPX80G7MX2KFQJPWNPHVEG6","clip_01JGF9VVXZ7K4PMTCP8WW8XGVP","clip_01JGF4EWT5YNSVTKQZVP3K83WD","clip_01JGEED7DHDYRVQ19C3S1X37BS","clip_01JG7B9WJS0HG3G97XPX58J39Z","clip_01JG797AGNQ37BBS3B81DW4JX5","clip_01JFZ321S2VC4Z9EJ9YNYEJ9RX","clip_01JF5YMS5FJ61RYY95DX2BHJE9","clip_01JES7ZSJSPXH3Q1A8YZYQPCFW","clip_01JES5YMXHEC6DR1J5NEQ7DC0R","clip_01JEE1G19TJJA9NMB8Q7BBCNF2","clip_01JDZ6FVCRYNKRXYNA1EDF6X6K","clip_01JDEVEE587G9VYEYCV7JT23J7","clip_01JD318BASYB7B0J0Y281DG32C","clip_01JCVEAVZ9ZA752EAT9D7552YQ","clip_01JC954TB9FETG93PH65KMV5KJ","clip_01J9SF5XY4AEEW9F3DBRWTF82N","clip_01J914NJZHS4NMTXP2ABGD4BBX","clip_01J8X1SXKE466JM6FDXPQ9YE7H","clip_01J8R66KHRC45FHN2B7B3EAJ40","clip_01J7PF4AD9R55J5WRZW4SG568D","clip_01J7H79SCWKW304HXF4PC86WFP","clip_01J4J3H15FE27QKRP2TAEVQZF1","clip_01J4HGG0T9HBSCND9Z47HK0ZJB","clip_01J4H670JSMBWGZXY2642Q4A0T","clip_01J4F7V3S8Q2DQV406N0QGQNN0","clip_01J4F724F264AK6NVW1ZJ0KC8R","clip_01J4EV42HPQSWR72GMH4SGYNET","clip_01J42KNYTJ660DNNJEAXAFTB7X","clip_01J42KN8MJXMWK285ZEJM9FKKH","clip_01J429J1HXZQMNFFB09NNBBFTV","clip_01J428XT2K9NMXQWQYSK5VWQW5","clip_01J428RFKB46QDWD4CGW6YEDKW","clip_01J406TKTD2DHX0JDR71C2XRNQ","clip_01J3ZY3AKRF8MN16M3ERPRZ6X3","clip_01J3ZF8N934WF0FSBF9ZY37J0Y","clip_01J3ZCBMVQXFAPMKJSBP4QJ0QS","clip_01J3Z4CS2DFFGQT18VJB4BQC45","clip_01J3Z2K825DSG32E8T7WK1WZ23","clip_01J3XNM6A676AENHNZW9P2V25T","clip_01J3TW5T9HGKX1CNNXE8HS6GBJ","clip_01J3TK73G1QYGG5ZEWBKYP5X3E","clip_01J3TBKZTZ3AWMQXMQQPSQ1CX4","clip_01J3P3FXXWEB2DVJTAJWVJPZSV","clip_01J3K2H9YM7FBRJFPXSRNFS5MV","clip_01J3JBM64T1WA5951545QZ770R","clip_01J3GSQ7WCX54XVB6BMS0WQSHE","clip_01J3GGHA0RTNRHEYTG9G4FBBXY","clip_01J3DV40025XSJTDB2YKJTC2JZ","clip_01J3DA4ZH6KDHAP6D7G44TVNCV","clip_01J3BQ0ZX8VD19E0AJAEQE0TP3","clip_error","clip_success","clip_title","clip_created"];
+// --- Audio System (Updated) ---
+// BURAYA KOPYALADIĞIN GITHUB RAW LINKINI YAPIŞTIR
+const CUSTOM_HEART_SOUND_URL = 'https://raw.githubusercontent.com/KULLANICI_ADI/REPO_ADI/main/sehburyeah.mp3'; 
 
-let master = [];
+const heartAudio = new Audio(CUSTOM_HEART_SOUND_URL);
+heartAudio.volume = 0.5; // Ses seviyesi (0.0 ile 1.0 arası)
 
-function buildMasterList() {
-    master = [];
-    twitchClips.forEach(i => master.push({id:i, type:"twitch"}));
-    kickClips.forEach(i => master.push({id:i, type:"kick"}));
-}
-
-buildMasterList();
-
-let busy = false;
-let currentClipType = null;
-
-/* ================= PLATFORM INDICATOR ================= */
-function showPlatformIndicator(type) {
-    const indicator = document.getElementById('platform-indicator');
-    indicator.textContent = type.toUpperCase();
-    indicator.className = `show ${type}`;
+const AudioSys = {
+    ctx: new (window.AudioContext || window.webkitAudioContext)(),
+    playTone(freq, type, duration, vol=0.1) {
+        if(this.ctx.state === 'suspended') this.ctx.resume();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    },
+    playShoot() { this.playTone(400 + Math.random()*200, 'square', 0.1, 0.05); },
+    playHit() { this.playTone(100, 'sawtooth', 0.2, 0.1); },
+    playShield() { this.playTone(800, 'sine', 0.1, 0.1); },
+    playCoin() { this.playTone(1200, 'sine', 0.1, 0.05); this.playTone(1800, 'sine', 0.1, 0.05); },
     
-    setTimeout(() => {
-        indicator.classList.remove('show');
-    }, 2000);
-}
-
-/* ================= PLAYER ================= */
-async function playRandom() {
-    if (busy) return;
-    busy = true;
-
-    // Güvenlik: Eğer bir hata olursa 3 saniye sonra busy kilidini kaldır
-    setTimeout(() => { busy = false; }, 3000);
-
-    const loader = document.getElementById("loading-overlay");
-    const slot = document.getElementById("video-slot");
-    const frame = document.getElementById("video-frame"); 
-
-    loader.style.opacity = "1";
-    slot.innerHTML = "";
-    slot.className = ""; 
-    
-    frame.classList.remove("kick-active");
-
-    await new Promise(resolve => setTimeout(resolve, 600));
-
-    const clip = master[Math.floor(Math.random() * master.length)];
-    currentClipType = clip.type;
-
-    showPlatformIndicator(clip.type);
-
-    try {
-        if (clip.type === "twitch") {
-            const domain = location.hostname || "localhost";
-            slot.innerHTML = `
-              <iframe 
-                class="twitch-player"
-                src="https://clips.twitch.tv/embed?clip=${clip.id}&parent=${domain}&autoplay=true"
-                scrolling="no"
-                frameborder="0"
-                allowfullscreen>
-              </iframe>`;
-            
-            loader.style.opacity = "0";
-            busy = false; // İşlem tamam
-            
-        } else if (clip.type === "kick") {
-            frame.classList.add("kick-active");
-            slot.className = "kick-mode";
-            
-            slot.innerHTML = `
-              <iframe 
-                class="kick-player"
-                src="https://kick.com/shrbrk/clips/${clip.id}"
-                scrolling="no"
-                frameborder="0"
-                allowfullscreen
-                allow="autoplay; encrypted-media">
-              </iframe>`;
-            
-            loader.style.opacity = "0";
-            busy = false; // İşlem tamam
-        }
-    } catch (error) {
-        console.error('Video load error:', error);
-        loader.style.opacity = "0";
-        setTimeout(() => playRandom(), 1500);
-        busy = false;
+    // Eski melodi yerine MP3 çalacak fonksiyon
+    playLoveSound() {
+        // Eğer ses zaten çalıyorsa başa sarıp tekrar çalar
+        heartAudio.currentTime = 0;
+        heartAudio.play().catch(e => console.log("Ses çalma hatası (Tarayıcı izni gerekebilir):", e));
     }
-}
-
-/* ================= INPUT CONTROLS ================= */
-let scrollHintTimeout;
-
-// WHEEL EVENT: Window üzerinden dinle
-// Eğer fare, iframe'in üzerindeyse olay tetiklenmeyebilir.
-// Bu yüzden maskeler ve kenar boşlukları önemli.
-window.addEventListener("wheel", e => {
-    // Sadece aşağı veya yukarı belirgin bir hareket olduğunda
-    if (Math.abs(e.deltaY) > 20) {
-        playRandom();
-        
-        const hint = document.getElementById('scroll-hint');
-        hint.classList.add('hidden');
-        clearTimeout(scrollHintTimeout);
-    }
-}, { passive: true });
-
-// KLAVYE DESTEĞİ
-window.addEventListener("keydown", e => {
-    if (e.key === "ArrowDown" || e.key === " " || e.key === "ArrowRight") {
-        playRandom();
-    }
-});
-
-// TOUCH DÜZENİ
-let touchY = 0;
-window.addEventListener("touchstart", e => {
-    touchY = e.changedTouches[0].screenY;
-}, { passive: true });
-
-window.addEventListener("touchend", e => {
-    if (touchY - e.changedTouches[0].screenY > 50) {
-        playRandom();
-        document.getElementById('scroll-hint').classList.add('hidden');
-    }
-});
-
-// Hint Gizle/Göster
-let mouseTimeout;
-window.addEventListener("mousemove", () => {
-    const hint = document.getElementById('scroll-hint');
-    hint.classList.remove('hidden');
-    
-    clearTimeout(mouseTimeout);
-    mouseTimeout = setTimeout(() => {
-        hint.classList.add('hidden');
-    }, 3000);
-});
-
-/* ================= INIT ================= */
-window.onload = () => {
-    playRandom();
-    
-    setTimeout(() => {
-        document.getElementById('scroll-hint').classList.add('hidden');
-    }, 5000);
 };
-</script>
 
+// --- Game Constants & State ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const GAME = {
+    width: 1000,
+    height: 700,
+    state: 'WARMUP', // WARMUP, PLAYING, UPGRADE, GAMEOVER
+    difficulty: 1,
+    time: 0,
+    gameSpeed: 1.0, // For slow motion
+    maxTetherDist: 350,
+    gold: 0,
+    mission: {
+        active: false,
+        type: null, // 'KILL_RED', 'KILL_BLUE', 'GOLD', 'SURVIVE'
+        target: 0,
+        current: 0,
+        endTime: 0,
+        failedDamage: false
+    }
+};
+
+// --- Inputs ---
+const keys = {};
+window.addEventListener('keydown', e => keys[e.code] = true);
+window.addEventListener('keyup', e => keys[e.code] = false);
+
+// --- Entities ---
+class Player {
+    constructor(x, y, color, role) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.role = role; // 'blue' or 'red'
+        this.hp = 100;
+        this.maxHp = 100;
+        this.vx = 0;
+        this.vy = 0;
+        this.speedMult = 1.0;
+        this.dashCooldown = 0;
+        this.dashTimer = 0;
+    }
+
+    update(dt, partner) {
+        if (this.dashCooldown > 0) this.dashCooldown -= dt;
+
+        // Controls
+        let dx = 0; 
+        let dy = 0;
+        
+        if (this.role === 'blue') {
+            if (keys['KeyW']) dy = -1;
+            if (keys['KeyS']) dy = 1;
+            if (keys['KeyA']) dx = -1;
+            if (keys['KeyD']) dx = 1;
+            // Dash Input
+            if (keys['ShiftLeft'] && this.dashCooldown <= 0 && (dx!==0 || dy!==0)) {
+                this.performDash(dx, dy, partner);
+            }
+        } else {
+            if (keys['ArrowUp']) dy = -1;
+            if (keys['ArrowDown']) dy = 1;
+            if (keys['ArrowLeft']) dx = -1;
+            if (keys['ArrowRight']) dx = 1;
+            // Dash Input
+            if (keys['Enter'] && this.dashCooldown <= 0 && (dx!==0 || dy!==0)) {
+                this.performDash(dx, dy, partner);
+            }
+        }
+
+        // Normalization
+        if (dx !== 0 || dy !== 0) {
+            const len = Math.sqrt(dx*dx + dy*dy);
+            dx /= len; dy /= len;
+        }
+
+        // TENSION PHYSICS
+        const dist = Math.hypot(this.x - partner.x, this.y - partner.y);
+        
+        // Inverse Tension: Closer = Faster
+        // Map distance 0->Max to Speed 2.0->0.5
+        let tensionMod = 1.0 + (1.0 - (dist / GAME.maxTetherDist)); 
+        if(tensionMod < 0.5) tensionMod = 0.5;
+
+        // Base Speed
+        const speed = 250 * this.speedMult * tensionMod; 
+
+        this.x += dx * speed * dt * GAME.gameSpeed;
+        this.y += dy * speed * dt * GAME.gameSpeed;
+
+        // Bound Clamping
+        this.x = Math.max(15, Math.min(GAME.width-15, this.x));
+        this.y = Math.max(15, Math.min(GAME.height-15, this.y));
+    }
+
+    performDash(dx, dy, partner) {
+        this.dashCooldown = 8.0; // 8 seconds
+        
+        // 1. Lunge Forward
+        this.x += dx * 80;
+        this.y += dy * 80;
+        
+        // 2. Create Tension Particle
+        particles.push(new Particle(this.x, this.y, this.color, 'KAÇIŞ'));
+        AudioSys.playTone(200, 'sawtooth', 0.1);
+
+        // 3. Pull Partner (Snap) after delay
+        setTimeout(() => {
+            // Check if game is still running
+            if (GAME.state === 'GAMEOVER') return;
+            
+            // Snap logic
+            partner.x = this.x;
+            partner.y = this.y;
+            
+            particles.push(new Particle(this.x, this.y, 'white', 'Finger SNAP!', 20));
+            AudioSys.playTone(600, 'square', 0.1);
+        }, 200);
+    }
+
+    draw(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 15, 0, Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Dash CD Ring
+        if (this.dashCooldown > 0) {
+            ctx.strokeStyle = `rgba(255,255,255,0.5)`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 20, 0, (this.dashCooldown/8.0) * Math.PI*2);
+            ctx.stroke();
+        }
+    }
+}
+
+class Bullet {
+    constructor(x, y, target, isRed) {
+        this.x = x;
+        this.y = y;
+        this.isRed = isRed; // true = red bullet, false = blue bullet
+        this.color = isRed ? '#ff4444' : 'cyan';
+        this.radius = 6;
+        
+        const angle = Math.atan2(target.y - y, target.x - x);
+        const speed = 100 + (GAME.difficulty * 10);
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.life = 10; // seconds
+    }
+
+    update(dt) {
+        this.x += this.vx * dt * GAME.gameSpeed;
+        this.y += this.vy * dt * GAME.gameSpeed;
+        this.life -= dt;
+    }
+
+    draw(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+        ctx.fill();
+    }
+}
+
+class Item {
+    constructor(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.type = type; // 'gold', 'heart_blue', 'heart_red', 'heart_green'
+        this.timer = 15;
+    }
+    draw(ctx) {
+        ctx.font = "20px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        if (this.type === 'gold') {
+            ctx.fillStyle = "gold";
+            ctx.fillText("💰", this.x, this.y);
+        } else {
+            let c = (this.type === 'heart_blue') ? 'cyan' : (this.type === 'heart_red') ? 'red' : '#0f0';
+            ctx.fillStyle = c;
+            ctx.fillText("♥", this.x, this.y);
+        }
+    }
+}
+
+class Particle {
+    constructor(x, y, color, text, size=14) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.text = text;
+        this.life = 1.0;
+        this.size = size;
+    }
+    update(dt) {
+        this.y -= 20 * dt;
+        this.life -= dt;
+    }
+    draw(ctx) {
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.fillStyle = this.color;
+        ctx.font = `bold ${this.size}px Arial`;
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.globalAlpha = 1.0;
+    }
+}
+
+// --- Globals ---
+const P1 = new Player(400, 350, 'cyan', 'blue');
+const P2 = new Player(600, 350, '#ff4444', 'red');
+let bullets = [];
+let items = [];
+let particles = [];
+let lastTime = 0;
+let loveModeTimer = 0;
+let missionIntervalTimer = 0;
+
+// --- Core Logic ---
+
+function spawnEnemy() {
+    // Spawn edges
+    const side = Math.floor(Math.random() * 4);
+    let x, y;
+    if (side === 0) { x = Math.random()*GAME.width; y = -20; }
+    if (side === 1) { x = Math.random()*GAME.width; y = GAME.height+20; }
+    if (side === 2) { x = -20; y = Math.random()*GAME.height; }
+    if (side === 3) { x = GAME.width+20; y = Math.random()*GAME.height; }
+
+    const isRed = Math.random() > 0.5;
+    // Red bullets chase red player, Blue chase blue (harder)
+    // Or random? Prompt says "chasing players". 
+    // Let's make Red Bullet chase Red Player (needs Blue to shield) and vice versa.
+    const target = isRed ? P2 : P1; 
+    
+    bullets.push(new Bullet(x, y, target, isRed));
+}
+
+function checkCollisions() {
+    // Bullets
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        
+        // Hit Blue
+        const distBlue = Math.hypot(b.x - P1.x, b.y - P1.y);
+        if (distBlue < 21) {
+            if (b.isRed) {
+                // Red Bullet hits Blue -> SHIELDED
+                bullets.splice(i, 1);
+                particles.push(new Particle(P1.x, P1.y, 'cyan', 'engellendi'));
+                AudioSys.playShield();
+                if (GAME.mission.active && GAME.mission.type === 'KILL_RED') {
+                    GAME.mission.current++;
+                }
+            } else {
+                // Blue Bullet hits Blue -> OUCH
+                P1.hp -= 10;
+                bullets.splice(i, 1);
+                particles.push(new Particle(P1.x, P1.y, 'red', '-10 can'));
+                AudioSys.playHit();
+                GAME.mission.failedDamage = true;
+            }
+            continue;
+        }
+
+        // Hit Red
+        const distRed = Math.hypot(b.x - P2.x, b.y - P2.y);
+        if (distRed < 21) {
+            if (!b.isRed) {
+                // Blue Bullet hits Red -> SHIELDED
+                bullets.splice(i, 1);
+                particles.push(new Particle(P2.x, P2.y, '#ff4444', 'engellendi'));
+                AudioSys.playShield();
+                if (GAME.mission.active && GAME.mission.type === 'KILL_BLUE') {
+                    GAME.mission.current++;
+                }
+            } else {
+                // Red Bullet hits Red -> OUCH
+                P2.hp -= 10;
+                bullets.splice(i, 1);
+                particles.push(new Particle(P2.x, P2.y, 'red', '-10 Can'));
+                AudioSys.playHit();
+                GAME.mission.failedDamage = true;
+            }
+            continue;
+        }
+    }
+
+    // Items
+    for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
+        const dist1 = Math.hypot(item.x - P1.x, item.y - P1.y);
+        const dist2 = Math.hypot(item.x - P2.x, item.y - P2.y);
+        let picked = false;
+        let picker = null;
+
+        if (dist1 < 20) { picker = P1; picked = true; }
+        else if (dist2 < 20) { picker = P2; picked = true; }
+
+        if (picked) {
+            if (item.type === 'gold') {
+                GAME.gold++;
+                particles.push(new Particle(item.x, item.y, 'gold', '+1 PARA'));
+                if(GAME.mission.active && GAME.mission.type === 'GOLD') GAME.mission.current++;
+                AudioSys.playCoin();
+                items.splice(i, 1);
+            } else {
+                // Hearts
+                let valid = false;
+                if (item.type === 'heart_green') valid = true;
+                if (item.type === 'heart_blue' && picker === P1) valid = true;
+                if (item.type === 'heart_red' && picker === P2) valid = true;
+
+                if (valid) {
+                    picker.hp = Math.min(100, picker.hp + 25);
+                    activateLoveMode();
+                    items.splice(i, 1);
+                }
+            }
+        }
+    }
+}
+
+// ---activateLoveMode Fonksiyonunu Bul ve Güncelle---
+function activateLoveMode() {
+    loveModeTimer = 2.0; // 2 saniye yavaşlar
+    GAME.gameSpeed = 0.3; // Slow motion
+    bullets = []; // Mermileri temizle
+    particles.push(new Particle(500, 350, 'pink', '♥ SEHBURYEAH! ♥', 30));
+    
+    // BURAYI DEĞİŞTİRDİK: Artık MP3 çalıyor
+    AudioSys.playLoveSound(); 
+}
+
+function updateMission(dt) {
+    const elText = document.getElementById('mission-text');
+    const elTimer = document.getElementById('mission-timer');
+
+    if (!GAME.mission.active) {
+        // Wait for next mission
+        if (GAME.state === 'WARMUP' && GAME.time > 30) {
+            GAME.state = 'PLAYING';
+            startNewMission();
+        } else if (GAME.state === 'WARMUP') {
+            elText.innerHTML = "ISINMA TURU";
+            elTimer.innerHTML = Math.ceil(30 - GAME.time) + "s";
+        }
+        return;
+    }
+
+    const timeLeft = GAME.mission.endTime - GAME.time;
+    
+    // UI Update
+    let objStr = "";
+    if (GAME.mission.type === 'KILL_RED') objStr = `BLUE: Destroy ${GAME.mission.target - GAME.mission.current} Red Bullets`;
+    if (GAME.mission.type === 'KILL_BLUE') objStr = `RED: Destroy ${GAME.mission.target - GAME.mission.current} Blue Bullets`;
+    if (GAME.mission.type === 'GOLD') objStr = `TEAM: Collect ${GAME.mission.target - GAME.mission.current} Gold`;
+    if (GAME.mission.type === 'SURVIVE') objStr = `SURVIVE NO DAMAGE: ${Math.ceil(timeLeft)}s`;
+
+    elText.innerHTML = objStr;
+    elTimer.innerHTML = Math.ceil(timeLeft) + "s";
+
+    // Check Logic
+    let success = false;
+    let fail = false;
+
+    // Check Timeout Failure
+    if (timeLeft <= 0) {
+        if (GAME.mission.type === 'SURVIVE') {
+            if (!GAME.mission.failedDamage) success = true;
+            else fail = true;
+        } else {
+            fail = true;
+        }
+    }
+
+    // Check Objective Success
+    if (GAME.mission.type === 'KILL_RED' && GAME.mission.current >= GAME.mission.target) success = true;
+    if (GAME.mission.type === 'KILL_BLUE' && GAME.mission.current >= GAME.mission.target) success = true;
+    if (GAME.mission.type === 'GOLD' && GAME.mission.current >= GAME.mission.target) success = true;
+    if (GAME.mission.type === 'SURVIVE' && GAME.mission.failedDamage) fail = true;
+
+    if (fail) {
+        // Punishment
+        P1.hp = Math.floor(P1.hp / 2);
+        P2.hp = Math.floor(P2.hp / 2);
+        particles.push(new Particle(500, 350, 'red', 'MISSION FAILED: HP HALVED', 40));
+        startNewMission(); // Retry/Next immediately
+    } else if (success) {
+        // Reward
+        openUpgradeMenu();
+    }
+}
+
+function startNewMission() {
+    GAME.mission.active = true;
+    GAME.mission.failedDamage = false;
+    GAME.mission.current = 0;
+    
+    const types = ['KILL_RED', 'KILL_BLUE', 'GOLD', 'SURVIVE'];
+    const type = types[Math.floor(Math.random() * types.length)];
+    GAME.mission.type = type;
+
+    const baseTime = 30; // Seconds
+
+    if (type === 'KILL_RED') GAME.mission.target = 3 + GAME.difficulty;
+    if (type === 'KILL_BLUE') GAME.mission.target = 3 + GAME.difficulty;
+    if (type === 'GOLD') GAME.mission.target = 5 + Math.floor(GAME.difficulty/2);
+    if (type === 'SURVIVE') GAME.mission.target = 0; // Just time
+
+    GAME.mission.endTime = GAME.time + (type === 'SURVIVE' ? 20 : 30);
+}
+
+function openUpgradeMenu() {
+    GAME.state = 'UPGRADE';
+    GAME.difficulty++; // Increase difficulty
+    
+    const modal = document.getElementById('upgrade-modal');
+    const container = document.getElementById('upgrade-options');
+    container.innerHTML = '';
+    
+    // Pool
+    const pool = [
+        { txt: "Seho HIz +20%", apply: () => P1.speedMult += 0.2 },
+        { txt: "Burak HIZ +20%", apply: () => P2.speedMult += 0.2 },
+        { txt: "Seho Azami Can +20", apply: () => { P1.maxHp+=20; P1.hp+=20; } },
+        { txt: "Burak Azami Can +20", apply: () => { P2.maxHp+=20; P2.hp+=20; } },
+        { txt: "İyileş", apply: () => { P1.hp = Math.min(P1.maxHp, P1.hp+50); P2.hp = Math.min(P2.maxHp, P2.hp+50); } },
+        { txt: "Tension Mastery (Faster Max Stretch)", apply: () => { GAME.maxTetherDist += 50; } }
+    ];
+
+    // Pick 3 random
+    for(let i=0; i<3; i++) {
+        const u = pool[Math.floor(Math.random()*pool.length)];
+        const btn = document.createElement('button');
+        btn.className = 'upgrade-btn';
+        btn.innerText = u.txt;
+        btn.onclick = () => {
+            u.apply();
+            modal.style.display = 'none';
+            GAME.state = 'PLAYING';
+            lastTime = performance.now(); // Reset delta
+            startNewMission();
+        };
+        container.appendChild(btn);
+    }
+    
+    modal.style.display = 'block';
+}
+
+function checkTetherSnap() {
+    const dist = Math.hypot(P1.x - P2.x, P1.y - P2.y);
+    if (dist > GAME.maxTetherDist) {
+        // Snap to midpoint
+        const midX = (P1.x + P2.x) / 2;
+        const midY = (P1.y + P2.y) / 2;
+        P1.x = midX - 20; P1.y = midY;
+        P2.x = midX + 20; P2.y = midY;
+        
+        particles.push(new Particle(midX, midY, 'white', 'Kader Birleşti', 25));
+        AudioSys.playTone(150, 'square', 0.2);
+    }
+}
+
+// --- Main Loop ---
+
+function gameLoop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    const dt = (timestamp - lastTime) / 1000;
+    lastTime = timestamp;
+
+    if (GAME.state === 'UPGRADE') {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    if (GAME.state === 'GAMEOVER') {
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillRect(0,0,GAME.width, GAME.height);
+        ctx.fillStyle = 'red';
+        ctx.font = '60px Arial';
+        ctx.fillText("OYUN BİTTİ", 350, 350);
+        return;
+    }
+
+    // Logic
+    GAME.time += dt;
+
+    // Love Mode Timer
+    if (loveModeTimer > 0) {
+        loveModeTimer -= dt;
+        if (loveModeTimer <= 0) GAME.gameSpeed = 1.0;
+    }
+
+    // Spawning
+    if (Math.random() < (0.02 + (GAME.difficulty * 0.005)) * GAME.gameSpeed) {
+        spawnEnemy();
+    }
+    // Items
+    if (Math.random() < 0.005) {
+        items.push(new Item(Math.random()*GAME.width, Math.random()*GAME.height, 'gold'));
+    }
+    if (Math.random() < 0.002) {
+        const t = Math.random();
+        let type = 'heart_green';
+        if (t < 0.33) type = 'heart_blue';
+        else if (t < 0.66) type = 'heart_red';
+        items.push(new Item(Math.random()*GAME.width, Math.random()*GAME.height, type));
+    }
+
+    // Update Entities
+    P1.update(dt, P2);
+    P2.update(dt, P1);
+    checkTetherSnap();
+
+    bullets.forEach(b => b.update(dt));
+    particles.forEach(p => p.update(dt));
+    
+    // Cleanup
+    bullets = bullets.filter(b => b.life > 0 && b.x > -50 && b.x < GAME.width+50 && b.y > -50 && b.y < GAME.height+50);
+    particles = particles.filter(p => p.life > 0);
+    items.forEach(i => i.timer -= dt);
+    
+    checkCollisions();
+    updateMission(dt);
+
+    if (P1.hp <= 0 && P2.hp <= 0) GAME.state = 'GAMEOVER';
+
+    // --- Draw ---
+    ctx.clearRect(0, 0, GAME.width, GAME.height);
+
+    // Tether
+    ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 + (1.0 - (Math.hypot(P1.x-P2.x, P1.y-P2.y)/GAME.maxTetherDist))})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(P1.x, P1.y);
+    ctx.bezierCurveTo((P1.x+P2.x)/2, (P1.y+P2.y)/2 + 50, (P1.x+P2.x)/2, (P1.y+P2.y)/2 - 50, P2.x, P2.y);
+    ctx.stroke();
+
+    items.forEach(i => i.draw(ctx));
+    P1.draw(ctx);
+    P2.draw(ctx);
+    bullets.forEach(b => b.draw(ctx));
+    particles.forEach(p => p.draw(ctx));
+
+    // Update HP UI
+    document.getElementById('hp-blue').style.width = (P1.hp/P1.maxHp)*100 + "%";
+    document.getElementById('hp-red').style.width = (P2.hp/P2.maxHp)*100 + "%";
+
+    requestAnimationFrame(gameLoop);
+}
+
+requestAnimationFrame(gameLoop);
+
+</script>
 </body>
 </html>
