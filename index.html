@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tethered Souls - Physics Tetris</title>
+    <title>SEH-kader-BUR</title>
     <style>
         body {
             margin: 0;
-            background: #050505;
+            background: #050505; /* Arka planı daha koyu yaptım ki grid belli olsun */
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
@@ -18,19 +18,20 @@
         }
         #gameContainer {
             position: relative;
-            box-shadow: 0 0 60px rgba(100, 0, 255, 0.2);
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.1);
         }
         canvas {
-            background: #0a0a10;
+            background: #0a0a10; /* Canvas rengi koyu */
             display: block;
             border: 2px solid #333;
         }
+        /* UI Arayüz */
         #ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
             display: flex; flex-direction: column; justify-content: space-between;
             padding: 20px; box-sizing: border-box;
-            z-index: 500;
         }
         .top-bar { display: flex; justify-content: space-between; width: 100%; text-shadow: 1px 1px 4px black; }
         .hp-bar-container { width: 200px; background: #333; height: 20px; border: 2px solid white; position: relative; }
@@ -43,21 +44,26 @@
             text-align: center; font-size: 24px; font-weight: bold;
             color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
+
+        /* Başlangıç Ekranı */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
-            z-index: 600; cursor: pointer;
+            z-index: 200; cursor: pointer;
             backdrop-filter: blur(5px);
         }
         #start-screen h1 { font-size: 50px; color: cyan; margin: 0; text-shadow: 0 0 20px cyan; }
+        #start-screen p { font-size: 20px; color: white; animation: blink 1s infinite; }
+
+        /* Upgrade Modal */
         #upgrade-modal {
             display: none; position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.95); border: 2px solid #ffd700;
             padding: 20px; text-align: center; pointer-events: auto;
-            border-radius: 10px; z-index: 600; min-width: 400px;
+            border-radius: 10px; z-index: 100; min-width: 400px;
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
         }
         .upgrade-btn {
@@ -66,6 +72,8 @@
             cursor: pointer; font-size: 18px; transition: 0.2s;
         }
         .upgrade-btn:hover { background: #444; border-color: cyan; transform: scale(1.02); }
+
+        @keyframes blink { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
@@ -74,12 +82,10 @@
     <canvas id="gameCanvas" width="1000" height="700"></canvas>
     
     <div id="start-screen" onclick="startGame()">
-        <h1>PHYSICS TETRIS</h1>
+        <h1>SEH-kader-BUR</h1>
         <p>BAŞLAMAK İÇİN TIKLA</p>
         <div style="margin-top:20px; font-size:14px; color:#aaa;">
             MAVİ: W,A,S,D + SHIFT | KIRMIZI: Yön Tuşları + ENTER
-            <br><br>
-            ŞEKİLLERİ İT, SIKIŞTIR VE SATIRLARI YOK ET!
         </div>
     </div>
 
@@ -98,7 +104,7 @@
 
     <div id="mission-display">
         <div id="mission-text">ISINMA TURU</div>
-        <div id="mission-timer">30s</div>
+        <div id="mission-timer">15s</div>
     </div>
 
     <div id="upgrade-modal">
@@ -108,8 +114,13 @@
 </div>
 
 <script>
+/**
+ * TETHERED SOULS - GRID & PHYSICS EDITION
+ */
+
 // --- Audio System ---
 const CUSTOM_HEART_SOUND_URL = 'https://raw.githubusercontent.com/l4Vuk/sites/main/sehburyeah.mp3'; 
+
 const heartAudio = new Audio(CUSTOM_HEART_SOUND_URL);
 heartAudio.volume = 0.5;
 
@@ -131,17 +142,13 @@ const AudioSys = {
     playShoot() { this.playTone(400 + Math.random()*200, 'square', 0.1, 0.05); },
     playHit() { this.playTone(100, 'sawtooth', 0.2, 0.1); },
     playShield() { this.playTone(800, 'sine', 0.1, 0.1); },
-    playLineClear() { 
-        this.playTone(400, 'sine', 0.1, 0.2);
-        setTimeout(()=>this.playTone(600, 'sine', 0.1, 0.2), 100);
-        setTimeout(()=>this.playTone(800, 'square', 0.2, 0.2), 200);
-    },
     playLoveSound() {
         heartAudio.currentTime = 0;
         heartAudio.play().catch(e => console.log(e));
     }
 };
 
+// --- OYUN DEĞİŞKENLERİ ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -158,176 +165,89 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// --- TETROMINO SHAPES ---
-const SHAPES = {
-    I: { color: '#00f0f0', map: [[1,1,1,1]] },
-    J: { color: '#0000f0', map: [[1,0,0],[1,1,1]] },
-    L: { color: '#f0a000', map: [[0,0,1],[1,1,1]] },
-    O: { color: '#f0f000', map: [[1,1],[1,1]] },
-    S: { color: '#00f000', map: [[0,1,1],[1,1,0]] },
-    T: { color: '#a000f0', map: [[0,1,0],[1,1,1]] },
-    Z: { color: '#f00000', map: [[1,1,0],[0,1,1]] }
-};
-const BLOCK_SIZE = 50;
-
-// --- TETROMINO CLASS ---
-class Tetromino {
-    constructor() {
-        const keys = Object.keys(SHAPES);
-        const type = keys[Math.floor(Math.random() * keys.length)];
-        this.def = SHAPES[type];
-        this.map = this.def.map;
-        this.color = this.def.color;
-        
-        // Grid'e hizalı başla
-        this.x = Math.floor(Math.random() * (GAME.width / BLOCK_SIZE - this.map[0].length)) * BLOCK_SIZE;
-        this.y = -BLOCK_SIZE * 3;
-        this.vy = 2 + (Math.random() * 1);
-        this.grounded = false;
-        
-        // Physics properties
-        this.mass = 10;
-    }
-
-    // Bloğun dolu olan hücrelerinin dünya üzerindeki koordinatlarını (Rect olarak) döndürür
-    getRects(offsetX = 0, offsetY = 0) {
-        let rects = [];
-        for(let r=0; r<this.map.length; r++) {
-            for(let c=0; c<this.map[r].length; c++) {
-                if(this.map[r][c] === 1) {
-                    rects.push({
-                        x: this.x + (c * BLOCK_SIZE) + offsetX,
-                        y: this.y + (r * BLOCK_SIZE) + offsetY,
-                        w: BLOCK_SIZE,
-                        h: BLOCK_SIZE
-                    });
-                }
-            }
-        }
-        return rects;
-    }
-
-    update(dt, allBlocks) {
-        if (this.grounded) return;
-
-        // Yerçekimi hareketi (Basit Collision Check)
-        let nextY = this.y + (this.vy * 60 * dt * GAME.gameSpeed);
-        
-        if (!this.checkCollision(0, nextY - this.y, allBlocks)) {
-            this.y = nextY;
-        } else {
-            // Çarpışma var, aşağı inemiyoruz -> Grounded
-            // Grid'e hizala (Snap)
-            this.y = Math.floor(this.y / 10) * 10; // Hafif snap
-            this.grounded = true;
-        }
-
-        // Zemin kontrolü (Ekstra güvenlik)
-        let rects = this.getRects();
-        for(let r of rects) {
-            if (r.y + r.h >= GAME.height) {
-                this.y -= (r.y + r.h - GAME.height);
-                this.grounded = true;
-            }
-        }
-    }
-
-    // Gelecekteki bir pozisyonda çarpışma var mı?
-    checkCollision(dx, dy, allBlocks) {
-        let myRects = this.getRects(dx, dy);
-        
-        // 1. Zemin ve Duvar Kontrolü
-        for(let r of myRects) {
-            if (r.y + r.h > GAME.height) return true; // Zemin
-            if (r.x < 0) return true; // Sol Duvar
-            if (r.x + r.w > GAME.width) return true; // Sağ Duvar
-        }
-
-        // 2. Diğer Bloklarla Kontrol
-        for(let other of allBlocks) {
-            if (other === this) continue;
-            let otherRects = other.getRects();
-            
-            for(let myR of myRects) {
-                for(let otherR of otherRects) {
-                    // AABB Çarpışma
-                    if (myR.x < otherR.x + otherR.w &&
-                        myR.x + myR.w > otherR.x &&
-                        myR.y < otherR.y + otherR.h &&
-                        myR.y + myR.h > otherR.y) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    draw(ctx) {
-        ctx.fillStyle = this.color; // Renkli
-        ctx.strokeStyle = 'white'; // Dış çizgi
-        ctx.lineWidth = 2;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = this.color;
-
-        let rects = this.getRects();
-        for(let r of rects) {
-            ctx.fillRect(r.x, r.y, r.w, r.h);
-            ctx.strokeRect(r.x, r.y, r.w, r.h);
-        }
-        ctx.shadowBlur = 0;
-    }
-}
-
-// ... Player, BackgroundGrid, vb. sınıfları burada ...
+// --- ARKA PLAN GRID SİSTEMİ (YENİ) ---
 class BackgroundGrid {
     constructor(width, height, cellSize) {
         this.cellSize = cellSize;
         this.cols = Math.ceil(width / cellSize);
         this.rows = Math.ceil(height / cellSize);
         this.cells = [];
-        for(let i=0; i<this.cols * this.rows; i++) { this.cells.push({ val: 0 }); }
+        
+        // Grid hücrelerini oluştur
+        for(let i=0; i<this.cols * this.rows; i++) {
+            this.cells.push({
+                val: 0 // 0 = Sönük, 1 = Tam Parlak/Büyük
+            });
+        }
     }
+
     update(p1, p2) {
+        // 1. Tüm hücrelerin parlaklığını azalt (Decay)
         for(let i=0; i<this.cells.length; i++) {
-            this.cells[i].val *= 0.92;
+            this.cells[i].val *= 0.92; // Her karede %8 azalır
             if(this.cells[i].val < 0.01) this.cells[i].val = 0;
         }
+
+        // 2. Oyuncuların olduğu hücreleri parlat
         [p1, p2].forEach(p => {
             let cx = Math.floor(p.x / this.cellSize);
             let cy = Math.floor(p.y / this.cellSize);
+            
+            // Sınır kontrolü
             if(cx >= 0 && cx < this.cols && cy >= 0 && cy < this.rows) {
                 let index = cy * this.cols + cx;
-                this.cells[index].val = 1.0;
-                [index-1, index+1, index-this.cols, index+this.cols].forEach(n => {
+                this.cells[index].val = 1.5; // Parlat
+                
+                // Etrafındakileri de hafif parlat (Daha yumuşak görüntü için)
+                let neighbors = [index-1, index+1, index-this.cols, index+this.cols];
+                neighbors.forEach(n => {
                     if(this.cells[n]) this.cells[n].val = Math.max(this.cells[n].val, 0.5);
                 });
             }
         });
     }
+
     draw(ctx) {
         ctx.lineWidth = 1;
+        
         for(let y=0; y<this.rows; y++) {
             for(let x=0; x<this.cols; x++) {
                 let index = y * this.cols + x;
                 let cell = this.cells[index];
+                
+                let posX = x * this.cellSize;
+                let posY = y * this.cellSize;
+
+                // Sadece aktif olanları efektli çiz, diğerlerini sönük çiz
                 if(cell.val > 0.05) {
-                    let posX = x * this.cellSize, posY = y * this.cellSize, center = this.cellSize / 2;
-                    let scale = 1 - (cell.val * 0.95);
-                    ctx.save(); ctx.translate(posX + center, posY + center); ctx.scale(scale, scale);
+                    // Animasyonlu çizim (Scale + Parlaklık)
+                    let center = this.cellSize / 2;
+                    let scale = 1 - (cell.val * 0.65); // %50 büyür
+                    
+                    ctx.save();
+                    ctx.translate(posX + center, posY + center);
+                    ctx.scale(scale, scale);
+                    
                     ctx.strokeStyle = `rgba(100, 200, 255, ${cell.val * 0.6})`;
                     ctx.fillStyle = `rgba(100, 200, 255, ${cell.val * 0.1})`;
-                    ctx.beginPath(); ctx.rect(-center, -center, this.cellSize, this.cellSize);
-                    ctx.fill(); ctx.stroke(); ctx.restore();
+                    
+                    ctx.beginPath();
+                    ctx.rect(-center, -center, this.cellSize, this.cellSize);
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    ctx.restore();
                 } else {
+                    // Sabit sönük grid çizgileri
                     ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-                    ctx.strokeRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+                    ctx.strokeRect(posX, posY, this.cellSize, this.cellSize);
                 }
             }
         }
     }
 }
 
+// --- OYUNCU SINIFI ---
 class Player {
     constructor(x, y, color, role) {
         this.x = x; this.y = y;
@@ -336,7 +256,6 @@ class Player {
         this.baseSpeed = 300;
         this.speedMult = 1.0;
         this.dashCooldown = 0;
-        this.radius = 15;
     }
 
     update(dt, partner) {
@@ -362,12 +281,17 @@ class Player {
             dx /= len; dy /= len;
         }
 
+        // --- İP FİZİĞİ (GÜNCELLENMİŞ) ---
+        // Uzaklaştıkça YAVAŞLAR.
         const dist = Math.hypot(this.x - partner.x, this.y - partner.y);
+        
         let tension = dist / GAME.maxTetherDist;
         if (tension > 1) tension = 1;
 
-        let physicsSpeedMod = 1.0 - (tension * 0.95); 
-        if (physicsSpeedMod < 0.05) physicsSpeedMod = 0.05;
+        // tension 0 (yakın) -> Hız 1.0
+        // tension 1 (uzak) -> Hız 0.01
+        let physicsSpeedMod = 1.0 - (tension * 1); 
+        if (physicsSpeedMod < 0.2) physicsSpeedMod = 0.2;
 
         const finalSpeed = this.baseSpeed * this.speedMult * physicsSpeedMod;
 
@@ -382,9 +306,11 @@ class Player {
         this.dashCooldown = 15.0; 
         this.x += dx * 100;
         this.y += dy * 100;
+        
         setTimeout(() => {
             if (GAME.state === 'GAMEOVER') return;
-            partner.x = this.x; partner.y = this.y;
+            partner.x = this.x;
+            partner.y = this.y;
             particles.push(new Particle(this.x, this.y, 'white', 'ÇEKİLDİ!', 20));
             AudioSys.playTone(600, 'square', 0.1);
         }, 200);
@@ -392,14 +318,17 @@ class Player {
 
     draw(ctx) {
         ctx.fillStyle = this.color;
-        ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(this.x, this.y, 15, 0, Math.PI*2); ctx.fill();
         if (this.dashCooldown > 0) {
             ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.arc(this.x, this.y, 22, 0, (this.dashCooldown/15.0) * Math.PI*2); ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 22, 0, (this.dashCooldown/15.0) * Math.PI*2);
+            ctx.stroke();
         }
     }
 }
 
+// --- DİĞER NESNELER ---
 class Bullet {
     constructor(x, y, target, isRed) {
         this.x = x; this.y = y; this.isRed = isRed;
@@ -410,16 +339,24 @@ class Bullet {
         this.vy = Math.sin(angle) * speed;
         this.life = 10;
     }
-    update(dt) { this.x += this.vx * dt * GAME.gameSpeed; this.y += this.vy * dt * GAME.gameSpeed; this.life -= dt; }
+    update(dt) {
+        this.x += this.vx * dt * GAME.gameSpeed;
+        this.y += this.vy * dt * GAME.gameSpeed;
+        this.life -= dt;
+    }
     draw(ctx) {
         ctx.fillStyle = this.color;
         ctx.beginPath(); ctx.arc(this.x, this.y, 6, 0, Math.PI*2); ctx.fill();
-        ctx.shadowBlur = 10; ctx.shadowColor = this.color; ctx.fill(); ctx.shadowBlur = 0;
+        ctx.shadowBlur = 10; ctx.shadowColor = this.color; // Glow effect
+        ctx.fill(); ctx.shadowBlur = 0;
     }
 }
 
 class Item {
-    constructor(x, y, type) { this.x = x; this.y = y; this.type = type; this.timer = 15; }
+    constructor(x, y, type) {
+        this.x = x; this.y = y; this.type = type;
+        this.timer = 15;
+    }
     draw(ctx) {
         ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         if (this.type === 'gold') { ctx.fillStyle = "gold"; ctx.fillText("💰", this.x, this.y); }
@@ -431,7 +368,10 @@ class Item {
 }
 
 class Particle {
-    constructor(x, y, color, text, size=14) { this.x = x; this.y = y; this.color = color; this.text = text; this.life = 1.0; this.size = size; }
+    constructor(x, y, color, text, size=14) {
+        this.x = x; this.y = y; this.color = color; this.text = text;
+        this.life = 1.0; this.size = size;
+    }
     update(dt) { this.y -= 30 * dt; this.life -= dt; }
     draw(ctx) {
         ctx.globalAlpha = Math.max(0, this.life);
@@ -443,13 +383,13 @@ class Particle {
 // --- INIT & LOOP ---
 const P1 = new Player(400, 350, 'cyan', 'blue');
 const P2 = new Player(600, 350, '#ff4444', 'red');
-const bgGrid = new BackgroundGrid(GAME.width, GAME.height, BLOCK_SIZE);
-let bullets = [], items = [], particles = [], obstacles = [];
+const bgGrid = new BackgroundGrid(GAME.width, GAME.height, 20); // 40px grid size
+let bullets = [], items = [], particles = [];
 let lastTime = 0, loveModeTimer = 0;
 
 function startGame() {
     document.getElementById('start-screen').style.display = 'none';
-    AudioSys.playTone(0, 'sine', 0);
+    AudioSys.playTone(0, 'sine', 0); // Audio context unlock
     GAME.state = 'WARMUP';
     requestAnimationFrame(gameLoop);
 }
@@ -469,16 +409,17 @@ function updateGame(dt) {
     if (GAME.state === 'UPGRADE') return;
     
     GAME.time += dt;
-    if (loveModeTimer > 0) { loveModeTimer -= dt; if (loveModeTimer <= 0) GAME.gameSpeed = 1.0; }
+    if (loveModeTimer > 0) {
+        loveModeTimer -= dt;
+        if (loveModeTimer <= 0) GAME.gameSpeed = 1.0;
+    }
 
+    // Grid Update
     bgGrid.update(P1, P2);
 
+    // Spawn Logic
     if (Math.random() < (0.015 + (GAME.difficulty * 0.005)) * GAME.gameSpeed) spawnEnemy();
     if (Math.random() < 0.005) items.push(new Item(Math.random()*GAME.width, Math.random()*GAME.height, 'gold'));
-    
-    // SPAWN TETROMINO
-    if (Math.random() < 0.003 + (GAME.difficulty * 0.0005)) { obstacles.push(new Tetromino()); }
-
     if (Math.random() < 0.002) {
         const r = Math.random();
         let t = 'heart_green';
@@ -488,159 +429,27 @@ function updateGame(dt) {
 
     P1.update(dt, P2); P2.update(dt, P1);
     
+    // Snap Logic
     const dist = Math.hypot(P1.x - P2.x, P1.y - P2.y);
     if (dist > GAME.maxTetherDist + 10) {
         const mx = (P1.x+P2.x)/2, my = (P1.y+P2.y)/2;
         P1.x = mx-10; P1.y = my; P2.x = mx+10; P2.y = my;
-        particles.push(new Particle(mx, my, 'white', 'KOPMA!', 25));
+        particles.push(new Particle(mx, my, 'white', 'kader birleşti!', 15));
     }
 
     bullets.forEach(b => b.update(dt));
     items.forEach(i => i.timer -= dt);
-    
-    // Tetromino Update
-    obstacles.forEach(o => o.update(dt, obstacles));
-    
     particles.forEach(p => p.update(dt));
     
     bullets = bullets.filter(b => b.life > 0 && b.x > -50 && b.x < GAME.width+50);
     items = items.filter(i => i.timer > 0);
     particles = particles.filter(p => p.life > 0);
 
-    checkBlockAbsorb();
-    checkLineClears();
     checkCollisions();
     updateMission(dt);
 }
 
-// YENİ İTME FİZİĞİ
-function resolveBlockPush(p, block) {
-    // 1. Oyuncu bloğun içinde mi veya çok yakınında mı?
-    // Bloğun her bir karesi (sub-rect) ile oyuncuyu kontrol et
-    let rects = block.getRects();
-    let hitRect = null;
-    let pushX = 0;
-    
-    for (let r of rects) {
-        // AABB vs Circle
-        let testX = p.x;
-        let testY = p.y;
-        if (p.x < r.x) testX = r.x;
-        else if (p.x > r.x + r.w) testX = r.x + r.w;
-        if (p.y < r.y) testY = r.y;
-        else if (p.y > r.y + r.h) testY = r.y + r.h;
-        
-        let distX = p.x - testX;
-        let distY = p.y - testY;
-        let distance = Math.sqrt((distX*distX) + (distY*distY));
-
-        if (distance <= p.radius) {
-            hitRect = r;
-            // İtme yönünü belirle (Sadece yatay itme serbest olsun, daha stabil)
-            // Eğer oyuncu bloğun solundaysa -> Sağa it
-            if (p.x < r.x + r.w/2) pushX = 2;
-            else pushX = -2;
-            break;
-        }
-    }
-
-    if (hitRect && pushX !== 0) {
-        // Bloğu itmeyi dene
-        if (!block.checkCollision(pushX, 0, obstacles)) {
-            block.x += pushX;
-        }
-    }
-}
-
-function checkBlockAbsorb() {
-    obstacles.forEach(o => {
-        let rects = o.getRects();
-        // Mermileri Yut
-        bullets = bullets.filter(b => {
-            for(let r of rects) {
-                if (b.x > r.x && b.x < r.x + r.w && b.y > r.y && b.y < r.y + r.h) return false;
-            }
-            return true;
-        });
-        // Itemları Yut
-        items = items.filter(i => {
-            for(let r of rects) {
-                if (i.x > r.x && i.x < r.x + r.w && i.y > r.y && i.y < r.y + r.h) return false;
-            }
-            return true;
-        });
-    });
-}
-
-function checkLineClears() {
-    // Satır Silme Mantığı
-    const rows = Math.floor(GAME.height / BLOCK_SIZE);
-    let rowCounts = new Array(rows).fill(0);
-    
-    // Her bloğun her hücresini say
-    obstacles.forEach(o => {
-        let rects = o.getRects();
-        for(let r of rects) {
-            let rowIdx = Math.floor((r.y + r.h/2) / BLOCK_SIZE);
-            if(rowIdx >= 0 && rowIdx < rows) rowCounts[rowIdx]++;
-        }
-    });
-
-    const blocksPerRow = Math.floor(GAME.width / BLOCK_SIZE);
-    
-    // Satır doldu mu?
-    for(let r=rows-1; r>=0; r--) {
-        if (rowCounts[r] >= blocksPerRow - 1) { // %95 doluluk yeter
-            destroyRow(r);
-        }
-    }
-}
-
-function destroyRow(rowIndex) {
-    let yMin = rowIndex * BLOCK_SIZE;
-    let yMax = (rowIndex + 1) * BLOCK_SIZE;
-    
-    // Blokları modifiye etmemiz lazım.
-    // Tetris bloğu bir bütün, bir satırı silinince bölünmesi gerekir.
-    // Basit çözüm: O satırdaki hücreleri matristen sil. Eğer matris boşalırsa bloğu sil.
-    
-    let toRemove = [];
-
-    obstacles.forEach(o => {
-        // Bloğun map'ini güncelle
-        // Bloğun Y pozisyonu ile rowIndex'i eşleştir
-        let blockRowStart = Math.round(o.y / BLOCK_SIZE);
-        
-        // Bloğun içindeki satır indexi
-        let internalRow = rowIndex - blockRowStart;
-        
-        if (internalRow >= 0 && internalRow < o.map.length) {
-            // Bu satırı 0'la
-            for(let c=0; c<o.map[internalRow].length; c++) {
-                if(o.map[internalRow][c] === 1) {
-                    o.map[internalRow][c] = 0;
-                    particles.push(new Particle(o.x + c*BLOCK_SIZE, o.y + internalRow*BLOCK_SIZE, o.color, 'BOOM!', 20));
-                }
-            }
-            // Eğer blok tamamen boşaldıysa silme listesine ekle
-            let isEmpty = true;
-            for(let r=0; r<o.map.length; r++) {
-                for(let c=0; c<o.map[r].length; c++) {
-                    if(o.map[r][c]===1) isEmpty = false;
-                }
-            }
-            if(isEmpty) toRemove.push(o);
-        }
-    });
-
-    obstacles = obstacles.filter(o => !toRemove.includes(o));
-    AudioSys.playLineClear();
-    GAME.mission.current += 10;
-}
-
 function checkCollisions() {
-    obstacles.forEach(block => { resolveBlockPush(P1, block); resolveBlockPush(P2, block); });
-
     bullets = bullets.filter(b => {
         const d1 = Math.hypot(b.x-P1.x, b.y-P1.y);
         const d2 = Math.hypot(b.x-P2.x, b.y-P2.y);
@@ -799,21 +608,20 @@ function gameLoop(timestamp) {
 
     if (GAME.state !== 'MENU') updateGame(dt);
 
+    // 1. Grid Çizimi (En altta)
     bgGrid.draw(ctx);
 
+    // 2. İp Çizimi
     const dist = Math.hypot(P1.x-P2.x, P1.y-P2.y);
     const tension = Math.min(1, dist / GAME.maxTetherDist);
     ctx.strokeStyle = `rgb(255, ${255 * (1-tension)}, ${255 * (1-tension)})`;
     ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(P1.x, P1.y); ctx.lineTo(P2.x, P2.y); ctx.stroke();
 
+    // 3. Nesneler
     items.forEach(i => i.draw(ctx));
     P1.draw(ctx); P2.draw(ctx);
     bullets.forEach(b => b.draw(ctx));
-    
-    // EN ÜSTTE TETROMINOLAR
-    obstacles.forEach(o => o.draw(ctx));
-
     particles.forEach(p => p.draw(ctx));
     
     document.getElementById('hp-blue').style.width = P1.hp + "%";
