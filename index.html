@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>SEH-kader-BUR</title>
+    <title>SEH-kader-BUR: Gelişmiş Versiyon</title>
     <style>
         body {
             margin: 0;
-            background: #050505; /* Arka planı daha koyu yaptım ki grid belli olsun */
+            background: #050505;
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
@@ -21,10 +21,11 @@
             box-shadow: 0 0 60px rgba(0, 255, 255, 0.1);
         }
         canvas {
-            background: #0a0a10; /* Canvas rengi koyu */
+            background: #0a0a10;
             display: block;
             border: 2px solid #333;
         }
+        
         /* UI Arayüz */
         #ui-layer {
             position: absolute;
@@ -33,45 +34,75 @@
             display: flex; flex-direction: column; justify-content: space-between;
             padding: 20px; box-sizing: border-box;
         }
-        .top-bar { display: flex; justify-content: space-between; width: 100%; text-shadow: 1px 1px 4px black; }
-        .hp-bar-container { width: 200px; background: #333; height: 20px; border: 2px solid white; position: relative; }
+        .top-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            width: 100%; 
+            align-items: flex-start;
+            text-shadow: 2px 2px 4px black; 
+        }
+        
+        .player-stats {
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .hp-bar-container { width: 200px; background: #333; height: 15px; border: 2px solid white; position: relative; }
         .hp-fill { height: 100%; transition: width 0.2s; }
         #hp-blue { background: cyan; width: 100%; box-shadow: 0 0 10px cyan; }
         #hp-red { background: #ff4444; width: 100%; box-shadow: 0 0 10px #ff4444; }
         
+        .score-text { font-size: 18px; font-weight: bold; margin-top: 5px; letter-spacing: 1px; }
+
+        /* Orta Puan Göstergesi */
+        #total-score-display {
+            position: absolute; top: 10px; width: 100%; text-align: center;
+            font-size: 32px; font-weight: 800; color: white;
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+            pointer-events: none;
+        }
+
         #mission-display {
-            position: absolute; top: 50px; width: 100%;
-            text-align: center; font-size: 24px; font-weight: bold;
+            position: absolute; top: 60px; width: 100%;
+            text-align: center; font-size: 20px; font-weight: bold;
             color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            background: rgba(0,0,0,0.3); padding: 5px 0;
         }
 
         /* Başlangıç Ekranı */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.9);
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             z-index: 200; cursor: pointer;
             backdrop-filter: blur(5px);
         }
-        #start-screen h1 { font-size: 50px; color: cyan; margin: 0; text-shadow: 0 0 20px cyan; }
-        #start-screen p { font-size: 20px; color: white; animation: blink 1s infinite; }
+        #start-screen h1 { font-size: 60px; color: cyan; margin: 0; text-shadow: 0 0 30px cyan; }
+        #start-screen p { font-size: 24px; color: white; animation: blink 1s infinite; margin-top: 20px; }
 
         /* Upgrade Modal */
         #upgrade-modal {
             display: none; position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95); border: 2px solid #ffd700;
-            padding: 20px; text-align: center; pointer-events: auto;
-            border-radius: 10px; z-index: 100; min-width: 400px;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            background: rgba(10, 10, 15, 0.98); border: 2px solid #ffd700;
+            padding: 30px; text-align: center; pointer-events: auto;
+            border-radius: 15px; z-index: 100; min-width: 500px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
         }
-        .upgrade-btn {
-            display: block; width: 100%; padding: 15px; margin: 10px 0;
-            background: #333; color: white; border: 1px solid #555;
-            cursor: pointer; font-size: 18px; transition: 0.2s;
+        #upgrade-modal h2 { color: #ffd700; margin-top: 0; text-shadow: 0 0 10px gold; }
+        
+        .upgrade-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 20px;
         }
-        .upgrade-btn:hover { background: #444; border-color: cyan; transform: scale(1.02); }
+        .upgrade-card {
+            background: #222; border: 1px solid #444; padding: 15px;
+            cursor: pointer; transition: 0.2s; border-radius: 8px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 120px;
+        }
+        .upgrade-card:hover { background: #333; border-color: cyan; transform: scale(1.05); box-shadow: 0 0 15px rgba(0,255,255,0.3); }
+        .upgrade-icon { font-size: 30px; margin-bottom: 10px; }
+        .upgrade-title { font-size: 14px; font-weight: bold; color: white; }
+        .upgrade-desc { font-size: 11px; color: #aaa; margin-top: 5px; }
 
         @keyframes blink { 50% { opacity: 0.5; } }
     </style>
@@ -84,43 +115,46 @@
     <div id="start-screen" onclick="startGame()">
         <h1>SEH-kader-BUR</h1>
         <p>BAŞLAMAK İÇİN TIKLA</p>
-        <div style="margin-top:20px; font-size:14px; color:#aaa;">
-            MAVİ: W,A,S,D + SHIFT | KIRMIZI: Yön Tuşları + ENTER
+        <div style="margin-top:30px; font-size:16px; color:#aaa; text-align: center; line-height: 1.6;">
+            <strong style="color:cyan">MAVİ:</strong> W,A,S,D + SHIFT (Dash)<br>
+            <strong style="color:#ff4444">KIRMIZI:</strong> Yön Tuşları + ENTER (Dash)<br>
+            <span style="font-size:14px; color: gold;">Amaç: İp kopmadan hayatta kal ve görevleri tamamla!</span>
         </div>
     </div>
 
     <div id="ui-layer">
+        <div id="total-score-display">0</div>
+        
         <div class="top-bar">
-            <div>
-                <div style="color:cyan; margin-bottom:5px;">MAVİ</div>
+            <div class="player-stats">
+                <div style="color:cyan; font-weight:bold;">MAVİ OYUNCU</div>
                 <div class="hp-bar-container"><div id="hp-blue" class="hp-fill"></div></div>
+                <div class="score-text" style="color:cyan">Puan: <span id="score-p1">0</span></div>
             </div>
-            <div>
-                <div style="text-align:right; color:#ff4444; margin-bottom:5px;">KIRMIZI</div>
+            
+            <div class="player-stats" style="align-items: flex-end;">
+                <div style="text-align:right; color:#ff4444; font-weight:bold;">KIRMIZI OYUNCU</div>
                 <div class="hp-bar-container"><div id="hp-red" class="hp-fill"></div></div>
+                <div class="score-text" style="color:#ff4444">Puan: <span id="score-p2">0</span></div>
             </div>
         </div>
     </div>
 
     <div id="mission-display">
         <div id="mission-text">ISINMA TURU</div>
-        <div id="mission-timer">15s</div>
+        <div id="mission-timer" style="font-size:16px; color:white;">15s</div>
     </div>
 
     <div id="upgrade-modal">
         <h2>GÖREV TAMAMLANDI!</h2>
-        <div id="upgrade-options"></div>
+        <p style="color:#ddd; margin-bottom:10px;">Bir ödül seç:</p>
+        <div id="upgrade-options" class="upgrade-grid"></div>
     </div>
 </div>
 
 <script>
-/**
- * TETHERED SOULS - GRID & PHYSICS EDITION
- */
-
 // --- Audio System ---
 const CUSTOM_HEART_SOUND_URL = 'https://raw.githubusercontent.com/l4Vuk/sites/main/sehburyeah.mp3'; 
-
 const heartAudio = new Audio(CUSTOM_HEART_SOUND_URL);
 heartAudio.volume = 0.5;
 
@@ -142,6 +176,7 @@ const AudioSys = {
     playShoot() { this.playTone(400 + Math.random()*200, 'square', 0.1, 0.05); },
     playHit() { this.playTone(100, 'sawtooth', 0.2, 0.1); },
     playShield() { this.playTone(800, 'sine', 0.1, 0.1); },
+    playWin() { this.playTone(600, 'triangle', 0.1, 0.1); setTimeout(()=>this.playTone(800,'triangle',0.2,0.1), 100); },
     playLoveSound() {
         heartAudio.currentTime = 0;
         heartAudio.play().catch(e => console.log(e));
@@ -155,9 +190,12 @@ const ctx = canvas.getContext('2d');
 const GAME = {
     width: 1000, height: 700,
     state: 'MENU',
-    difficulty: 1, time: 0,
+    difficulty: 1, 
+    time: 0,
     gameSpeed: 1.0,
-    maxTetherDist: 400,
+    maxTetherDist: 400, // Başlangıç ip uzunluğu
+    goldMultiplier: 1,  // Altın çarpanı
+    totalScore: 0,
     mission: { active: false, type: null, target: 0, current: 0, endTime: 0, failedDamage: false }
 };
 
@@ -165,80 +203,57 @@ const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// --- ARKA PLAN GRID SİSTEMİ (YENİ) ---
+// --- ARKA PLAN GRID SİSTEMİ ---
 class BackgroundGrid {
     constructor(width, height, cellSize) {
         this.cellSize = cellSize;
         this.cols = Math.ceil(width / cellSize);
         this.rows = Math.ceil(height / cellSize);
         this.cells = [];
-        
-        // Grid hücrelerini oluştur
         for(let i=0; i<this.cols * this.rows; i++) {
-            this.cells.push({
-                val: 0 // 0 = Sönük, 1 = Tam Parlak/Büyük
-            });
+            this.cells.push({ val: 0 });
         }
     }
 
     update(p1, p2) {
-        // 1. Tüm hücrelerin parlaklığını azalt (Decay)
         for(let i=0; i<this.cells.length; i++) {
-            this.cells[i].val *= 0.92; // Her karede %8 azalır
+            this.cells[i].val *= 0.92;
             if(this.cells[i].val < 0.01) this.cells[i].val = 0;
         }
-
-        // 2. Oyuncuların olduğu hücreleri parlat
         [p1, p2].forEach(p => {
             let cx = Math.floor(p.x / this.cellSize);
             let cy = Math.floor(p.y / this.cellSize);
-            
-            // Sınır kontrolü
             if(cx >= 0 && cx < this.cols && cy >= 0 && cy < this.rows) {
                 let index = cy * this.cols + cx;
-                this.cells[index].val = 1.5; // Parlat
-                
-                // Etrafındakileri de hafif parlat (Daha yumuşak görüntü için)
+                this.cells[index].val = 1.5;
                 let neighbors = [index-1, index+1, index-this.cols, index+this.cols];
-                neighbors.forEach(n => {
-                    if(this.cells[n]) this.cells[n].val = Math.max(this.cells[n].val, 0.5);
-                });
+                neighbors.forEach(n => { if(this.cells[n]) this.cells[n].val = Math.max(this.cells[n].val, 0.5); });
             }
         });
     }
 
     draw(ctx) {
         ctx.lineWidth = 1;
-        
         for(let y=0; y<this.rows; y++) {
             for(let x=0; x<this.cols; x++) {
                 let index = y * this.cols + x;
                 let cell = this.cells[index];
-                
                 let posX = x * this.cellSize;
                 let posY = y * this.cellSize;
 
-                // Sadece aktif olanları efektli çiz, diğerlerini sönük çiz
                 if(cell.val > 0.05) {
-                    // Animasyonlu çizim (Scale + Parlaklık)
                     let center = this.cellSize / 2;
-                    let scale = 1 - (cell.val * 0.65); // %50 büyür
-                    
+                    let scale = 1 - (cell.val * 0.65);
                     ctx.save();
                     ctx.translate(posX + center, posY + center);
                     ctx.scale(scale, scale);
-                    
                     ctx.strokeStyle = `rgba(100, 200, 255, ${cell.val * 0.6})`;
                     ctx.fillStyle = `rgba(100, 200, 255, ${cell.val * 0.1})`;
-                    
                     ctx.beginPath();
                     ctx.rect(-center, -center, this.cellSize, this.cellSize);
-                    ctx.fill();
-                    ctx.stroke();
-                    
+                    ctx.fill(); ctx.stroke();
                     ctx.restore();
                 } else {
-                    // Sabit sönük grid çizgileri
                     ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
                     ctx.strokeRect(posX, posY, this.cellSize, this.cellSize);
                 }
@@ -252,10 +267,13 @@ class Player {
     constructor(x, y, color, role) {
         this.x = x; this.y = y;
         this.color = color; this.role = role;
-        this.hp = 100; this.maxHp = 100;
+        this.hp = 100; 
+        this.maxHp = 100;
         this.baseSpeed = 300;
         this.speedMult = 1.0;
         this.dashCooldown = 0;
+        this.score = 0;
+        this.pickupRange = 25; // Başlangıç toplama alanı
     }
 
     update(dt, partner) {
@@ -281,16 +299,11 @@ class Player {
             dx /= len; dy /= len;
         }
 
-        // --- İP FİZİĞİ (GÜNCELLENMİŞ) ---
-        // Uzaklaştıkça YAVAŞLAR.
         const dist = Math.hypot(this.x - partner.x, this.y - partner.y);
-        
         let tension = dist / GAME.maxTetherDist;
         if (tension > 1) tension = 1;
 
-        // tension 0 (yakın) -> Hız 1.0
-        // tension 1 (uzak) -> Hız 0.01
-        let physicsSpeedMod = 1.0 - (tension * 1); 
+        let physicsSpeedMod = 1.0 - (tension * 0.9); 
         if (physicsSpeedMod < 0.2) physicsSpeedMod = 0.2;
 
         const finalSpeed = this.baseSpeed * this.speedMult * physicsSpeedMod;
@@ -303,9 +316,9 @@ class Player {
     }
 
     performDash(dx, dy, partner) {
-        this.dashCooldown = 15.0; 
-        this.x += dx * 100;
-        this.y += dy * 100;
+        this.dashCooldown = 5.0; // Dash süresi kısaldı
+        this.x += dx * 120;
+        this.y += dy * 120;
         
         setTimeout(() => {
             if (GAME.state === 'GAMEOVER') return;
@@ -313,22 +326,32 @@ class Player {
             partner.y = this.y;
             particles.push(new Particle(this.x, this.y, 'white', 'ÇEKİLDİ!', 20));
             AudioSys.playTone(600, 'square', 0.1);
-        }, 200);
+        }, 150);
     }
 
     draw(ctx) {
+        // Manyetik alan göstergesi (İsteğe bağlı)
+        /*
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.pickupRange, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(255,255,255,0.1)`;
+        ctx.stroke();
+        */
+
         ctx.fillStyle = this.color;
         ctx.beginPath(); ctx.arc(this.x, this.y, 15, 0, Math.PI*2); ctx.fill();
+        
+        // Dash cooldown göstergesi
         if (this.dashCooldown > 0) {
             ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 22, 0, (this.dashCooldown/15.0) * Math.PI*2);
+            ctx.arc(this.x, this.y, 22, 0, (this.dashCooldown/5.0) * Math.PI*2);
             ctx.stroke();
         }
     }
 }
 
-// --- DİĞER NESNELER ---
+// --- NESNELER ---
 class Bullet {
     constructor(x, y, target, isRed) {
         this.x = x; this.y = y; this.isRed = isRed;
@@ -347,7 +370,7 @@ class Bullet {
     draw(ctx) {
         ctx.fillStyle = this.color;
         ctx.beginPath(); ctx.arc(this.x, this.y, 6, 0, Math.PI*2); ctx.fill();
-        ctx.shadowBlur = 10; ctx.shadowColor = this.color; // Glow effect
+        ctx.shadowBlur = 10; ctx.shadowColor = this.color; 
         ctx.fill(); ctx.shadowBlur = 0;
     }
 }
@@ -355,10 +378,13 @@ class Bullet {
 class Item {
     constructor(x, y, type) {
         this.x = x; this.y = y; this.type = type;
-        this.timer = 15;
+        this.timer = 12; // Eşyalar daha hızlı kaybolsun
+        this.scale = 1;
     }
     draw(ctx) {
-        ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        // Küçük animasyon
+        this.scale = 1 + Math.sin(Date.now() * 0.01) * 0.2;
+        ctx.font = `${20 * this.scale}px Arial`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         if (this.type === 'gold') { ctx.fillStyle = "gold"; ctx.fillText("💰", this.x, this.y); }
         else {
             let c = (this.type === 'heart_blue') ? 'cyan' : (this.type === 'heart_red') ? 'red' : '#0f0';
@@ -372,7 +398,7 @@ class Particle {
         this.x = x; this.y = y; this.color = color; this.text = text;
         this.life = 1.0; this.size = size;
     }
-    update(dt) { this.y -= 30 * dt; this.life -= dt; }
+    update(dt) { this.y -= 40 * dt; this.life -= 1.5 * dt; }
     draw(ctx) {
         ctx.globalAlpha = Math.max(0, this.life);
         ctx.fillStyle = this.color; ctx.font = `bold ${this.size}px Arial`;
@@ -383,13 +409,13 @@ class Particle {
 // --- INIT & LOOP ---
 const P1 = new Player(400, 350, 'cyan', 'blue');
 const P2 = new Player(600, 350, '#ff4444', 'red');
-const bgGrid = new BackgroundGrid(GAME.width, GAME.height, 20); // 40px grid size
+const bgGrid = new BackgroundGrid(GAME.width, GAME.height, 10); 
 let bullets = [], items = [], particles = [];
 let lastTime = 0, loveModeTimer = 0;
 
 function startGame() {
     document.getElementById('start-screen').style.display = 'none';
-    AudioSys.playTone(0, 'sine', 0); // Audio context unlock
+    AudioSys.playTone(0, 'sine', 0); 
     GAME.state = 'WARMUP';
     requestAnimationFrame(gameLoop);
 }
@@ -414,12 +440,11 @@ function updateGame(dt) {
         if (loveModeTimer <= 0) GAME.gameSpeed = 1.0;
     }
 
-    // Grid Update
     bgGrid.update(P1, P2);
 
-    // Spawn Logic
+    // Zorluk ve Spawn
     if (Math.random() < (0.015 + (GAME.difficulty * 0.005)) * GAME.gameSpeed) spawnEnemy();
-    if (Math.random() < 0.005) items.push(new Item(Math.random()*GAME.width, Math.random()*GAME.height, 'gold'));
+    if (Math.random() < 0.01) items.push(new Item(Math.random()*GAME.width, Math.random()*GAME.height, 'gold'));
     if (Math.random() < 0.002) {
         const r = Math.random();
         let t = 'heart_green';
@@ -429,12 +454,14 @@ function updateGame(dt) {
 
     P1.update(dt, P2); P2.update(dt, P1);
     
-    // Snap Logic
+    // Kopma Kontrolü
     const dist = Math.hypot(P1.x - P2.x, P1.y - P2.y);
     if (dist > GAME.maxTetherDist + 10) {
         const mx = (P1.x+P2.x)/2, my = (P1.y+P2.y)/2;
         P1.x = mx-10; P1.y = my; P2.x = mx+10; P2.y = my;
-        particles.push(new Particle(mx, my, 'white', 'kader birleşti!', 15));
+        P1.hp -= 5; P2.hp -= 5; // İp koparsa can gider
+        particles.push(new Particle(mx, my, 'white', 'İP GERİLDİ! -5 CAN', 18));
+        AudioSys.playHit();
     }
 
     bullets.forEach(b => b.update(dt));
@@ -447,6 +474,7 @@ function updateGame(dt) {
 
     checkCollisions();
     updateMission(dt);
+    updateUI();
 }
 
 function checkCollisions() {
@@ -489,18 +517,24 @@ function checkCollisions() {
         const d1 = Math.hypot(i.x-P1.x, i.y-P1.y);
         const d2 = Math.hypot(i.x-P2.x, i.y-P2.y);
         let picker = null;
-        if (d1 < 20) picker = P1; else if (d2 < 20) picker = P2;
+        
+        // Dinamik Pickup Range kullanımı
+        if (d1 < P1.pickupRange) picker = P1; 
+        else if (d2 < P2.pickupRange) picker = P2;
 
         if (picker) {
             if (i.type === 'gold') {
                 GAME.mission.current++;
-                particles.push(new Particle(i.x, i.y, 'gold', '+1 ALTIN'));
+                let gain = 10 * GAME.goldMultiplier;
+                picker.score += gain;
+                GAME.totalScore += gain;
+                particles.push(new Particle(i.x, i.y, 'gold', `+${gain} PUAN`));
                 AudioSys.playShoot();
                 return false;
             } else {
                 let valid = (i.type==='heart_green') || (i.type==='heart_blue' && picker===P1) || (i.type==='heart_red' && picker===P2);
                 if (valid) {
-                    picker.hp = Math.min(picker.maxHp, picker.hp+20);
+                    picker.hp = Math.min(picker.maxHp, picker.hp+25);
                     activateLoveMode();
                     return false;
                 }
@@ -508,6 +542,14 @@ function checkCollisions() {
         }
         return true;
     });
+}
+
+function updateUI() {
+    document.getElementById('hp-blue').style.width = (P1.hp / P1.maxHp * 100) + "%";
+    document.getElementById('hp-red').style.width = (P2.hp / P2.maxHp * 100) + "%";
+    document.getElementById('score-p1').innerText = P1.score;
+    document.getElementById('score-p2').innerText = P2.score;
+    document.getElementById('total-score-display').innerText = GAME.totalScore;
 }
 
 function activateLoveMode() {
@@ -523,8 +565,8 @@ function updateMission(dt) {
     const elTimer = document.getElementById('mission-timer');
     
     if (GAME.state === 'WARMUP') {
-        if (GAME.time > 30) { GAME.state = 'PLAYING'; startNewMission(); }
-        else { elText.innerText = "ISINMA TURU"; elTimer.innerText = Math.ceil(30-GAME.time)+"s"; }
+        if (GAME.time > 10) { GAME.state = 'PLAYING'; startNewMission(); }
+        else { elText.innerText = "HAZIRLANIN!"; elTimer.innerText = Math.ceil(10-GAME.time)+"s"; }
         return;
     }
 
@@ -532,10 +574,11 @@ function updateMission(dt) {
     const timeLeft = GAME.mission.endTime - GAME.time;
     elTimer.innerText = Math.ceil(timeLeft) + "s";
     
-    if (GAME.mission.type === 'KILL_RED') elText.innerText = `MAVİ: ${GAME.mission.target - GAME.mission.current} Kırmızı Yok Et`;
-    if (GAME.mission.type === 'KILL_BLUE') elText.innerText = `KIRMIZI: ${GAME.mission.target - GAME.mission.current} Mavi Yok Et`;
-    if (GAME.mission.type === 'GOLD') elText.innerText = `TOPLAM: ${GAME.mission.target - GAME.mission.current} Altın Topla`;
-    if (GAME.mission.type === 'SURVIVE') elText.innerText = `HASAR ALMADAN HAYATTA KAL`;
+    // Görev Metinleri
+    if (GAME.mission.type === 'KILL_RED') elText.innerText = `GÖREV: ${Math.max(0, GAME.mission.target - GAME.mission.current)} Kırmızı Mermi Yok Et`;
+    if (GAME.mission.type === 'KILL_BLUE') elText.innerText = `GÖREV: ${Math.max(0, GAME.mission.target - GAME.mission.current)} Mavi Mermi Yok Et`;
+    if (GAME.mission.type === 'GOLD') elText.innerText = `GÖREV: ${Math.max(0, GAME.mission.target - GAME.mission.current)} Altın Topla`;
+    if (GAME.mission.type === 'SURVIVE') elText.innerText = `GÖREV: HASAR ALMA!`;
 
     let success = false, fail = false;
     if (timeLeft <= 0) {
@@ -546,11 +589,12 @@ function updateMission(dt) {
     if (GAME.mission.type === 'SURVIVE' && GAME.mission.failedDamage) fail = true;
 
     if (fail) {
-        P1.hp = Math.floor(P1.hp/2); P2.hp = Math.floor(P2.hp/2);
-        particles.push(new Particle(500, 350, 'red', 'BAŞARISIZ! CAN -%50', 40));
+        P1.hp = Math.floor(P1.hp * 0.7); P2.hp = Math.floor(P2.hp * 0.7);
+        particles.push(new Particle(500, 350, 'red', 'GÖREV BAŞARISIZ!', 40));
         startNewMission();
     } else if (success) {
         GAME.state = 'UPGRADE';
+        AudioSys.playWin();
         showUpgradeMenu();
     }
 }
@@ -562,36 +606,80 @@ function startNewMission() {
     const types = ['KILL_RED', 'KILL_BLUE', 'GOLD', 'SURVIVE'];
     GAME.mission.type = types[Math.floor(Math.random()*types.length)];
     
-    if (GAME.mission.type.includes('KILL')) GAME.mission.target = 3 + GAME.difficulty;
-    if (GAME.mission.type === 'GOLD') GAME.mission.target = 5 + GAME.difficulty;
+    let baseTarget = 3 + Math.floor(GAME.difficulty/2);
+    if (GAME.mission.type.includes('KILL')) GAME.mission.target = baseTarget;
+    if (GAME.mission.type === 'GOLD') GAME.mission.target = baseTarget + 2;
     
-    GAME.mission.endTime = GAME.time + 30;
+    GAME.mission.endTime = GAME.time + 20 + (GAME.difficulty * 2);
 }
 
+// --- UPGRADE SİSTEMİ (YENİLENMİŞ) ---
 function showUpgradeMenu() {
     const modal = document.getElementById('upgrade-modal');
     const container = document.getElementById('upgrade-options');
     container.innerHTML = '';
     modal.style.display = 'block';
-    
-    const opts = [
-        {t:"Mavi Hız +%20", f:()=>{P1.speedMult+=0.2}},
-        {t:"Kırmızı Hız +%20", f:()=>{P2.speedMult+=0.2}},
-        {t:"Tam İyileşme", f:()=>{P1.hp=100; P2.hp=100;}},
-        {t:"İp Uzunluğu +50", f:()=>{GAME.maxTetherDist+=50;}}
+
+    // Tüm olası geliştirmeler
+    const upgradePool = [
+        {
+            icon: "⚡", title: "Mavi Motoru", desc: "Mavi Hızı +%15 artar",
+            func: () => { P1.speedMult += 0.15; }
+        },
+        {
+            icon: "🔥", title: "Kızıl İtki", desc: "Kırmızı Hızı +%15 artar",
+            func: () => { P2.speedMult += 0.15; }
+        },
+        {
+            icon: "🛡️", title: "Mavi Zırh", desc: "Mavi Max Can +30",
+            func: () => { P1.maxHp += 30; P1.hp += 30; }
+        },
+        {
+            icon: "🩸", title: "Kızıl Zırh", desc: "Kırmızı Max Can +30",
+            func: () => { P2.maxHp += 30; P2.hp += 30; }
+        },
+        {
+            icon: "🧲", title: "Mıknatıs", desc: "Ödül Toplama Alanı Genişler",
+            func: () => { P1.pickupRange += 15; P2.pickupRange += 15; }
+        },
+        {
+            icon: "🧵", title: "Halat Uzmanlığı", desc: "İp kopma mesafesi +60px",
+            func: () => { GAME.maxTetherDist += 20; }
+        },
+        {
+            icon: "💎", title: "Servet", desc: "Altın Puan Değeri Artar (x2)",
+            func: () => { GAME.goldMultiplier++; }
+        },
+        {
+            icon: "💊", title: "Tam İyileşme", desc: "İki oyuncu da fullenir",
+            func: () => { P1.hp = P1.maxHp; P2.hp = P2.maxHp; }
+        }
     ];
 
-    for(let i=0; i<3; i++) {
-        const o = opts[Math.floor(Math.random()*opts.length)];
-        const btn = document.createElement('button');
-        btn.className = 'upgrade-btn'; btn.innerText = o.t;
-        btn.onclick = () => {
-            o.f(); modal.style.display = 'none';
-            GAME.state = 'PLAYING'; GAME.difficulty++;
+    // Rastgele 3 tane seç
+    let choices = [];
+    while(choices.length < 3) {
+        let r = upgradePool[Math.floor(Math.random() * upgradePool.length)];
+        if(!choices.includes(r)) choices.push(r);
+    }
+
+    choices.forEach(opt => {
+        const div = document.createElement('div');
+        div.className = 'upgrade-card';
+        div.innerHTML = `
+            <div class="upgrade-icon">${opt.icon}</div>
+            <div class="upgrade-title">${opt.title}</div>
+            <div class="upgrade-desc">${opt.desc}</div>
+        `;
+        div.onclick = () => {
+            opt.func();
+            modal.style.display = 'none';
+            GAME.state = 'PLAYING';
+            GAME.difficulty++;
             startNewMission();
         };
-        container.appendChild(btn);
-    }
+        container.appendChild(div);
+    });
 }
 
 function gameLoop(timestamp) {
@@ -601,35 +689,37 @@ function gameLoop(timestamp) {
 
     ctx.clearRect(0,0,GAME.width, GAME.height);
 
-    if (P1.hp <= 0 && P2.hp <= 0) {
-        ctx.fillStyle = 'red'; ctx.font = "60px Arial"; ctx.fillText("OYUN BİTTİ", 350, 350);
+    if (P1.hp <= 0 || P2.hp <= 0) { // Herhangi biri ölürse oyun biter
+        ctx.fillStyle = 'red'; ctx.font = "60px Arial"; ctx.textAlign = "center";
+        ctx.fillText("OYUN BİTTİ", GAME.width/2, GAME.height/2);
+        ctx.font = "30px Arial"; ctx.fillStyle = "white";
+        ctx.fillText("Toplam Puan: " + GAME.totalScore, GAME.width/2, GAME.height/2 + 50);
+        ctx.font = "20px Arial"; ctx.fillStyle = "#aaa";
+        ctx.fillText("Yeniden başlamak için F5'e bas", GAME.width/2, GAME.height/2 + 90);
         return;
     }
 
     if (GAME.state !== 'MENU') updateGame(dt);
 
-    // 1. Grid Çizimi (En altta)
+    // Çizim Sırası
     bgGrid.draw(ctx);
 
-    // 2. İp Çizimi
+    // İp
     const dist = Math.hypot(P1.x-P2.x, P1.y-P2.y);
     const tension = Math.min(1, dist / GAME.maxTetherDist);
+    // İp rengi gerildikçe kırmızıya döner
     ctx.strokeStyle = `rgb(255, ${255 * (1-tension)}, ${255 * (1-tension)})`;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 5.1 - (tension * 5); // Gerilince incelmesi yerine kalınlaşıp titremesi daha iyi efekt verir mi?
+    // Basit çizgi:
     ctx.beginPath(); ctx.moveTo(P1.x, P1.y); ctx.lineTo(P2.x, P2.y); ctx.stroke();
 
-    // 3. Nesneler
     items.forEach(i => i.draw(ctx));
     P1.draw(ctx); P2.draw(ctx);
     bullets.forEach(b => b.draw(ctx));
     particles.forEach(p => p.draw(ctx));
-    
-    document.getElementById('hp-blue').style.width = P1.hp + "%";
-    document.getElementById('hp-red').style.width = P2.hp + "%";
 
     requestAnimationFrame(gameLoop);
 }
-
 </script>
 </body>
 </html>
