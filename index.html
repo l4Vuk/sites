@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SEH-KADER-BUR </title>
+    <title>Tethered Souls - Physics Tetris</title>
     <style>
         body {
             margin: 0;
-            background: #111;
+            background: #050505;
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
@@ -14,105 +14,58 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            user-select: none;
         }
         #gameContainer {
             position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            box-shadow: 0 0 60px rgba(100, 0, 255, 0.2);
         }
         canvas {
-            background: #1a1a20;
+            background: #0a0a10;
             display: block;
             border: 2px solid #333;
         }
-        /* UI Overlays */
         #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
-            box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 20px; box-sizing: border-box;
+            z-index: 500;
         }
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            text-shadow: 1px 1px 4px black;
-        }
-        .hp-bar-container {
-            width: 200px;
-            background: #333;
-            height: 20px;
-            border: 2px solid white;
-            position: relative;
-        }
-        .hp-fill {
-            height: 100%;
-            transition: width 0.2s;
-        }
-        #hp-blue { background: cyan; width: 100%; }
-        #hp-red { background: #ff4444; width: 100%; }
+        .top-bar { display: flex; justify-content: space-between; width: 100%; text-shadow: 1px 1px 4px black; }
+        .hp-bar-container { width: 200px; background: #333; height: 20px; border: 2px solid white; position: relative; }
+        .hp-fill { height: 100%; transition: width 0.2s; }
+        #hp-blue { background: cyan; width: 100%; box-shadow: 0 0 10px cyan; }
+        #hp-red { background: #ff4444; width: 100%; box-shadow: 0 0 10px #ff4444; }
         
         #mission-display {
-            position: absolute;
-            top: 50px;
-            width: 100%;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #ffd700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            position: absolute; top: 50px; width: 100%;
+            text-align: center; font-size: 24px; font-weight: bold;
+            color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
-        #mission-timer {
-            font-size: 18px;
-            color: white;
+        #start-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 600; cursor: pointer;
+            backdrop-filter: blur(5px);
         }
-
-        /* Modal for Upgrades */
+        #start-screen h1 { font-size: 50px; color: cyan; margin: 0; text-shadow: 0 0 20px cyan; }
         #upgrade-modal {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
+            display: none; position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
-            border: 2px solid #ffd700;
-            padding: 20px;
-            text-align: center;
-            pointer-events: auto;
-            border-radius: 10px;
-            z-index: 100;
-            min-width: 400px;
+            background: rgba(0, 0, 0, 0.95); border: 2px solid #ffd700;
+            padding: 20px; text-align: center; pointer-events: auto;
+            border-radius: 10px; z-index: 600; min-width: 400px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
         }
-        #upgrade-modal h2 { margin-top: 0; color: #ffd700; }
         .upgrade-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: #333;
-            color: white;
-            border: 1px solid #555;
-            cursor: pointer;
-            font-size: 18px;
-            transition: 0.2s;
+            display: block; width: 100%; padding: 15px; margin: 10px 0;
+            background: #333; color: white; border: 1px solid #555;
+            cursor: pointer; font-size: 18px; transition: 0.2s;
         }
-        .upgrade-btn:hover {
-            background: #444;
-            border-color: cyan;
-        }
-
-        /* Dash Cooldown Indicators */
-        .dash-indicator {
-            position: absolute;
-            font-size: 12px;
-            font-weight: bold;
-        }
+        .upgrade-btn:hover { background: #444; border-color: cyan; transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -120,14 +73,24 @@
 <div id="gameContainer">
     <canvas id="gameCanvas" width="1000" height="700"></canvas>
     
+    <div id="start-screen" onclick="startGame()">
+        <h1>PHYSICS TETRIS</h1>
+        <p>BAŞLAMAK İÇİN TIKLA</p>
+        <div style="margin-top:20px; font-size:14px; color:#aaa;">
+            MAVİ: W,A,S,D + SHIFT | KIRMIZI: Yön Tuşları + ENTER
+            <br><br>
+            ŞEKİLLERİ İT, SIKIŞTIR VE SATIRLARI YOK ET!
+        </div>
+    </div>
+
     <div id="ui-layer">
         <div class="top-bar">
             <div>
-                <div style="color:cyan; margin-bottom:5px;">SEHO (WASD + Shift)</div>
+                <div style="color:cyan; margin-bottom:5px;">MAVİ</div>
                 <div class="hp-bar-container"><div id="hp-blue" class="hp-fill"></div></div>
             </div>
             <div>
-                <div style="text-align:right; color:#ff4444; margin-bottom:5px;">BURAK (Oklar + Enter)</div>
+                <div style="text-align:right; color:#ff4444; margin-bottom:5px;">KIRMIZI</div>
                 <div class="hp-bar-container"><div id="hp-red" class="hp-fill"></div></div>
             </div>
         </div>
@@ -140,23 +103,15 @@
 
     <div id="upgrade-modal">
         <h2>GÖREV TAMAMLANDI!</h2>
-        <p>YÜKSELTME SEÇ:</p>
         <div id="upgrade-options"></div>
     </div>
 </div>
 
 <script>
-/**
- * TETHERED SOULS
- * A Co-op Physics Survival Game
- */
-
-// --- Audio System (Updated) ---
-// BURAYA KOPYALADIĞIN GITHUB RAW LINKINI YAPIŞTIR
+// --- Audio System ---
 const CUSTOM_HEART_SOUND_URL = 'https://raw.githubusercontent.com/l4Vuk/sites/main/sehburyeah.mp3'; 
-
 const heartAudio = new Audio(CUSTOM_HEART_SOUND_URL);
-heartAudio.volume = 0.5; // Ses seviyesi (0.0 ile 1.0 arası)
+heartAudio.volume = 0.5;
 
 const AudioSys = {
     ctx: new (window.AudioContext || window.webkitAudioContext)(),
@@ -176,412 +131,618 @@ const AudioSys = {
     playShoot() { this.playTone(400 + Math.random()*200, 'square', 0.1, 0.05); },
     playHit() { this.playTone(100, 'sawtooth', 0.2, 0.1); },
     playShield() { this.playTone(800, 'sine', 0.1, 0.1); },
-    playCoin() { this.playTone(1200, 'sine', 0.1, 0.05); this.playTone(1800, 'sine', 0.1, 0.05); },
-    
-    // Eski melodi yerine MP3 çalacak fonksiyon
+    playLineClear() { 
+        this.playTone(400, 'sine', 0.1, 0.2);
+        setTimeout(()=>this.playTone(600, 'sine', 0.1, 0.2), 100);
+        setTimeout(()=>this.playTone(800, 'square', 0.2, 0.2), 200);
+    },
     playLoveSound() {
-        // Eğer ses zaten çalıyorsa başa sarıp tekrar çalar
         heartAudio.currentTime = 0;
-        heartAudio.play().catch(e => console.log("Ses çalma hatası (Tarayıcı izni gerekebilir):", e));
+        heartAudio.play().catch(e => console.log(e));
     }
 };
 
-// --- Game Constants & State ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const GAME = {
-    width: 1000,
-    height: 700,
-    state: 'WARMUP', // WARMUP, PLAYING, UPGRADE, GAMEOVER
-    difficulty: 1,
-    time: 0,
-    gameSpeed: 1.0, // For slow motion
-    maxTetherDist: 350,
-    gold: 0,
-    mission: {
-        active: false,
-        type: null, // 'KILL_RED', 'KILL_BLUE', 'GOLD', 'SURVIVE'
-        target: 0,
-        current: 0,
-        endTime: 0,
-        failedDamage: false
-    }
+    width: 1000, height: 700,
+    state: 'MENU',
+    difficulty: 1, time: 0,
+    gameSpeed: 1.0,
+    maxTetherDist: 400,
+    mission: { active: false, type: null, target: 0, current: 0, endTime: 0, failedDamage: false }
 };
 
-// --- Inputs ---
 const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
-// --- Entities ---
+// --- TETROMINO SHAPES ---
+const SHAPES = {
+    I: { color: '#00f0f0', map: [[1,1,1,1]] },
+    J: { color: '#0000f0', map: [[1,0,0],[1,1,1]] },
+    L: { color: '#f0a000', map: [[0,0,1],[1,1,1]] },
+    O: { color: '#f0f000', map: [[1,1],[1,1]] },
+    S: { color: '#00f000', map: [[0,1,1],[1,1,0]] },
+    T: { color: '#a000f0', map: [[0,1,0],[1,1,1]] },
+    Z: { color: '#f00000', map: [[1,1,0],[0,1,1]] }
+};
+const BLOCK_SIZE = 50;
+
+// --- TETROMINO CLASS ---
+class Tetromino {
+    constructor() {
+        const keys = Object.keys(SHAPES);
+        const type = keys[Math.floor(Math.random() * keys.length)];
+        this.def = SHAPES[type];
+        this.map = this.def.map;
+        this.color = this.def.color;
+        
+        // Grid'e hizalı başla
+        this.x = Math.floor(Math.random() * (GAME.width / BLOCK_SIZE - this.map[0].length)) * BLOCK_SIZE;
+        this.y = -BLOCK_SIZE * 3;
+        this.vy = 2 + (Math.random() * 1);
+        this.grounded = false;
+        
+        // Physics properties
+        this.mass = 10;
+    }
+
+    // Bloğun dolu olan hücrelerinin dünya üzerindeki koordinatlarını (Rect olarak) döndürür
+    getRects(offsetX = 0, offsetY = 0) {
+        let rects = [];
+        for(let r=0; r<this.map.length; r++) {
+            for(let c=0; c<this.map[r].length; c++) {
+                if(this.map[r][c] === 1) {
+                    rects.push({
+                        x: this.x + (c * BLOCK_SIZE) + offsetX,
+                        y: this.y + (r * BLOCK_SIZE) + offsetY,
+                        w: BLOCK_SIZE,
+                        h: BLOCK_SIZE
+                    });
+                }
+            }
+        }
+        return rects;
+    }
+
+    update(dt, allBlocks) {
+        if (this.grounded) return;
+
+        // Yerçekimi hareketi (Basit Collision Check)
+        let nextY = this.y + (this.vy * 60 * dt * GAME.gameSpeed);
+        
+        if (!this.checkCollision(0, nextY - this.y, allBlocks)) {
+            this.y = nextY;
+        } else {
+            // Çarpışma var, aşağı inemiyoruz -> Grounded
+            // Grid'e hizala (Snap)
+            this.y = Math.floor(this.y / 10) * 10; // Hafif snap
+            this.grounded = true;
+        }
+
+        // Zemin kontrolü (Ekstra güvenlik)
+        let rects = this.getRects();
+        for(let r of rects) {
+            if (r.y + r.h >= GAME.height) {
+                this.y -= (r.y + r.h - GAME.height);
+                this.grounded = true;
+            }
+        }
+    }
+
+    // Gelecekteki bir pozisyonda çarpışma var mı?
+    checkCollision(dx, dy, allBlocks) {
+        let myRects = this.getRects(dx, dy);
+        
+        // 1. Zemin ve Duvar Kontrolü
+        for(let r of myRects) {
+            if (r.y + r.h > GAME.height) return true; // Zemin
+            if (r.x < 0) return true; // Sol Duvar
+            if (r.x + r.w > GAME.width) return true; // Sağ Duvar
+        }
+
+        // 2. Diğer Bloklarla Kontrol
+        for(let other of allBlocks) {
+            if (other === this) continue;
+            let otherRects = other.getRects();
+            
+            for(let myR of myRects) {
+                for(let otherR of otherRects) {
+                    // AABB Çarpışma
+                    if (myR.x < otherR.x + otherR.w &&
+                        myR.x + myR.w > otherR.x &&
+                        myR.y < otherR.y + otherR.h &&
+                        myR.y + myR.h > otherR.y) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    draw(ctx) {
+        ctx.fillStyle = this.color; // Renkli
+        ctx.strokeStyle = 'white'; // Dış çizgi
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+
+        let rects = this.getRects();
+        for(let r of rects) {
+            ctx.fillRect(r.x, r.y, r.w, r.h);
+            ctx.strokeRect(r.x, r.y, r.w, r.h);
+        }
+        ctx.shadowBlur = 0;
+    }
+}
+
+// ... Player, BackgroundGrid, vb. sınıfları burada ...
+class BackgroundGrid {
+    constructor(width, height, cellSize) {
+        this.cellSize = cellSize;
+        this.cols = Math.ceil(width / cellSize);
+        this.rows = Math.ceil(height / cellSize);
+        this.cells = [];
+        for(let i=0; i<this.cols * this.rows; i++) { this.cells.push({ val: 0 }); }
+    }
+    update(p1, p2) {
+        for(let i=0; i<this.cells.length; i++) {
+            this.cells[i].val *= 0.92;
+            if(this.cells[i].val < 0.01) this.cells[i].val = 0;
+        }
+        [p1, p2].forEach(p => {
+            let cx = Math.floor(p.x / this.cellSize);
+            let cy = Math.floor(p.y / this.cellSize);
+            if(cx >= 0 && cx < this.cols && cy >= 0 && cy < this.rows) {
+                let index = cy * this.cols + cx;
+                this.cells[index].val = 1.0;
+                [index-1, index+1, index-this.cols, index+this.cols].forEach(n => {
+                    if(this.cells[n]) this.cells[n].val = Math.max(this.cells[n].val, 0.5);
+                });
+            }
+        });
+    }
+    draw(ctx) {
+        ctx.lineWidth = 1;
+        for(let y=0; y<this.rows; y++) {
+            for(let x=0; x<this.cols; x++) {
+                let index = y * this.cols + x;
+                let cell = this.cells[index];
+                if(cell.val > 0.05) {
+                    let posX = x * this.cellSize, posY = y * this.cellSize, center = this.cellSize / 2;
+                    let scale = 1 - (cell.val * 0.95);
+                    ctx.save(); ctx.translate(posX + center, posY + center); ctx.scale(scale, scale);
+                    ctx.strokeStyle = `rgba(100, 200, 255, ${cell.val * 0.6})`;
+                    ctx.fillStyle = `rgba(100, 200, 255, ${cell.val * 0.1})`;
+                    ctx.beginPath(); ctx.rect(-center, -center, this.cellSize, this.cellSize);
+                    ctx.fill(); ctx.stroke(); ctx.restore();
+                } else {
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+                    ctx.strokeRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+                }
+            }
+        }
+    }
+}
+
 class Player {
     constructor(x, y, color, role) {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.role = role; // 'blue' or 'red'
-        this.hp = 100;
-        this.maxHp = 100;
-        this.vx = 0;
-        this.vy = 0;
+        this.x = x; this.y = y;
+        this.color = color; this.role = role;
+        this.hp = 100; this.maxHp = 100;
+        this.baseSpeed = 300;
         this.speedMult = 1.0;
         this.dashCooldown = 0;
-        this.dashTimer = 0;
+        this.radius = 15;
     }
 
     update(dt, partner) {
         if (this.dashCooldown > 0) this.dashCooldown -= dt;
 
-        // Controls
-        let dx = 0; 
-        let dy = 0;
-        
+        let dx = 0, dy = 0;
         if (this.role === 'blue') {
             if (keys['KeyW']) dy = -1;
             if (keys['KeyS']) dy = 1;
             if (keys['KeyA']) dx = -1;
             if (keys['KeyD']) dx = 1;
-            // Dash Input
-            if (keys['ShiftLeft'] && this.dashCooldown <= 0 && (dx!==0 || dy!==0)) {
-                this.performDash(dx, dy, partner);
-            }
+            if (keys['ShiftLeft'] && this.dashCooldown <= 0 && (dx||dy)) this.performDash(dx, dy, partner);
         } else {
             if (keys['ArrowUp']) dy = -1;
             if (keys['ArrowDown']) dy = 1;
             if (keys['ArrowLeft']) dx = -1;
             if (keys['ArrowRight']) dx = 1;
-            // Dash Input
-            if (keys['Enter'] && this.dashCooldown <= 0 && (dx!==0 || dy!==0)) {
-                this.performDash(dx, dy, partner);
-            }
+            if (keys['Enter'] && this.dashCooldown <= 0 && (dx||dy)) this.performDash(dx, dy, partner);
         }
 
-        // Normalization
         if (dx !== 0 || dy !== 0) {
             const len = Math.sqrt(dx*dx + dy*dy);
             dx /= len; dy /= len;
         }
 
-        // TENSION PHYSICS
         const dist = Math.hypot(this.x - partner.x, this.y - partner.y);
-        
-        // Inverse Tension: Closer = Faster
-        // Map distance 0->Max to Speed 2.0->0.5
-        let tensionMod = 1.0 + (1.0 - (dist / GAME.maxTetherDist)); 
-        if(tensionMod < 0.5) tensionMod = 0.5;
+        let tension = dist / GAME.maxTetherDist;
+        if (tension > 1) tension = 1;
 
-        // Base Speed
-        const speed = 250 * this.speedMult * tensionMod; 
+        let physicsSpeedMod = 1.0 - (tension * 0.95); 
+        if (physicsSpeedMod < 0.05) physicsSpeedMod = 0.05;
 
-        this.x += dx * speed * dt * GAME.gameSpeed;
-        this.y += dy * speed * dt * GAME.gameSpeed;
+        const finalSpeed = this.baseSpeed * this.speedMult * physicsSpeedMod;
 
-        // Bound Clamping
+        this.x += dx * finalSpeed * dt * GAME.gameSpeed;
+        this.y += dy * finalSpeed * dt * GAME.gameSpeed;
+
         this.x = Math.max(15, Math.min(GAME.width-15, this.x));
         this.y = Math.max(15, Math.min(GAME.height-15, this.y));
     }
 
     performDash(dx, dy, partner) {
-        this.dashCooldown = 8.0; // 8 seconds
-        
-        // 1. Lunge Forward
-        this.x += dx * 80;
-        this.y += dy * 80;
-        
-        // 2. Create Tension Particle
-        particles.push(new Particle(this.x, this.y, this.color, 'KAÇIŞ'));
-        AudioSys.playTone(200, 'sawtooth', 0.1);
-
-        // 3. Pull Partner (Snap) after delay
+        this.dashCooldown = 15.0; 
+        this.x += dx * 100;
+        this.y += dy * 100;
         setTimeout(() => {
-            // Check if game is still running
             if (GAME.state === 'GAMEOVER') return;
-            
-            // Snap logic
-            partner.x = this.x;
-            partner.y = this.y;
-            
-            particles.push(new Particle(this.x, this.y, 'white', 'Finger SNAP!', 20));
+            partner.x = this.x; partner.y = this.y;
+            particles.push(new Particle(this.x, this.y, 'white', 'ÇEKİLDİ!', 20));
             AudioSys.playTone(600, 'square', 0.1);
         }, 200);
     }
 
     draw(ctx) {
         ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 15, 0, Math.PI*2);
-        ctx.fill();
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Dash CD Ring
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill();
         if (this.dashCooldown > 0) {
-            ctx.strokeStyle = `rgba(255,255,255,0.5)`;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, 20, 0, (this.dashCooldown/8.0) * Math.PI*2);
-            ctx.stroke();
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(this.x, this.y, 22, 0, (this.dashCooldown/15.0) * Math.PI*2); ctx.stroke();
         }
     }
 }
 
 class Bullet {
     constructor(x, y, target, isRed) {
-        this.x = x;
-        this.y = y;
-        this.isRed = isRed; // true = red bullet, false = blue bullet
+        this.x = x; this.y = y; this.isRed = isRed;
         this.color = isRed ? '#ff4444' : 'cyan';
-        this.radius = 6;
-        
         const angle = Math.atan2(target.y - y, target.x - x);
-        const speed = 100 + (GAME.difficulty * 10);
+        const speed = 150 + (GAME.difficulty * 15);
         this.vx = Math.cos(angle) * speed;
         this.vy = Math.sin(angle) * speed;
-        this.life = 10; // seconds
+        this.life = 10;
     }
-
-    update(dt) {
-        this.x += this.vx * dt * GAME.gameSpeed;
-        this.y += this.vy * dt * GAME.gameSpeed;
-        this.life -= dt;
-    }
-
+    update(dt) { this.x += this.vx * dt * GAME.gameSpeed; this.y += this.vy * dt * GAME.gameSpeed; this.life -= dt; }
     draw(ctx) {
         ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(this.x, this.y, 6, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 10; ctx.shadowColor = this.color; ctx.fill(); ctx.shadowBlur = 0;
     }
 }
 
 class Item {
-    constructor(x, y, type) {
-        this.x = x;
-        this.y = y;
-        this.type = type; // 'gold', 'heart_blue', 'heart_red', 'heart_green'
-        this.timer = 15;
-    }
+    constructor(x, y, type) { this.x = x; this.y = y; this.type = type; this.timer = 15; }
     draw(ctx) {
-        ctx.font = "20px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        if (this.type === 'gold') {
-            ctx.fillStyle = "gold";
-            ctx.fillText("💰", this.x, this.y);
-        } else {
+        ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        if (this.type === 'gold') { ctx.fillStyle = "gold"; ctx.fillText("💰", this.x, this.y); }
+        else {
             let c = (this.type === 'heart_blue') ? 'cyan' : (this.type === 'heart_red') ? 'red' : '#0f0';
-            ctx.fillStyle = c;
-            ctx.fillText("♥", this.x, this.y);
+            ctx.fillStyle = c; ctx.fillText("♥", this.x, this.y);
         }
     }
 }
 
 class Particle {
-    constructor(x, y, color, text, size=14) {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.text = text;
-        this.life = 1.0;
-        this.size = size;
-    }
-    update(dt) {
-        this.y -= 20 * dt;
-        this.life -= dt;
-    }
+    constructor(x, y, color, text, size=14) { this.x = x; this.y = y; this.color = color; this.text = text; this.life = 1.0; this.size = size; }
+    update(dt) { this.y -= 30 * dt; this.life -= dt; }
     draw(ctx) {
         ctx.globalAlpha = Math.max(0, this.life);
-        ctx.fillStyle = this.color;
-        ctx.font = `bold ${this.size}px Arial`;
-        ctx.fillText(this.text, this.x, this.y);
-        ctx.globalAlpha = 1.0;
+        ctx.fillStyle = this.color; ctx.font = `bold ${this.size}px Arial`;
+        ctx.fillText(this.text, this.x, this.y); ctx.globalAlpha = 1.0;
     }
 }
 
-// --- Globals ---
+// --- INIT & LOOP ---
 const P1 = new Player(400, 350, 'cyan', 'blue');
 const P2 = new Player(600, 350, '#ff4444', 'red');
-let bullets = [];
-let items = [];
-let particles = [];
-let lastTime = 0;
-let loveModeTimer = 0;
-let missionIntervalTimer = 0;
+const bgGrid = new BackgroundGrid(GAME.width, GAME.height, BLOCK_SIZE);
+let bullets = [], items = [], particles = [], obstacles = [];
+let lastTime = 0, loveModeTimer = 0;
 
-// --- Core Logic ---
+function startGame() {
+    document.getElementById('start-screen').style.display = 'none';
+    AudioSys.playTone(0, 'sine', 0);
+    GAME.state = 'WARMUP';
+    requestAnimationFrame(gameLoop);
+}
 
 function spawnEnemy() {
-    // Spawn edges
     const side = Math.floor(Math.random() * 4);
     let x, y;
-    if (side === 0) { x = Math.random()*GAME.width; y = -20; }
-    if (side === 1) { x = Math.random()*GAME.width; y = GAME.height+20; }
-    if (side === 2) { x = -20; y = Math.random()*GAME.height; }
-    if (side === 3) { x = GAME.width+20; y = Math.random()*GAME.height; }
-
+    if (side===0) {x=Math.random()*GAME.width; y=-20;}
+    if (side===1) {x=Math.random()*GAME.width; y=GAME.height+20;}
+    if (side===2) {x=-20; y=Math.random()*GAME.height;}
+    if (side===3) {x=GAME.width+20; y=Math.random()*GAME.height;}
     const isRed = Math.random() > 0.5;
-    // Red bullets chase red player, Blue chase blue (harder)
-    // Or random? Prompt says "chasing players". 
-    // Let's make Red Bullet chase Red Player (needs Blue to shield) and vice versa.
-    const target = isRed ? P2 : P1; 
+    bullets.push(new Bullet(x, y, isRed ? P2 : P1, isRed));
+}
+
+function updateGame(dt) {
+    if (GAME.state === 'UPGRADE') return;
     
-    bullets.push(new Bullet(x, y, target, isRed));
+    GAME.time += dt;
+    if (loveModeTimer > 0) { loveModeTimer -= dt; if (loveModeTimer <= 0) GAME.gameSpeed = 1.0; }
+
+    bgGrid.update(P1, P2);
+
+    if (Math.random() < (0.015 + (GAME.difficulty * 0.005)) * GAME.gameSpeed) spawnEnemy();
+    if (Math.random() < 0.005) items.push(new Item(Math.random()*GAME.width, Math.random()*GAME.height, 'gold'));
+    
+    // SPAWN TETROMINO
+    if (Math.random() < 0.003 + (GAME.difficulty * 0.0005)) { obstacles.push(new Tetromino()); }
+
+    if (Math.random() < 0.002) {
+        const r = Math.random();
+        let t = 'heart_green';
+        if (r < 0.33) t = 'heart_blue'; else if (r < 0.66) t = 'heart_red';
+        items.push(new Item(Math.random()*GAME.width, Math.random()*GAME.height, t));
+    }
+
+    P1.update(dt, P2); P2.update(dt, P1);
+    
+    const dist = Math.hypot(P1.x - P2.x, P1.y - P2.y);
+    if (dist > GAME.maxTetherDist + 10) {
+        const mx = (P1.x+P2.x)/2, my = (P1.y+P2.y)/2;
+        P1.x = mx-10; P1.y = my; P2.x = mx+10; P2.y = my;
+        particles.push(new Particle(mx, my, 'white', 'KOPMA!', 25));
+    }
+
+    bullets.forEach(b => b.update(dt));
+    items.forEach(i => i.timer -= dt);
+    
+    // Tetromino Update
+    obstacles.forEach(o => o.update(dt, obstacles));
+    
+    particles.forEach(p => p.update(dt));
+    
+    bullets = bullets.filter(b => b.life > 0 && b.x > -50 && b.x < GAME.width+50);
+    items = items.filter(i => i.timer > 0);
+    particles = particles.filter(p => p.life > 0);
+
+    checkBlockAbsorb();
+    checkLineClears();
+    checkCollisions();
+    updateMission(dt);
+}
+
+// YENİ İTME FİZİĞİ
+function resolveBlockPush(p, block) {
+    // 1. Oyuncu bloğun içinde mi veya çok yakınında mı?
+    // Bloğun her bir karesi (sub-rect) ile oyuncuyu kontrol et
+    let rects = block.getRects();
+    let hitRect = null;
+    let pushX = 0;
+    
+    for (let r of rects) {
+        // AABB vs Circle
+        let testX = p.x;
+        let testY = p.y;
+        if (p.x < r.x) testX = r.x;
+        else if (p.x > r.x + r.w) testX = r.x + r.w;
+        if (p.y < r.y) testY = r.y;
+        else if (p.y > r.y + r.h) testY = r.y + r.h;
+        
+        let distX = p.x - testX;
+        let distY = p.y - testY;
+        let distance = Math.sqrt((distX*distX) + (distY*distY));
+
+        if (distance <= p.radius) {
+            hitRect = r;
+            // İtme yönünü belirle (Sadece yatay itme serbest olsun, daha stabil)
+            // Eğer oyuncu bloğun solundaysa -> Sağa it
+            if (p.x < r.x + r.w/2) pushX = 2;
+            else pushX = -2;
+            break;
+        }
+    }
+
+    if (hitRect && pushX !== 0) {
+        // Bloğu itmeyi dene
+        if (!block.checkCollision(pushX, 0, obstacles)) {
+            block.x += pushX;
+        }
+    }
+}
+
+function checkBlockAbsorb() {
+    obstacles.forEach(o => {
+        let rects = o.getRects();
+        // Mermileri Yut
+        bullets = bullets.filter(b => {
+            for(let r of rects) {
+                if (b.x > r.x && b.x < r.x + r.w && b.y > r.y && b.y < r.y + r.h) return false;
+            }
+            return true;
+        });
+        // Itemları Yut
+        items = items.filter(i => {
+            for(let r of rects) {
+                if (i.x > r.x && i.x < r.x + r.w && i.y > r.y && i.y < r.y + r.h) return false;
+            }
+            return true;
+        });
+    });
+}
+
+function checkLineClears() {
+    // Satır Silme Mantığı
+    const rows = Math.floor(GAME.height / BLOCK_SIZE);
+    let rowCounts = new Array(rows).fill(0);
+    
+    // Her bloğun her hücresini say
+    obstacles.forEach(o => {
+        let rects = o.getRects();
+        for(let r of rects) {
+            let rowIdx = Math.floor((r.y + r.h/2) / BLOCK_SIZE);
+            if(rowIdx >= 0 && rowIdx < rows) rowCounts[rowIdx]++;
+        }
+    });
+
+    const blocksPerRow = Math.floor(GAME.width / BLOCK_SIZE);
+    
+    // Satır doldu mu?
+    for(let r=rows-1; r>=0; r--) {
+        if (rowCounts[r] >= blocksPerRow - 1) { // %95 doluluk yeter
+            destroyRow(r);
+        }
+    }
+}
+
+function destroyRow(rowIndex) {
+    let yMin = rowIndex * BLOCK_SIZE;
+    let yMax = (rowIndex + 1) * BLOCK_SIZE;
+    
+    // Blokları modifiye etmemiz lazım.
+    // Tetris bloğu bir bütün, bir satırı silinince bölünmesi gerekir.
+    // Basit çözüm: O satırdaki hücreleri matristen sil. Eğer matris boşalırsa bloğu sil.
+    
+    let toRemove = [];
+
+    obstacles.forEach(o => {
+        // Bloğun map'ini güncelle
+        // Bloğun Y pozisyonu ile rowIndex'i eşleştir
+        let blockRowStart = Math.round(o.y / BLOCK_SIZE);
+        
+        // Bloğun içindeki satır indexi
+        let internalRow = rowIndex - blockRowStart;
+        
+        if (internalRow >= 0 && internalRow < o.map.length) {
+            // Bu satırı 0'la
+            for(let c=0; c<o.map[internalRow].length; c++) {
+                if(o.map[internalRow][c] === 1) {
+                    o.map[internalRow][c] = 0;
+                    particles.push(new Particle(o.x + c*BLOCK_SIZE, o.y + internalRow*BLOCK_SIZE, o.color, 'BOOM!', 20));
+                }
+            }
+            // Eğer blok tamamen boşaldıysa silme listesine ekle
+            let isEmpty = true;
+            for(let r=0; r<o.map.length; r++) {
+                for(let c=0; c<o.map[r].length; c++) {
+                    if(o.map[r][c]===1) isEmpty = false;
+                }
+            }
+            if(isEmpty) toRemove.push(o);
+        }
+    });
+
+    obstacles = obstacles.filter(o => !toRemove.includes(o));
+    AudioSys.playLineClear();
+    GAME.mission.current += 10;
 }
 
 function checkCollisions() {
-    // Bullets
-    for (let i = bullets.length - 1; i >= 0; i--) {
-        const b = bullets[i];
+    obstacles.forEach(block => { resolveBlockPush(P1, block); resolveBlockPush(P2, block); });
+
+    bullets = bullets.filter(b => {
+        const d1 = Math.hypot(b.x-P1.x, b.y-P1.y);
+        const d2 = Math.hypot(b.x-P2.x, b.y-P2.y);
         
-        // Hit Blue
-        const distBlue = Math.hypot(b.x - P1.x, b.y - P1.y);
-        if (distBlue < 21) {
-            if (b.isRed) {
-                // Red Bullet hits Blue -> SHIELDED
-                bullets.splice(i, 1);
-                particles.push(new Particle(P1.x, P1.y, 'cyan', 'engellendi'));
+        if (d1 < 21) {
+            if (b.isRed) { 
+                particles.push(new Particle(P1.x, P1.y, 'cyan', 'BLOK!'));
                 AudioSys.playShield();
-                if (GAME.mission.active && GAME.mission.type === 'KILL_RED') {
-                    GAME.mission.current++;
-                }
+                if(GAME.mission.active && GAME.mission.type === 'KILL_RED') GAME.mission.current++;
+                return false;
             } else {
-                // Blue Bullet hits Blue -> OUCH
                 P1.hp -= 10;
-                bullets.splice(i, 1);
-                particles.push(new Particle(P1.x, P1.y, 'red', '-10 can'));
+                particles.push(new Particle(P1.x, P1.y, 'red', '-10 CAN'));
                 AudioSys.playHit();
                 GAME.mission.failedDamage = true;
+                return false;
             }
-            continue;
         }
-
-        // Hit Red
-        const distRed = Math.hypot(b.x - P2.x, b.y - P2.y);
-        if (distRed < 21) {
+        if (d2 < 21) {
             if (!b.isRed) {
-                // Blue Bullet hits Red -> SHIELDED
-                bullets.splice(i, 1);
-                particles.push(new Particle(P2.x, P2.y, '#ff4444', 'engellendi'));
+                particles.push(new Particle(P2.x, P2.y, '#ff4444', 'BLOK!'));
                 AudioSys.playShield();
-                if (GAME.mission.active && GAME.mission.type === 'KILL_BLUE') {
-                    GAME.mission.current++;
-                }
+                if(GAME.mission.active && GAME.mission.type === 'KILL_BLUE') GAME.mission.current++;
+                return false;
             } else {
-                // Red Bullet hits Red -> OUCH
                 P2.hp -= 10;
-                bullets.splice(i, 1);
-                particles.push(new Particle(P2.x, P2.y, 'red', '-10 Can'));
+                particles.push(new Particle(P2.x, P2.y, 'red', '-10 CAN'));
                 AudioSys.playHit();
                 GAME.mission.failedDamage = true;
+                return false;
             }
-            continue;
         }
-    }
+        return true;
+    });
 
-    // Items
-    for (let i = items.length - 1; i >= 0; i--) {
-        const item = items[i];
-        const dist1 = Math.hypot(item.x - P1.x, item.y - P1.y);
-        const dist2 = Math.hypot(item.x - P2.x, item.y - P2.y);
-        let picked = false;
+    items = items.filter(i => {
+        const d1 = Math.hypot(i.x-P1.x, i.y-P1.y);
+        const d2 = Math.hypot(i.x-P2.x, i.y-P2.y);
         let picker = null;
+        if (d1 < 20) picker = P1; else if (d2 < 20) picker = P2;
 
-        if (dist1 < 20) { picker = P1; picked = true; }
-        else if (dist2 < 20) { picker = P2; picked = true; }
-
-        if (picked) {
-            if (item.type === 'gold') {
-                GAME.gold++;
-                particles.push(new Particle(item.x, item.y, 'gold', '+1 PARA'));
-                if(GAME.mission.active && GAME.mission.type === 'GOLD') GAME.mission.current++;
-                AudioSys.playCoin();
-                items.splice(i, 1);
+        if (picker) {
+            if (i.type === 'gold') {
+                GAME.mission.current++;
+                particles.push(new Particle(i.x, i.y, 'gold', '+1 ALTIN'));
+                AudioSys.playShoot();
+                return false;
             } else {
-                // Hearts
-                let valid = false;
-                if (item.type === 'heart_green') valid = true;
-                if (item.type === 'heart_blue' && picker === P1) valid = true;
-                if (item.type === 'heart_red' && picker === P2) valid = true;
-
+                let valid = (i.type==='heart_green') || (i.type==='heart_blue' && picker===P1) || (i.type==='heart_red' && picker===P2);
                 if (valid) {
-                    picker.hp = Math.min(100, picker.hp + 25);
+                    picker.hp = Math.min(picker.maxHp, picker.hp+20);
                     activateLoveMode();
-                    items.splice(i, 1);
+                    return false;
                 }
             }
         }
-    }
+        return true;
+    });
 }
 
-// ---activateLoveMode Fonksiyonunu Bul ve Güncelle---
 function activateLoveMode() {
-    loveModeTimer = 2.0; // 2 saniye yavaşlar
-    GAME.gameSpeed = 0.3; // Slow motion
-    bullets = []; // Mermileri temizle
+    loveModeTimer = 2.0;
+    GAME.gameSpeed = 0.3;
+    bullets = [];
     particles.push(new Particle(500, 350, 'pink', '♥ SEHBURYEAH! ♥', 30));
-    
-    // BURAYI DEĞİŞTİRDİK: Artık MP3 çalıyor
-    AudioSys.playLoveSound(); 
+    AudioSys.playLoveSound();
 }
 
 function updateMission(dt) {
     const elText = document.getElementById('mission-text');
     const elTimer = document.getElementById('mission-timer');
-
-    if (!GAME.mission.active) {
-        // Wait for next mission
-        if (GAME.state === 'WARMUP' && GAME.time > 30) {
-            GAME.state = 'PLAYING';
-            startNewMission();
-        } else if (GAME.state === 'WARMUP') {
-            elText.innerHTML = "ISINMA TURU";
-            elTimer.innerHTML = Math.ceil(30 - GAME.time) + "s";
-        }
+    
+    if (GAME.state === 'WARMUP') {
+        if (GAME.time > 30) { GAME.state = 'PLAYING'; startNewMission(); }
+        else { elText.innerText = "ISINMA TURU"; elTimer.innerText = Math.ceil(30-GAME.time)+"s"; }
         return;
     }
 
+    if (!GAME.mission.active) return;
     const timeLeft = GAME.mission.endTime - GAME.time;
+    elTimer.innerText = Math.ceil(timeLeft) + "s";
     
-    // UI Update
-    let objStr = "";
-    if (GAME.mission.type === 'KILL_RED') objStr = `BLUE: Destroy ${GAME.mission.target - GAME.mission.current} Red Bullets`;
-    if (GAME.mission.type === 'KILL_BLUE') objStr = `RED: Destroy ${GAME.mission.target - GAME.mission.current} Blue Bullets`;
-    if (GAME.mission.type === 'GOLD') objStr = `TEAM: Collect ${GAME.mission.target - GAME.mission.current} Gold`;
-    if (GAME.mission.type === 'SURVIVE') objStr = `SURVIVE NO DAMAGE: ${Math.ceil(timeLeft)}s`;
+    if (GAME.mission.type === 'KILL_RED') elText.innerText = `MAVİ: ${GAME.mission.target - GAME.mission.current} Kırmızı Yok Et`;
+    if (GAME.mission.type === 'KILL_BLUE') elText.innerText = `KIRMIZI: ${GAME.mission.target - GAME.mission.current} Mavi Yok Et`;
+    if (GAME.mission.type === 'GOLD') elText.innerText = `TOPLAM: ${GAME.mission.target - GAME.mission.current} Altın Topla`;
+    if (GAME.mission.type === 'SURVIVE') elText.innerText = `HASAR ALMADAN HAYATTA KAL`;
 
-    elText.innerHTML = objStr;
-    elTimer.innerHTML = Math.ceil(timeLeft) + "s";
-
-    // Check Logic
-    let success = false;
-    let fail = false;
-
-    // Check Timeout Failure
+    let success = false, fail = false;
     if (timeLeft <= 0) {
-        if (GAME.mission.type === 'SURVIVE') {
-            if (!GAME.mission.failedDamage) success = true;
-            else fail = true;
-        } else {
-            fail = true;
-        }
+        if (GAME.mission.type === 'SURVIVE' && !GAME.mission.failedDamage) success = true;
+        else fail = true;
     }
-
-    // Check Objective Success
-    if (GAME.mission.type === 'KILL_RED' && GAME.mission.current >= GAME.mission.target) success = true;
-    if (GAME.mission.type === 'KILL_BLUE' && GAME.mission.current >= GAME.mission.target) success = true;
-    if (GAME.mission.type === 'GOLD' && GAME.mission.current >= GAME.mission.target) success = true;
+    if (GAME.mission.type !== 'SURVIVE' && GAME.mission.current >= GAME.mission.target) success = true;
     if (GAME.mission.type === 'SURVIVE' && GAME.mission.failedDamage) fail = true;
 
     if (fail) {
-        // Punishment
-        P1.hp = Math.floor(P1.hp / 2);
-        P2.hp = Math.floor(P2.hp / 2);
-        particles.push(new Particle(500, 350, 'red', 'MISSION FAILED: HP HALVED', 40));
-        startNewMission(); // Retry/Next immediately
+        P1.hp = Math.floor(P1.hp/2); P2.hp = Math.floor(P2.hp/2);
+        particles.push(new Particle(500, 350, 'red', 'BAŞARISIZ! CAN -%50', 40));
+        startNewMission();
     } else if (success) {
-        // Reward
-        openUpgradeMenu();
+        GAME.state = 'UPGRADE';
+        showUpgradeMenu();
     }
 }
 
@@ -589,163 +750,78 @@ function startNewMission() {
     GAME.mission.active = true;
     GAME.mission.failedDamage = false;
     GAME.mission.current = 0;
-    
     const types = ['KILL_RED', 'KILL_BLUE', 'GOLD', 'SURVIVE'];
-    const type = types[Math.floor(Math.random() * types.length)];
-    GAME.mission.type = type;
-
-    const baseTime = 30; // Seconds
-
-    if (type === 'KILL_RED') GAME.mission.target = 3 + GAME.difficulty;
-    if (type === 'KILL_BLUE') GAME.mission.target = 3 + GAME.difficulty;
-    if (type === 'GOLD') GAME.mission.target = 5 + Math.floor(GAME.difficulty/2);
-    if (type === 'SURVIVE') GAME.mission.target = 0; // Just time
-
-    GAME.mission.endTime = GAME.time + (type === 'SURVIVE' ? 20 : 30);
+    GAME.mission.type = types[Math.floor(Math.random()*types.length)];
+    
+    if (GAME.mission.type.includes('KILL')) GAME.mission.target = 3 + GAME.difficulty;
+    if (GAME.mission.type === 'GOLD') GAME.mission.target = 5 + GAME.difficulty;
+    
+    GAME.mission.endTime = GAME.time + 30;
 }
 
-function openUpgradeMenu() {
-    GAME.state = 'UPGRADE';
-    GAME.difficulty++; // Increase difficulty
-    
+function showUpgradeMenu() {
     const modal = document.getElementById('upgrade-modal');
     const container = document.getElementById('upgrade-options');
     container.innerHTML = '';
+    modal.style.display = 'block';
     
-    // Pool
-    const pool = [
-        { txt: "Seho HIz +20%", apply: () => P1.speedMult += 0.2 },
-        { txt: "Burak HIZ +20%", apply: () => P2.speedMult += 0.2 },
-        { txt: "Seho Azami Can +20", apply: () => { P1.maxHp+=20; P1.hp+=20; } },
-        { txt: "Burak Azami Can +20", apply: () => { P2.maxHp+=20; P2.hp+=20; } },
-        { txt: "İyileş", apply: () => { P1.hp = Math.min(P1.maxHp, P1.hp+50); P2.hp = Math.min(P2.maxHp, P2.hp+50); } },
-        { txt: "Tension Mastery (Faster Max Stretch)", apply: () => { GAME.maxTetherDist += 50; } }
+    const opts = [
+        {t:"Mavi Hız +%20", f:()=>{P1.speedMult+=0.2}},
+        {t:"Kırmızı Hız +%20", f:()=>{P2.speedMult+=0.2}},
+        {t:"Tam İyileşme", f:()=>{P1.hp=100; P2.hp=100;}},
+        {t:"İp Uzunluğu +50", f:()=>{GAME.maxTetherDist+=50;}}
     ];
 
-    // Pick 3 random
     for(let i=0; i<3; i++) {
-        const u = pool[Math.floor(Math.random()*pool.length)];
+        const o = opts[Math.floor(Math.random()*opts.length)];
         const btn = document.createElement('button');
-        btn.className = 'upgrade-btn';
-        btn.innerText = u.txt;
+        btn.className = 'upgrade-btn'; btn.innerText = o.t;
         btn.onclick = () => {
-            u.apply();
-            modal.style.display = 'none';
-            GAME.state = 'PLAYING';
-            lastTime = performance.now(); // Reset delta
+            o.f(); modal.style.display = 'none';
+            GAME.state = 'PLAYING'; GAME.difficulty++;
             startNewMission();
         };
         container.appendChild(btn);
     }
-    
-    modal.style.display = 'block';
 }
-
-function checkTetherSnap() {
-    const dist = Math.hypot(P1.x - P2.x, P1.y - P2.y);
-    if (dist > GAME.maxTetherDist) {
-        // Snap to midpoint
-        const midX = (P1.x + P2.x) / 2;
-        const midY = (P1.y + P2.y) / 2;
-        P1.x = midX - 20; P1.y = midY;
-        P2.x = midX + 20; P2.y = midY;
-        
-        particles.push(new Particle(midX, midY, 'white', 'Kader Birleşti', 25));
-        AudioSys.playTone(150, 'square', 0.2);
-    }
-}
-
-// --- Main Loop ---
 
 function gameLoop(timestamp) {
     if (!lastTime) lastTime = timestamp;
     const dt = (timestamp - lastTime) / 1000;
     lastTime = timestamp;
 
-    if (GAME.state === 'UPGRADE') {
-        requestAnimationFrame(gameLoop);
+    ctx.clearRect(0,0,GAME.width, GAME.height);
+
+    if (P1.hp <= 0 && P2.hp <= 0) {
+        ctx.fillStyle = 'red'; ctx.font = "60px Arial"; ctx.fillText("OYUN BİTTİ", 350, 350);
         return;
     }
 
-    if (GAME.state === 'GAMEOVER') {
-        ctx.fillStyle = 'rgba(0,0,0,0.1)';
-        ctx.fillRect(0,0,GAME.width, GAME.height);
-        ctx.fillStyle = 'red';
-        ctx.font = '60px Arial';
-        ctx.fillText("OYUN BİTTİ", 350, 350);
-        return;
-    }
+    if (GAME.state !== 'MENU') updateGame(dt);
 
-    // Logic
-    GAME.time += dt;
+    bgGrid.draw(ctx);
 
-    // Love Mode Timer
-    if (loveModeTimer > 0) {
-        loveModeTimer -= dt;
-        if (loveModeTimer <= 0) GAME.gameSpeed = 1.0;
-    }
-
-    // Spawning
-    if (Math.random() < (0.02 + (GAME.difficulty * 0.005)) * GAME.gameSpeed) {
-        spawnEnemy();
-    }
-    // Items
-    if (Math.random() < 0.005) {
-        items.push(new Item(Math.random()*GAME.width, Math.random()*GAME.height, 'gold'));
-    }
-    if (Math.random() < 0.002) {
-        const t = Math.random();
-        let type = 'heart_green';
-        if (t < 0.33) type = 'heart_blue';
-        else if (t < 0.66) type = 'heart_red';
-        items.push(new Item(Math.random()*GAME.width, Math.random()*GAME.height, type));
-    }
-
-    // Update Entities
-    P1.update(dt, P2);
-    P2.update(dt, P1);
-    checkTetherSnap();
-
-    bullets.forEach(b => b.update(dt));
-    particles.forEach(p => p.update(dt));
-    
-    // Cleanup
-    bullets = bullets.filter(b => b.life > 0 && b.x > -50 && b.x < GAME.width+50 && b.y > -50 && b.y < GAME.height+50);
-    particles = particles.filter(p => p.life > 0);
-    items.forEach(i => i.timer -= dt);
-    
-    checkCollisions();
-    updateMission(dt);
-
-    if (P1.hp <= 0 && P2.hp <= 0) GAME.state = 'GAMEOVER';
-
-    // --- Draw ---
-    ctx.clearRect(0, 0, GAME.width, GAME.height);
-
-    // Tether
-    ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 + (1.0 - (Math.hypot(P1.x-P2.x, P1.y-P2.y)/GAME.maxTetherDist))})`;
+    const dist = Math.hypot(P1.x-P2.x, P1.y-P2.y);
+    const tension = Math.min(1, dist / GAME.maxTetherDist);
+    ctx.strokeStyle = `rgb(255, ${255 * (1-tension)}, ${255 * (1-tension)})`;
     ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(P1.x, P1.y);
-    ctx.bezierCurveTo((P1.x+P2.x)/2, (P1.y+P2.y)/2 + 50, (P1.x+P2.x)/2, (P1.y+P2.y)/2 - 50, P2.x, P2.y);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(P1.x, P1.y); ctx.lineTo(P2.x, P2.y); ctx.stroke();
 
     items.forEach(i => i.draw(ctx));
-    P1.draw(ctx);
-    P2.draw(ctx);
+    P1.draw(ctx); P2.draw(ctx);
     bullets.forEach(b => b.draw(ctx));
-    particles.forEach(p => p.draw(ctx));
+    
+    // EN ÜSTTE TETROMINOLAR
+    obstacles.forEach(o => o.draw(ctx));
 
-    // Update HP UI
-    document.getElementById('hp-blue').style.width = (P1.hp/P1.maxHp)*100 + "%";
-    document.getElementById('hp-red').style.width = (P2.hp/P2.maxHp)*100 + "%";
+    particles.forEach(p => p.draw(ctx));
+    
+    document.getElementById('hp-blue').style.width = P1.hp + "%";
+    document.getElementById('hp-red').style.width = P2.hp + "%";
 
     requestAnimationFrame(gameLoop);
 }
 
-requestAnimationFrame(gameLoop);
-
 </script>
 </body>
 </html>
-
